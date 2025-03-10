@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'clockchat',
+    'CLOCK_CHAT',
 ]
 
 MIDDLEWARE = [
@@ -97,7 +97,8 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'social_network.User'
+AUTH_USER_MODEL = 'clock_chat.User'  # Change to lowercase if needed
+
 
 LOGIN_URL = '/request-otp/'
 
