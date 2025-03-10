@@ -5,6 +5,7 @@
 => git clone https://github.com/Pythonproject18/Clock-Chat.git
 
 # for enter into folder:
+
 => cd Clock-Chat
 
 # create a virtual environment :
@@ -29,7 +30,7 @@
 
         =>pip install psycopg2 binary
 
-    # redo :  
+    # redo :
 
     => python manage.py makemigrations CLOCK_CHAT
 
@@ -38,5 +39,3 @@
 # open runserver:
 
 => python manage.py runserver
-
-
