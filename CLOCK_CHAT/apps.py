@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CchatConfig(AppConfig):
+class ClockChatConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'cchat'
+    name = 'CLOCK_CHAT'
