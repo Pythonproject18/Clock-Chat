@@ -97,7 +97,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'clock_chat.User'  # Change to lowercase if needed
+AUTH_USER_MODEL = 'CLOCK_CHAT.User'  # Change to lowercase if needed
 
 
 LOGIN_URL = '/request-otp/'
