@@ -80,7 +80,13 @@
             <input type="text" id="otp" placeholder="Enter OTP" required>
             <button type="button" onclick="verifyOTP()">Verify OTP</button>
         </div>
+        <!-- Add this loader to your HTML (Initially Hidden) -->
+        <div id="loading" style="display: none; top: 46%;left: 46%;position: fixed;">
+            <p>Sending OTP... <span class="spinner"></span></p>
+        </div>
     </div>
+
+               
 
     <script>
         function getCSRFToken() {
@@ -89,12 +95,15 @@
     
         async function sendOTP(purpose) {
             let email = document.getElementById("email").value;
+            let loader = document.getElementById("loading"); // Get the loader element
+    
             if (!email) {
                 console.log("Error: Please enter your email.");
                 return;
             }
     
-            console.log("Sending OTP to:", email, "Purpose:", purpose); // Debug Log
+            console.log("Sending OTP to:", email, "Purpose:", purpose);
+            loader.style.display = "block"; // Show the loader
     
             try {
                 let response = await fetch("/api/login/send_otp/", {
@@ -107,7 +116,7 @@
                 });
     
                 let result = await response.json();
-                console.log("Response received:", result); // Debug Log
+                console.log("Response received:", result);
     
                 if (response.ok) {
                     console.log("OTP sent successfully.");
@@ -117,21 +126,25 @@
                     console.log("Error:", result.message);
                 }
             } catch (error) {
-                console.error("Error:", error); // Debug Log
+                console.error("Error:", error);
+            } finally {
+                loader.style.display = "none"; // Hide the loader after request completes
             }
         }
-    
+
         async function verifyOTP() {
             let email = document.getElementById("email").value;
             let otp = document.getElementById("otp").value;
-    
+            let loader = document.getElementById("loading"); // Get the loader element
+        
             if (!otp) {
                 console.log("Error: Please enter the OTP.");
                 return;
             }
-    
+        
             console.log("Verifying OTP for:", email, "OTP:", otp); // Debug Log
-    
+            loader.style.display = "block"; // Show the loader before making the request
+        
             try {
                 let response = await fetch("/api/verify-otp-login/", {
                     method: "POST",
@@ -141,21 +154,46 @@
                     },
                     body: new URLSearchParams({ email: email, otp: otp })
                 });
-    
+        
                 let result = await response.json();
                 console.log("Response received:", result); // Debug Log
-    
+        
                 if (response.ok) {
                     console.log("OTP verification successful. Redirecting...");
-                    setTimeout(() => { window.location.href = "/"; }, 2000);
+        
+                    // Keep the loader visible during redirection
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 2000);
+                    
                 } else {
                     console.log("Error:", result.message);
+                    loader.style.display = "none"; // Hide loader only if verification fails
                 }
             } catch (error) {
                 console.error("Error:", error); // Debug Log
+                loader.style.display = "none"; // Hide loader on error
             }
         }
+        
     </script>
+
+    <style>
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+    
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
     
 </body>
 </html>

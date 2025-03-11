@@ -73,8 +73,8 @@ class SignUpView(View):
             return JsonResponse({"status": "error", "message": "OTP verification required"}, status=400)
 
         # Create user
-        auth_service.create_user(first_name, middle_name, last_name, email)
-
+        otp=auth_service.create_user(first_name, middle_name, last_name, email)
+        print(otp)
         # Clean up OTP from cache
         cache.delete(email)
 
@@ -101,6 +101,7 @@ class SendOTPView(View):
             return JsonResponse({"status": "error", "message": "Email not found."})
 
         otp = auth_service.generate_otp(email)
+        print(otp)
         logger.debug(f"OTP {otp} sent to {email}")  # Log OTP for debugging
 
         return JsonResponse({"status": "success", "message": "OTP sent successfully."})

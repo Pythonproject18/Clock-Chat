@@ -61,6 +61,20 @@
         .hidden {
             display: none;
         }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+    
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -74,7 +88,10 @@
             <input type="email" id="email" placeholder="Enter your email" required>
             <button type="button" onclick="sendOTP()">Send OTP</button>
         </div>
-
+        <!-- Add this loader to your HTML (Initially Hidden) -->
+        <div id="loading" style="display: none; top: 46%;left: 46%;position: fixed;">
+            <p>Sending OTP... <span class="spinner"></span></p>
+        </div>
         <!-- OTP Verification Section (Initially Hidden) -->
         <div id="otpSection" class="hidden">
             <input type="text" id="otp" placeholder="Enter OTP" required>
@@ -98,12 +115,15 @@
     
         async function sendOTP() {
             let email = document.getElementById("email").value;
+            let loader = document.getElementById("loading"); // Get the loader element
+
             if (!email) {
                 console.log("Error: Please enter your email.");
                 return;
             }
     
             console.log("Sending OTP to:", email);
+            loader.style.display = "block"; // Show the loader
     
             try {
                 let response = await fetch("/api/send-otp/", {
@@ -128,11 +148,15 @@
             } catch (error) {
                 console.error("Error:", error);
             }
+            finally {
+                loader.style.display = "none"; // Hide the loader after request completes
+            }
         }
     
         async function verifyOTP() {
             let email = document.getElementById("email").value;
             let otp = document.getElementById("otp").value;
+            let loader = document.getElementById("loading"); // Get the loader element
     
             if (!otp) {
                 console.log("Error: Please enter the OTP.");
@@ -172,14 +196,17 @@
             let first_name = document.getElementById("first_name").value;
             let middle_name = document.getElementById("middle_name").value;
             let last_name = document.getElementById("last_name").value;
-    
+            let loader = document.getElementById("loading"); // Get the loader element
+        
             if (!first_name || !last_name) {
                 console.log("Error: First name and Last name are required.");
                 return;
             }
-    
+        
             console.log("Submitting signup form for:", email);
-    
+            
+            loader.style.display = "block"; // Show the loader
+        
             try {
                 let response = await fetch("/api/signup/", {
                     method: "POST",
@@ -194,20 +221,28 @@
                         last_name: last_name 
                     })
                 });
-    
+        
                 let result = await response.json();
                 console.log("Response received:", result);
-    
+        
                 if (response.ok) {
                     console.log("Signup successful. Redirecting...");
-                    window.location.href = "/api/verify-otp-login/";
+                    loader.style.display = "block"; // Keep the loader visible during redirection
+        
+                    // Delay the redirection to ensure the user sees the loader
+                    setTimeout(() => {
+                        window.location.href = "/api/verify-otp-login/";
+                    }, 1000);
                 } else {
                     console.log("Error:", result.message || "Signup failed.");
+                    loader.style.display = "none"; // Hide the loader if signup fails
                 }
             } catch (error) {
                 console.error("Error:", error);
+                loader.style.display = "none"; // Hide the loader in case of an error
             }
         }
+        
     </script>
 
 </body>
