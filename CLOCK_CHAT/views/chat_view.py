@@ -4,7 +4,7 @@ class ChatSearchView(View):
     def get(self,request):
         return
     
-class ChatCreateView:
+class ChatCreateView(View):
     def get(self,request):
         return
     

@@ -112,3 +112,13 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keeps session open after browser clos
 # post media path
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  # For Gmail
+EMAIL_PORT = 587  # Use 465 for SSL
+EMAIL_USE_TLS = True  # Use True if using port 587, False for 465
+EMAIL_USE_SSL = False  # Use True only if using port 465
+EMAIL_HOST_USER = env('EMAIL_ID')  # Replace with your email
+EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')  # Use App Password, NOT your actual password
+DEFAULT_FROM_EMAIL = env('EMAIL_ID')
