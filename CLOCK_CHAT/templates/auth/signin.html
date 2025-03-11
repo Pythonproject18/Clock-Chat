@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clock-Chat Sign Up</title>
+    <title>Clock-Chat Login</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -66,7 +66,7 @@
 <body>
 
     <div class="container">
-        <h2>Sign Up</h2>
+        <h2>Sigin</h2>
         <meta name="csrf-token" content="{{ csrf_token }}">
 
         <!-- Email Input Section -->
@@ -80,15 +80,6 @@
             <input type="text" id="otp" placeholder="Enter OTP" required>
             <button type="button" onclick="verifyOTP()">Verify OTP</button>
         </div>
-
-        <!-- Name Input Section (Initially Hidden) -->
-        <div id="nameSection" class="hidden">
-            <input type="text" id="first_name" placeholder="First Name" required>
-            <input type="text" id="middle_name" placeholder="Middle Name (Optional)">
-            <input type="text" id="last_name" placeholder="Last Name" required>
-            <button type="button" onclick="submitForm()">Submit</button>
-        </div>
-        <a href='/api/verify-otp-login/'>Already have an account</a>
     </div>
 
     <script>
@@ -96,37 +87,37 @@
             return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
     
-        async function sendOTP() {
+        async function sendOTP(purpose) {
             let email = document.getElementById("email").value;
             if (!email) {
                 console.log("Error: Please enter your email.");
                 return;
             }
     
-            console.log("Sending OTP to:", email);
+            console.log("Sending OTP to:", email, "Purpose:", purpose); // Debug Log
     
             try {
-                let response = await fetch("/api/send-otp/", {
+                let response = await fetch("/api/login/send_otp/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded",
                         "X-CSRFToken": getCSRFToken()
                     },
-                    body: new URLSearchParams({ email: email })
+                    body: new URLSearchParams({ email: email, purpose: purpose })
                 });
     
                 let result = await response.json();
-                console.log("Response received:", result);
+                console.log("Response received:", result); // Debug Log
     
                 if (response.ok) {
                     console.log("OTP sent successfully.");
                     document.getElementById("otpSection").classList.remove("hidden");
                     document.getElementById("emailSection").classList.add("hidden");
                 } else {
-                    console.log("Error:", result.message || "Failed to send OTP.");
+                    console.log("Error:", result.message);
                 }
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Error:", error); // Debug Log
             }
         }
     
@@ -139,10 +130,10 @@
                 return;
             }
     
-            console.log("Verifying OTP for:", email, "OTP:", otp);
+            console.log("Verifying OTP for:", email, "OTP:", otp); // Debug Log
     
             try {
-                let response = await fetch("/api/verify-otp/", {
+                let response = await fetch("/api/verify-otp-login/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded",
@@ -152,63 +143,19 @@
                 });
     
                 let result = await response.json();
-                console.log("Response received:", result);
+                console.log("Response received:", result); // Debug Log
     
                 if (response.ok) {
-                    console.log("OTP verification successful.");
-                    document.getElementById("otpSection").classList.add("hidden");
-                    document.getElementById("emailSection").classList.add("hidden");
-                    document.getElementById("nameSection").classList.remove("hidden");
+                    console.log("OTP verification successful. Redirecting...");
+                    setTimeout(() => { window.location.href = "/"; }, 2000);
                 } else {
-                    console.log("Error:", result.message || "Invalid OTP.");
+                    console.log("Error:", result.message);
                 }
             } catch (error) {
-                console.error("Error:", error);
-            }
-        }
-    
-        async function submitForm() {
-            let email = document.getElementById("email").value;
-            let first_name = document.getElementById("first_name").value;
-            let middle_name = document.getElementById("middle_name").value;
-            let last_name = document.getElementById("last_name").value;
-    
-            if (!first_name || !last_name) {
-                console.log("Error: First name and Last name are required.");
-                return;
-            }
-    
-            console.log("Submitting signup form for:", email);
-    
-            try {
-                let response = await fetch("/api/signup/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        "X-CSRFToken": getCSRFToken()
-                    },
-                    body: new URLSearchParams({ 
-                        email: email, 
-                        first_name: first_name, 
-                        middle_name: middle_name, 
-                        last_name: last_name 
-                    })
-                });
-    
-                let result = await response.json();
-                console.log("Response received:", result);
-    
-                if (response.ok) {
-                    console.log("Signup successful. Redirecting...");
-                    window.location.href = "/api/verify-otp-login/";
-                } else {
-                    console.log("Error:", result.message || "Signup failed.");
-                }
-            } catch (error) {
-                console.error("Error:", error);
+                console.error("Error:", error); // Debug Log
             }
         }
     </script>
-
+    
 </body>
 </html>

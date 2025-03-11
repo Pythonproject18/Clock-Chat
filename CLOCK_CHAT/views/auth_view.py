@@ -2,14 +2,14 @@ from django.views import View
 import random
 import time
 from django.http import JsonResponse
-from django.core.mail import send_mail
-from django.conf import settings
 from django.shortcuts import render
 from django.core.cache import cache  # ✅ Using Django cache instead of memory storage
 from ..models import User
 from ..services import auth_service
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+import logging
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class OtpSendView(View):
@@ -27,13 +27,7 @@ class OtpSendView(View):
 
         print(f"Your OTP for {email} is: {otp}")
 
-        send_mail(
-            subject="Your OTP Code",
-            message=f"Your OTP is: {otp}",
-            from_email=settings.DEFAULT_FROM_EMAIL,  
-            recipient_list=[email],
-            fail_silently=False,
-        )
+        auth_service.generate_otp(email)
 
         return JsonResponse({"status": "success", "message": f"OTP sent to {email}"}, status=200)
 
@@ -85,3 +79,48 @@ class SignUpView(View):
         cache.delete(email)
 
         return JsonResponse({"status": "success", "message": "User registered successfully", "redirect": "/sign-in/"})
+
+
+
+logger = logging.getLogger(__name__)
+class SendOTPView(View):
+    def post(self, request):
+        email = request.POST.get("email")
+        purpose = request.POST.get("purpose")
+        
+        logger.debug(f"OTP Request Received - Email: {email}, Purpose: {purpose}")
+
+        user_exists = User.objects.filter(email=email).exists()
+
+        if purpose == "signup" and user_exists:
+            logger.warning(f"Signup attempt with existing email: {email}")
+            return JsonResponse({"status": "error", "message": "Email already registered."})
+        
+        if purpose == "login" and not user_exists:
+            logger.warning(f"Login attempt with non-existent email: {email}")
+            return JsonResponse({"status": "error", "message": "Email not found."})
+
+        otp = auth_service.generate_otp(email)
+        logger.debug(f"OTP {otp} sent to {email}")  # Log OTP for debugging
+
+        return JsonResponse({"status": "success", "message": "OTP sent successfully."})
+    
+
+
+class VerifyOTPLoginView(View):
+    def get(self,request):
+        return render(request,'auth/signin.html')
+    def post(self, request):
+        email = request.POST.get("email")
+        otp_entered = request.POST.get("otp")
+
+        otp_stored = cache.get(f"otp_{email}")
+
+        if not otp_stored or str(otp_entered) != str(otp_stored):
+            return JsonResponse({"status": "error", "message": "Invalid or expired OTP."})
+
+        # OTP is valid, create session
+        request.session["email"] = email
+        cache.delete(f"otp_{email}")  # Clear OTP after successful login
+
+        return JsonResponse({"status": "success", "redirect": "/"})
