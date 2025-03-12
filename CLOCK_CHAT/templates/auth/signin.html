@@ -84,6 +84,7 @@
         <div id="loading" style="display: none; top: 46%;left: 46%;position: fixed;">
             <p>Sending OTP... <span class="spinner"></span></p>
         </div>
+        <a href="/api/signup/">Create Account</a>
     </div>
 
                
@@ -93,7 +94,8 @@
             return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
     
-        async function sendOTP(purpose) {
+        async function sendOTP() {
+            let purpose = "login";
             let email = document.getElementById("email").value;
             let loader = document.getElementById("loading"); // Get the loader element
     
@@ -106,7 +108,7 @@
             loader.style.display = "block"; // Show the loader
     
             try {
-                let response = await fetch("/api/login/send_otp/", {
+                let response = await fetch("/api/send-otp/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded",
@@ -165,6 +167,7 @@
                     setTimeout(() => {
                         window.location.href = "/";
                     }, 2000);
+                    loader.style.display = "none"; // Hide loader only if verification fails
                     
                 } else {
                     console.log("Error:", result.message);

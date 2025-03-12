@@ -114,6 +114,7 @@
         }
     
         async function sendOTP() {
+            let purpose = "signup";
             let email = document.getElementById("email").value;
             let loader = document.getElementById("loading"); // Get the loader element
 
@@ -132,7 +133,7 @@
                         "Content-Type": "application/x-www-form-urlencoded",
                         "X-CSRFToken": getCSRFToken()
                     },
-                    body: new URLSearchParams({ email: email })
+                    body: new URLSearchParams({ email: email , purpose:purpose })
                 });
     
                 let result = await response.json();

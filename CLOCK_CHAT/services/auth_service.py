@@ -28,3 +28,9 @@ def generate_otp(email):
             fail_silently=False,
         )
     return otp
+
+def user_exists(email):
+    return User.objects.filter(email=email).exists()
+
+def get_user(email):
+    return User.objects.get(email=email)
