@@ -8,3 +8,10 @@ class Gender(Enum):
     MALE = 1
     FEMALE = 2
     OTHER = 3
+
+class ResponseMessageType(Enum):
+    SUCCESS='success'
+    ERROR='error'
+    WARNING='warning'
+    INFO='info'
+    NONE='null'

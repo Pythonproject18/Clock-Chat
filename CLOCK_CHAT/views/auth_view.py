@@ -6,6 +6,9 @@ from django.contrib.auth import logout,login
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from ..services import auth_service
+from ..constants.error_message import ErrorMessage
+from ..constants.success_message import SuccessMessage
+from ..packages.response import success_response,error_response
 
 @method_decorator(csrf_exempt, name='dispatch')
 class OtpSendView(View):
@@ -34,10 +37,11 @@ class OtpSendView(View):
         cache.set(f"otp_{email}", otp, timeout=300)  # Store OTP for 5 minutes
         print(f"Your OTP for {email} is: {otp}")
 
-        return JsonResponse({"status": "success", "message": f"OTP sent to {email}"}, status=200)
 
-
-        return JsonResponse({"status": "success", "message": f"OTP sent to {email}"}, status=200)
+        msg = f"An OTP has been sent to {email}. Please check your email." # custom OTP Success Message
+        
+        return JsonResponse(success_response(msg), status=200)
+        
 
 @method_decorator(csrf_exempt, name='dispatch')
 class OtpVerifyView(View):
