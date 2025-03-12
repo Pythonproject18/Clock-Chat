@@ -12,3 +12,7 @@ class Gender(Enum):
 class Chat_Type(Enum):
     Personal = 1
     Group = 2
+
+class Delete_Type(Enum):
+    FOR_ME = 1
+    FOR_ALL = 2

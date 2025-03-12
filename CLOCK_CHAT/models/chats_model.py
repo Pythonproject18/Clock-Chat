@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from ..constants import Chat_Type
 
 
@@ -20,6 +21,12 @@ class Chat(models.Model):
 
     class Meta:
         db_table = 'chats'
+        constraints = [
+            models.CheckConstraint(
+                check=~Q(type=Chat_Type.Personal.value) | (Q(chat_title__isnull=True) & Q(chat_bio__isnull=True)),
+                name="personal_chat_no_title_bio"
+            )
+        ]
 
     def __str__(self):
         return f"ID: {self.id}, Created_at: {self.created_at}, Active: {self.is_active}"
