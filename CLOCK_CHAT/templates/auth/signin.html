@@ -1,0 +1,225 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock-Chat Login</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+        <!-- Toast Message Implemention-->
+   
+        <script>
+            window.djangoMessages = [
+            {% for message in messages %}
+                {
+                "tags": "{{ message.tags }}",
+                "message": "{{ message|escapejs }}"
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+            ];
+            console.log("djangoMessages:", window.djangoMessages);  // Debug output
+        </script>
+    
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      
+        <!-- Include external toast script -->
+        <script src="{% static 'js/toast_message.js' %}"></script>
+
+    <!-- End Toast -->
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #3a8dfe;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Sigin</h2>
+        <meta name="csrf-token" content="{{ csrf_token }}">
+
+        <!-- Email Input Section -->
+        <div id="emailSection">
+            <input type="email" id="email" placeholder="Enter your email" required>
+            <button type="button" onclick="sendOTP()">Send OTP</button>
+        </div>
+
+        <!-- OTP Verification Section (Initially Hidden) -->
+        <div id="otpSection" class="hidden">
+            <input type="text" id="otp" placeholder="Enter OTP" required>
+            <button type="button" onclick="verifyOTP()">Verify OTP</button>
+        </div>
+        <!-- Add this loader to your HTML (Initially Hidden) -->
+        <div id="loading" style="display: none; top: 46%;left: 46%;position: fixed;">
+            <p>Sending OTP... <span class="spinner"></span></p>
+        </div>
+        <a href="/api/signup/">Create Account</a>
+    </div>
+
+               
+
+    <script>
+        function getCSRFToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        }
+    
+        async function sendOTP() {
+            let purpose = "login";
+            let email = document.getElementById("email").value;
+            let loader = document.getElementById("loading"); // Get the loader element
+    
+            if (!email) {
+                console.log("Error: Please enter your email.");
+                return;
+            }
+    
+            console.log("Sending OTP to:", email, "Purpose:", purpose);
+            loader.style.display = "block"; // Show the loader
+    
+            try {
+                let response = await fetch("/api/send-otp/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-CSRFToken": getCSRFToken()
+                    },
+                    body: new URLSearchParams({ email: email, purpose: purpose })
+                });
+    
+                let result = await response.json();
+                console.log("Response received:", result);
+    
+                if (response.ok) {
+                    console.log("OTP sent successfully.");
+                    document.getElementById("otpSection").classList.remove("hidden");
+                    document.getElementById("emailSection").classList.add("hidden");
+                } else {
+                    console.log("Error:", result.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            } finally {
+                loader.style.display = "none"; // Hide the loader after request completes
+            }
+        }
+
+        async function verifyOTP() {
+            let email = document.getElementById("email").value;
+            let otp = document.getElementById("otp").value;
+            let loader = document.getElementById("loading"); // Get the loader element
+        
+            if (!otp) {
+                console.log("Error: Please enter the OTP.");
+                return;
+            }
+        
+            console.log("Verifying OTP for:", email, "OTP:", otp); // Debug Log
+            loader.style.display = "block"; // Show the loader before making the request
+        
+            try {
+                let response = await fetch("/api/verify-otp-login/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-CSRFToken": getCSRFToken()
+                    },
+                    body: new URLSearchParams({ email: email, otp: otp })
+                });
+        
+                let result = await response.json();
+                console.log("Response received:", result); // Debug Log
+        
+                if (response.ok) {
+                    console.log("OTP verification successful. Redirecting...");
+        
+                    // Keep the loader visible during redirection
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 2000);
+                    loader.style.display = "none"; // Hide loader only if verification fails
+                    
+                } else {
+                    console.log("Error:", result.message);
+                    loader.style.display = "none"; // Hide loader only if verification fails
+                }
+            } catch (error) {
+                console.error("Error:", error); // Debug Log
+                loader.style.display = "none"; // Hide loader on error
+            }
+        }
+        
+    </script>
+
+    <style>
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+    
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
+</body>
+</html>

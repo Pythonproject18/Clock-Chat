@@ -21,3 +21,10 @@ class Status_Type(Enum):
     IMAGE = 1
     VIDEO = 2
     TEXT = 3
+
+class ResponseMessageType(Enum):
+    SUCCESS='success'
+    ERROR='error'
+    WARNING='warning'
+    INFO='info'
+    NONE='null'
