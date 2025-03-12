@@ -23,11 +23,11 @@ class OtpSendView(View):
 
         if purpose == "login":
             if not user_exists:
-                return JsonResponse({"status": "error", "message": "Email not found. Please sign up first."}, status=400)
+                return JsonResponse(error_response(ErrorMessage.E00003.value))
 
         elif purpose == "signup":
             if user_exists:
-                return JsonResponse({"status": "error", "message": "Email already exists. Please log in."}, status=400)
+                return JsonResponse(error_response(ErrorMessage.E00002.value))
 
         else:
             return JsonResponse({"status": "error", "message": "Invalid purpose."}, status=400)
@@ -55,9 +55,9 @@ class OtpVerifyView(View):
         if str(cache.get(f"otp_{email}")) == str(otp):
             cache.set(f"verified_{email}", True, timeout=300)
             cache.delete(f"otp_{email}")
-            return JsonResponse({"status": "success", "message": "OTP verified"}, status=200)
+            return JsonResponse(success_response(SuccessMessage.S00004.value), status=200)
 
-        return JsonResponse({"status": "error", "message": "Invalid OTP"}, status=400)
+        return JsonResponse(error_response(ErrorMessage.E00006.value))
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SignUpView(View):
@@ -78,7 +78,8 @@ class SignUpView(View):
 
         auth_service.create_user(first_name, middle_name, last_name, email)
         cache.delete(f"verified_{email}")
-        return JsonResponse({"status": "success", "message": "User registered successfully", "redirect": "/sign-in/"})
+        return JsonResponse(success_response(SuccessMessage.S00004.value, redirect="/sign-in/"), status=200)
+        
 
 class VerifyOTPLoginView(View):
     def get(self, request):
