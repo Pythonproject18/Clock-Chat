@@ -8,3 +8,8 @@ class Gender(Enum):
     MALE = 1
     FEMALE = 2
     OTHER = 3
+
+class Status_Type(Enum):
+    IMAGE = 1
+    VIDEO = 2
+    TEXT = 3
