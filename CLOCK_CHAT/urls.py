@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/verify-otp/', views.OtpVerifyView.as_view(), name='verify_otp'),
     path('api/signup/',views.SignUpView.as_view(), name='signup'),
     path('api/verify-otp-login/',views.VerifyOTPLoginView.as_view(), name='sign_in'),
-    path('api/login/send_otp/', views.SendOTPView.as_view(), name='login_otp_send')
+    path('api/login/send_otp/', views.SendOTPView.as_view(), name='login_otp_send'),
+    path('logout/', views.UserLogoutView.as_view(), name='log_out'),
 
 ]

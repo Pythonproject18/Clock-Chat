@@ -2,13 +2,15 @@ from django.views import View
 import random
 import time
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.core.cache import cache  # ✅ Using Django cache instead of memory storage
 from ..models import User
 from ..services import auth_service
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import logging
+from django.contrib.auth import logout
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -125,3 +127,9 @@ class VerifyOTPLoginView(View):
         cache.delete(f"otp_{email}")  # Clear OTP after successful login
 
         return JsonResponse({"status": "success", "redirect": "/"})
+    
+class UserLogoutView(View):
+    def get(self, request):
+        logout(request)
+        request.session.flush()  # Destroy session
+        return redirect("/api/verify-otp-login/")
