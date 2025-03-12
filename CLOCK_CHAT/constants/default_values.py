@@ -15,3 +15,8 @@ class ResponseMessageType(Enum):
     WARNING='warning'
     INFO='info'
     NONE='null'
+
+class Status_Type(Enum):
+    IMAGE = 1
+    VIDEO = 2
+    TEXT = 3
