@@ -16,3 +16,8 @@ class Chat_Type(Enum):
 class Delete_Type(Enum):
     FOR_ME = 1
     FOR_ALL = 2
+
+class Status_Type(Enum):
+    IMAGE = 1
+    VIDEO = 2
+    TEXT = 3
