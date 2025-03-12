@@ -1,7 +1,6 @@
 from django.db import models
 
 class StatusViewer(models.Model):
-
     status = models.ForeignKey( 'Status',on_delete=models.CASCADE, related_name='fk_status_status_viewer_status_id')
     viewed_by = models.ForeignKey('User',on_delete=models.CASCADE, related_name='fk_user_status_viewer_users_id')
 

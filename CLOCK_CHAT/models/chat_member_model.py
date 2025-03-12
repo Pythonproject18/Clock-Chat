@@ -19,7 +19,7 @@ class ChatMember(models.Model):
     
 
 class Meta:
-        db_table = 'chatmembers'
+        db_table = 'chat_members'
 
 def __str__(self):
         return f"ID: {self.id}, Created_at: {self.created_at}, Active: {self.is_active}"

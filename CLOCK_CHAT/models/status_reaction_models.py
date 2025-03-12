@@ -1,7 +1,6 @@
 from django.db import models
 
 class StatusReaction(models.Model):
-    
     status= models.ForeignKey('Status', on_delete=models.CASCADE, related_name='fk_status_status_reactions_status_id')
     reacted_by= models.ForeignKey('User', on_delete=models.CASCADE, related_name='fk_user_status_reactions_users_id')
     reaction=models.ForeignKey('Reaction', on_delete=models.CASCADE, related_name='fk_reaction_status_reaction_reactions_id')

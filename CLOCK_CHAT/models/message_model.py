@@ -32,8 +32,8 @@ class Message(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey('User', on_delete=models.CASCADE, related_name='fk_messages_created')
-    updated_by = models.ForeignKey('User', on_delete=models.CASCADE, related_name='fk_messages_updated')
+    created_by = models.ForeignKey('User', on_delete=models.CASCADE, related_name='fk_message_created_users_id')
+    updated_by = models.ForeignKey('User', on_delete=models.CASCADE, related_name='fk_message_updated_users_id')
 
     class Meta:
         db_table = 'messages'
