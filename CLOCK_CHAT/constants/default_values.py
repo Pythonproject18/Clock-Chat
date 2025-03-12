@@ -9,14 +9,28 @@ class Gender(Enum):
     FEMALE = 2
     OTHER = 3
 
+class Chat_Type(Enum):
+    Personal = 1
+    Group = 2
+
+class Delete_Type(Enum):
+    FOR_ME = 1
+    FOR_ALL = 2
+
+class Status_Type(Enum):
+    IMAGE = 1
+    VIDEO = 2
+    TEXT = 3
+
 class ResponseMessageType(Enum):
     SUCCESS='success'
     ERROR='error'
     WARNING='warning'
     INFO='info'
     NONE='null'
-
+=========
 class Status_Type(Enum):
     IMAGE = 1
     VIDEO = 2
     TEXT = 3
+>>>>>>>>> Temporary merge branch 2
