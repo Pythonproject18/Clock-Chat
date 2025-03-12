@@ -5,10 +5,10 @@ from django.core.cache import cache
 from django.contrib.auth import logout,login
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from ..services import auth_service
-from ..constants.error_message import ErrorMessage
-from ..constants.success_message import SuccessMessage
-from ..packages.response import success_response,error_response
+from CLOCK_CHAT.services import auth_service
+from CLOCK_CHAT.constants.error_message import ErrorMessage
+from CLOCK_CHAT.constants.success_message import SuccessMessage
+from CLOCK_CHAT.packages.response import success_response,error_response
 
 @method_decorator(csrf_exempt, name='dispatch')
 class OtpSendView(View):
