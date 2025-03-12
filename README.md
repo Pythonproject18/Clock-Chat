@@ -13,8 +13,7 @@
 
 # Activate scripts :
 
-=> venv/scripts/activate
-
+=> 
 # Install Requirements :
 
 => pip install -r requirements.txt
@@ -40,3 +39,4 @@
 => python manage.py runserver
 
 
+venv/scripts/activate
