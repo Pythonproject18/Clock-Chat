@@ -1,88 +1,110 @@
 from functools import wraps
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseForbidden
 from django.contrib.auth import logout
-from .constants.default_values import Role
+from .constants import Role
+from django.contrib import messages  # For user feedback
+from .constants.error_message import ErrorMessage
+from .constants.success_message import SuccessMessage
+from .packages.response import success_response,error_response
 
 
-def auth_required(view_func=None, *, login_url='/api/verify-otp-login/'):
+def auth_required(view_or_func=None, *, login_url='/api/verify-otp-login/'):
     """
-    Decorator to enforce authentication.
-    Redirects unauthenticated users to the login page.
+    Decorator to enforce that the user is authenticated.
     """
-
-    def _auth_decorator(view_func):
-        @wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):  # ✅ `request` should be the first parameter
+    def _auth_decorator(func):
+        @wraps(func)
+        def _wrapped(request, *args, **kwargs):
             if not request.user.is_authenticated:
-                return redirect(login_url)  # Redirect if user is not logged in
-            return view_func(request, *args, **kwargs)  # ✅ Pass request properly
-        
-        return _wrapped_view
+                return redirect(login_url)
+            return func(request, *args, **kwargs)
+        return _wrapped
 
-    def _class_decorator(view_class):
-        """Apply the decorator to class-based views"""
-        view_class.dispatch = method_decorator(_auth_decorator)(view_class.dispatch)
-        return view_class
+    def decorator(view):
+        if isinstance(view, type):
+            view.dispatch = method_decorator(_auth_decorator)(view.dispatch)
+            return view
+        else:
+            return _auth_decorator(view)
+    
+    if view_or_func is None:
+        return decorator
+    else:
+        return decorator(view_or_func)
 
-    if view_func:
-        if isinstance(view_func, type):  # ✅ Check if it's a class
-            return _class_decorator(view_func)
-        return _auth_decorator(view_func)
 
-    return _class_decorator
-
-
-def role_required(*allowed_roles, page_type='default'):
+def role_required(*allowed_roles, page_type='enduser'):
     """
-    Decorator for enforcing role-based access control.
-
-    - *allowed_roles: List of allowed role values.
-    - page_type: 'admin' (admin pages) or 'enduser' (normal user pages).
+    Decorator to enforce role-based access.
+    
+    Parameters:
+      *allowed_roles: The allowed role values.
+      page_type: A string indicating the type of page being protected.
+         Use 'admin' for admin pages and 'enduser' for normal end-user pages.
     
     Behavior:
-    - If user is not logged in → Redirect to sign-in page.
-    - If user role is invalid → Redirect to signup page.
-    - Admins cannot access end-user pages.
-    - End-users cannot access admin pages.
+      - For an admin page (page_type='admin'):
+          If a user whose role is not in allowed_roles (e.g. an end-user)
+          tries to access the page, they are logged out and redirected to
+          the admin login page.
+      - For an end-user page (page_type='enduser'):
+          If a user whose role is not in allowed_roles (e.g. an admin)
+          tries to access the page, they are logged out and redirected to
+          the home page.
+      - Otherwise, a fallback redirect is provided.
+    
+    Example usage:
+    
+      @role_required(Role.ADMIN.value, Role.SUPER_ADMIN.value, page_type='admin')
+      class AdminHomeView(View):
+          ...
+      
+      @role_required(Role.END_USER.value, page_type='enduser')
+      class HomeView(View):
+          ...
     """
     def _role_decorator(func):
         @wraps(func)
         def _wrapped(request, *args, **kwargs):
-            # ✅ Ensure user is authenticated first
+
             if not request.user.is_authenticated:
-                return redirect('/api/verify-otp-login/')  # Redirect to sign-in
+                return redirect('/api/verify-otp-login/')
 
-            # ✅ Safely get user role (Avoids AttributeError)
-            user_role = getattr(request.user, 'roles', None)
-
-            # ✅ If no valid role, force user to sign up
-            if user_role is None:
-                return redirect('/api/signup/')  # Redirect to sign-up
-
-            # ✅ Check role-based access
+            user_role = request.user.role  # assuming this holds an integer matching Role values
             if user_role in allowed_roles:
                 return func(request, *args, **kwargs)
-
-            # ✅ Prevent cross-access (Admins cannot access user pages & vice versa)
-            if page_type == 'admin' and user_role == Role.END_USER.value:
-                logout(request)
-                return HttpResponseForbidden("Access denied: End users cannot access admin pages.")
-
-            elif page_type == 'enduser' and user_role in (Role.ADMIN.value):
-                logout(request)
-                return HttpResponseForbidden("Access denied: Admins cannot access end-user pages.")
-
-            # ❌ Fallback case: Redirect to signup
-            return redirect('/api/signup/')
-
+            else:
+                if page_type == 'admin':
+                    # For admin pages: if an end-user tries to access, log them out
+                    # and redirect them to the admin login page.
+                    if user_role == Role.END_USER.value:
+                        logout(request)
+                        return redirect('/api/signup/')
+                    else:
+                        # Fallback for unexpected roles
+                        logout(request)
+                        return redirect('/api/signup/')
+                elif page_type == 'enduser':
+                    # For end-user pages: if an admin (or super admin) tries to access,
+                    # log them out and redirect them to the public home page.
+                    if user_role == Role.ADMIN.value:
+                        messages.error(request, ErrorMessage.E00001.value)
+                        logout(request)
+                        return redirect('/api/signup/')
+                    else:
+                        logout(request)
+                        return redirect('/api/signup/')
+                else:
+                    logout(request)
+                    return redirect('/api/signup/')
         return _wrapped
 
     def decorator(view):
-        if isinstance(view, type):  # If class-based view
+        if isinstance(view, type):
             view.dispatch = method_decorator(_role_decorator)(view.dispatch)
             return view
-        return _role_decorator(view)
-
+        else:
+            return _role_decorator(view)
+    
     return decorator
