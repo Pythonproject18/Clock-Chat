@@ -79,10 +79,12 @@ def role_required(*allowed_roles, page_type='enduser'):
                     # For admin pages: if an end-user tries to access, log them out
                     # and redirect them to the admin login page.
                     if user_role == Role.END_USER.value:
+                        messages.error(request, ErrorMessage.E00001.value)
                         logout(request)
                         return redirect('/api/signup/')
                     else:
                         # Fallback for unexpected roles
+                        messages.error(request, ErrorMessage.E00001.value)
                         logout(request)
                         return redirect('/api/signup/')
                 elif page_type == 'enduser':
@@ -93,9 +95,11 @@ def role_required(*allowed_roles, page_type='enduser'):
                         logout(request)
                         return redirect('/api/signup/')
                     else:
+                        messages.error(request, ErrorMessage.E00001.value)
                         logout(request)
                         return redirect('/api/signup/')
                 else:
+                    messages.error(request, ErrorMessage.E00001.value)
                     logout(request)
                     return redirect('/api/signup/')
         return _wrapped

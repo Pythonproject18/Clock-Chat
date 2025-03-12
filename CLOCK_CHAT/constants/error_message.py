@@ -2,9 +2,9 @@ from enum import Enum
 
 # Error messages
 class ErrorMessage(Enum):
-    E00001 = "Unautorized access permission! Login failed, please try again"
-    E00002 = "Invalid date format for DOB. Please use YYYY-MM-DD."
-    E00003 = "Please enter your email address first."
+    E00001 = "Unautorized access permission! Login failed, please try again."
+    E00002 = "Email already exists. Please log in."
+    E00003 = "Email not found. Please sign up first."
     E00004 = "Email is already registered."
     E00005 = "OTP expired. Please request a new one."
     E00006 = "Invalid OTP."
