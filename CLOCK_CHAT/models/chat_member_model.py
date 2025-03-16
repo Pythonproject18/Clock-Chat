@@ -18,7 +18,7 @@ class ChatMember(models.Model):
     updated_by = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, related_name='fk_updated_chat_member_users_id')
     
 
-class Meta:
+    class Meta:
         db_table = 'chat_members'
 
 def __str__(self):
