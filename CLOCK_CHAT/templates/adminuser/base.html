@@ -146,6 +146,33 @@
         flex-direction: column;
       }
     }
+    #sidebar ul li a {
+      display: block;
+      padding: 0.75rem 1rem;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      width: 100%;
+      height: 100%;
+    }
+    
+    #sidebar ul li a:hover {
+      background-color: var(--primary-color);
+      color: var(--text-light);
+    }
+    #sidebar i {
+      transition: color 0.3s ease;
+    }
+    
+    body:not(.dark-mode) i:nth-child(1) { color: red; }     
+    body:not(.dark-mode) i:nth-child(2) { color: green; }
+    body:not(.dark-mode) i:nth-child(3) { color: yellow; }
+    body:not(.dark-mode) i:nth-child(4) { color: purple; }
+    body:not(.dark-mode) i:nth-child(5) { color: blue; }
+    
+    body.dark-mode i:nth-child(1) { color: yellow; }       
+    body.dark-mode i:nth-child(2) { color: purple; }
+    body.dark-mode i:nth-child(3) { color: red; }
+    body.dark-mode i:nth-child(4) { color: green; }
+    body.dark-mode i:nth-child(5) { color: blue; }
   </style>
 </head>
 <body>
@@ -173,10 +200,58 @@
       </div>
       <ul>
         <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-        <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
-        <li><a href="#"><i class="fas fa-cogs"></i> Settings</a></li>
-        <li><a href="#"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
-        <li><a href="#"><i class="fas fa-file-alt"></i> Reports</a></li>
+        <li>
+          <a href="#profileSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+              <i class="fas fa-user-circle"></i> Profile
+          </a>
+          <ul class="collapse list-unstyled" id="profileSubmenu">
+              <li>
+                  <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
+              </li>
+              <li>
+                  <a href="{% url 'logout_myadmin' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+              </li>
+          </ul>
+      </li>
+      <li>
+        <a href="#usersSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+            <i class="fas fa-users"></i> Users
+        </a>
+        <ul class="collapse list-unstyled" id="usersSubmenu">
+            <li>
+                <a href="#"><i class="fas fa-list"></i> Users List</a>
+            </li>
+            <li>
+                <a href="#"><i class="fas fa-user-plus"></i> User Create</a>
+            </li>
+        </ul>
+    </li>
+    <li>
+      <a href="#chatsSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+          <i class="fas fa-comments"></i> Chats
+      </a>
+      <ul class="collapse list-unstyled" id="chatsSubmenu">
+          <li>
+              <a href="#"><i class="fas fa-list-alt"></i> Chats List</a>
+          </li>
+          <li>
+              <a href="#"><i class="fas fa-plus"></i> Chat Create</a>
+          </li>
+      </ul>
+  </li>
+  <li>
+    <a href="#extraSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+        <i class="fas fa-folder"></i> Extra
+    </a>
+    <ul class="collapse list-unstyled" id="extraSubmenu">
+        <li>
+            <a href="#"><i class="fas fa-folder"></i> #</a>
+        </li>
+        <li>
+            <a href="#"><i class="fas fa-folder-open"></i> #</a>
+        </li>
+    </ul>
+</li>
       </ul>
     </nav>
 
@@ -218,3 +293,24 @@
   </script>
 </body>
 </html>
+
+
+
+<script>
+ {% comment %} The js for toggled & change the color of the admin panel {% endcomment %}
+$("#menu-toggle").click(function(e) {
+    e.preventDefault();
+    $("#wrapper").toggleClass("toggled");
+});
+
+$("#theme-toggle").click(function(e) {
+    e.preventDefault();
+    $("body").toggleClass("dark-mode");
+    var icon = $(this).find("i");
+    if (icon.hasClass("fa-sun")) {
+        icon.removeClass("fa-sun").addClass("fa-moon");
+    } else {
+        icon.removeClass("fa-moon").addClass("fa-sun");
+    }
+});
+</script>
