@@ -68,8 +68,6 @@ def role_required(*allowed_roles, page_type='enduser'):
         @wraps(func)
         def _wrapped(request, *args, **kwargs):
 
-            if not request.user.is_authenticated:
-                return redirect('/api/verify-otp-login/')
 
             user_role = request.user.role  # assuming this holds an integer matching Role values
             if user_role in allowed_roles:
@@ -81,12 +79,12 @@ def role_required(*allowed_roles, page_type='enduser'):
                     if user_role == Role.END_USER.value:
                         messages.error(request, ErrorMessage.E00001.value)
                         logout(request)
-                        return redirect('/api/signup/')
+                        return redirect('/login/admin/')
                     else:
                         # Fallback for unexpected roles
                         messages.error(request, ErrorMessage.E00001.value)
                         logout(request)
-                        return redirect('/api/signup/')
+                        return redirect('/api/signup')
                 elif page_type == 'enduser':
                     # For end-user pages: if an admin (or super admin) tries to access,
                     # log them out and redirect them to the public home page.
