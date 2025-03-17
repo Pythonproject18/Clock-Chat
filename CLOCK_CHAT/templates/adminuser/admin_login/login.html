@@ -1,0 +1,200 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login Page</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    .login-container {
+      background: #ffffff;
+      padding: 30px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .login-logo {
+      max-height: 60px;
+      width: auto;
+      margin-bottom: 10px;
+    }
+    .login-container input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 10px;
+    }
+    .send-otp { background-color: #28a745; color: #ffffff; }
+    .send-otp:hover { background-color: #218838; }
+    .verify-otp { background-color: #007bff; color: #ffffff; }
+    .verify-otp:hover { background-color: #0056b3; }
+    .disabled { background-color: #ccc; cursor: not-allowed; }
+    /* Hide inline message element since toasts will be used */
+    #message { display: none; }
+  </style>
+
+      <!-- Toast Message Implementation -->
+      <script>
+        window.djangoMessages = [
+        {% for message in messages %}
+            {
+            "tags": "{{ message.tags }}",
+            "message": "{{ message|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+        ];
+        console.log("djangoMessages:", window.djangoMessages);  // Debug output
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+    <!-- Include external toast script (toast_message.js) -->
+    <script src="{% static 'js/toast_message.js' %}"></script>
+    <!-- End Toast -->
+
+</head>
+<body>
+  <div class="login-container">
+    <h2>
+      <img src="{% static 'images/admin-lock.jpeg' %}" alt="Logo" class="login-logo">
+      Admin Login
+    </h2>
+    
+    <form id="loginForm" method="post">
+      {% csrf_token %}
+      <input type="email" id="email" name="email" placeholder="Enter your email" required autofocus>
+      <button type="button" class="send-otp" onclick="sendOTP()">Send OTP</button>
+      <input type="text" id="otp" name="otp" placeholder="Enter your OTP" required inputmode="numeric" pattern="[0-9]{6}" oninput="enableVerify()">
+      <button type="submit" id="verifyOtpBtn" class="verify-otp disabled" disabled>Verify & Login</button>
+    </form>
+  </div>
+
+  <script>
+    // Helper: Get CSRF token from cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // Sends OTP via AJAX to your send-otp endpoint
+    function sendOTP() {
+      const email = document.getElementById("email").value;
+      if (!email) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: "Please enter your email first.",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: false
+        });
+        return;
+      }
+      
+      const csrfToken = getCookie("csrftoken");
+      
+      fetch("{% url 'send_otp' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": csrfToken
+        },
+        body: new URLSearchParams({
+          email: email,
+          purpose: "admin_signin"
+        })
+      });
+      // The external toast_message.js will handle the toast on response.
+    }
+
+    // Enable/disable the Verify button based on OTP input length
+    function enableVerify() {
+      const otpField = document.getElementById("otp");
+      const verifyBtn = document.getElementById("verifyOtpBtn");
+      if (otpField.value.length === 6) {
+        verifyBtn.classList.remove("disabled");
+        verifyBtn.disabled = false;
+      } else {
+        verifyBtn.classList.add("disabled");
+        verifyBtn.disabled = true;
+      }
+    }
+
+    // Intercept the form submission to perform an AJAX login
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const otp = document.getElementById("otp").value;
+      const csrfToken = getCookie("csrftoken");
+      
+      fetch("{% url 'login_myadmin' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": csrfToken
+        },
+        body: new URLSearchParams({
+          email: email,
+          otp: otp
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success === true) {
+          // External toast script will display the success toast.
+          window.location.href = data.redirect;
+        }
+        // If error, the external toast script will display the error toast.
+      })
+      .catch(error => {
+        console.error("Error during login:", error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: "An error occurred. Please try again.",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: false
+        });
+      });
+    });
+  </script>
+</body>
+</html>

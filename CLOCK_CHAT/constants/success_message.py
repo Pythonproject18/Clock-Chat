@@ -1,0 +1,36 @@
+from enum import Enum
+
+
+class SuccessMessage(Enum):
+    S00001 = "Successfully logged in"
+    S00002 = "Profile updated successfully."
+    S00003 = "OTP sent to your email."
+    S00004 =  "OTP verified."
+    S00005 = "User registered successfully."
+    S00006 = ""
+    S00007 = ""
+    S00008 = ""
+    S00009 = ""
+    S00010 = ""
+    S00011 = ""
+    S00012 = ""
+    S00013 = ""
+    S00014 = ""
+    S00015 = ""
+    S00016 = ""
+    S00017 = ""
+    S00018 = ""
+    S00019 = ""
+    S00020 = ""
+    S00021 = ""
+    S00022 = ""
+    S00023 = ""
+    S00024 = ""
+    S00025 = ""
+    S00026 = ""
+    S00027 = ""
+    S00028 = ""
+    S00029 = ""
+    S00030 = ""
+    
+    

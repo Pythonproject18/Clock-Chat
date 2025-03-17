@@ -1,0 +1,36 @@
+from enum import Enum
+
+# Error messages
+class ErrorMessage(Enum):
+    E00001 = "Unautorized access permission! Login failed, please try again."
+    E00002 = "Email already exists. Please log in."
+    E00003 = "Email not found. Please sign up first."
+    E00004 = "Email is already registered."
+    E00005 = "OTP expired. Please request a new one."
+    E00006 = "Invalid OTP."
+    E00007 = "Password doesn't match."
+    E00008 = "Email not verified."
+    E00009 = "Invalid email or password."
+    E00010 = "User Doesn't Exists."
+    E00011 = ""
+    E00012 = ""
+    E00013 = ""
+    E00014 = ""
+    E00015 = ""
+    E00016 = ""
+    E00017 = ""
+    E00018 = ""
+    E00019 = ""
+    E00020 = ""
+    E00021 = ""
+    E00022 = ""
+    E00023 = ""
+    E00024 = ""
+    E00025 = ""
+    E00026 = ""
+    E00027 = ""
+    E00028 = ""
+    E00029 = ""
+    E00030 = ""
+    
+    
