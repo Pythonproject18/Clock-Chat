@@ -1,15 +1,10 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 
 
 class ChatMember(models.Model):
     chat = models.ForeignKey('Chat', on_delete=models.CASCADE, related_name='fk_chat_cmember_chats_id')
     member = models.ForeignKey('User', on_delete=models.CASCADE, related_name='fk_member_cmember_users_id')
-    is_admin = ArrayField(
-        models.IntegerField(),
-        blank=True,
-        default=list
-        )
+    is_admin =models.BooleanField(default=False)
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -11,3 +11,4 @@ from CLOCK_CHAT.packages.response import success_response, error_response
 class AdminHomeView(View):
     def get(self, request):
         return render(request, 'adminuser/base.html')
+    
