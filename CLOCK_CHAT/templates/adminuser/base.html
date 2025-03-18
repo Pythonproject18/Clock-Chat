@@ -174,9 +174,6 @@
       <button class="btn btn-secondary mr-2" id="themeToggle">
         <i class="fas fa-sun"></i>
       </button>
-      
-      {% block navbar_extra %}{% endblock %}
-
       <a href="{% url 'logout_myadmin' %}" class="btn btn-danger">Logout</a>
     </div>
   </nav>
@@ -246,14 +243,15 @@
       </ul>
     </nav>
 
-    <!-- Page Content -->
-    <div id="page-content-wrapper">
-      <div class="container-fluid">
-        <h2>Dashboard</h2>
-        <p>Welcome to your admin panel. Manage your website content, settings, and more.</p>
-      </div>
+    
+    <!-- Main Content Area -->
+    <div class="center-bodycontent" id="mainContent">
+      <main class="container">
+        {% block content %}
+        <!-- Page-specific content goes here -->
+        {% endblock %}
+      </main>
     </div>
-  </div>
 
   <!-- jQuery, Popper.js, and Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
