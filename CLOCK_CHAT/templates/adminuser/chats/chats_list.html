@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <body bgcolor="lightgreen"></body>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat List Chart</title>
+{% extends "adminuser/base.html" %}
+{% load static %}
+
+{% block title %}Clock-Chat Admin-Chat List{% endblock %}
+{% block content %}
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -109,11 +107,10 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
-}
-       
+}       
     </style>
-</head>
-<body>
+
+
    <h2 style=color:#b87639>Chat List </h2>
 
    <div class="search-box">
@@ -177,5 +174,4 @@ input:checked + .slider:before {
     </table>
     <p align="right"><strong>Page:</strong> 1</p>
 
-</body>
-</html>
+{% endblock %}
