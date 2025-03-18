@@ -278,14 +278,12 @@
         }
       }
   
-      // Check localStorage for saved theme preference
       if (localStorage.getItem("theme") === "dark") {
         toggleDarkMode(true);
       } else {
         toggleDarkMode(false);
       }
   
-      // Click event for theme toggle button
       $("#themeToggle").click(function (e) {
         e.preventDefault();
         if ($("body").hasClass("dark-mode")) {
@@ -295,7 +293,6 @@
         }
       });
   
-      // Sidebar toggle functionality
       $("#sidebarToggle").click(function (e) {
         e.preventDefault();
         if ($(window).width() < 768) {
@@ -304,8 +301,7 @@
           $("#sidebar").toggleClass("hide");
         }
       });
-  
-      // Mobile sidebar close button
+
       $("#sidebarClose").click(function (e) {
         e.preventDefault();
         $("#sidebar").removeClass("show");
