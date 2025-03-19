@@ -15,7 +15,10 @@
 # Activate scripts :
 
 => venv/scripts/activate
+<<<<<<< HEAD
 
+=======
+>>>>>>> 83034fbfe650402d5f71685299c2428632e23d83
 # Install Requirements :
 
 => pip install -r requirements.txt
