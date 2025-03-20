@@ -12,9 +12,15 @@ urlpatterns = [
     path('api/verify-otp-login/',views.VerifyOTPLoginView.as_view(), name='sign_in'),
     path('api/login/send_otp/', views.OtpSendView.as_view(), name='login_otp_send'),
     path('logout/', views.UserLogoutView.as_view(), name='log_out'),
-    path('status/', views.StatusListView.as_view(), name='status_list'),
+    
     
     # Admin
     path('admin/', views.AdminHomeView.as_view(), name='admin_home'),
+
+
+
+    # Status
+    path('status/', views.StatusListView.as_view(), name='status_list'),
+    path('status/create', views.StatusCreateView.as_view(), name='status_create'),
 
 ]
