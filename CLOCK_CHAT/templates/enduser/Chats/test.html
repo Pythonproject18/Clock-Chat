@@ -43,15 +43,17 @@
           <span class="material-icons search-icon">search</span>
         </div>
 
+        {% if chats %}
         {% for chat in chats %}
         <div class="chat-item">
           <div class="chat-info">
             <div class="chat-name">{{ chat.title }}</div>
           </div>
         </div>
-        {% empty %}
-        <p>No chats available.</p>
         {% endfor %}
+        {% else %}
+        <p>No chats available.</p>
+        {% endif %}
 
         <div class="bottom-icons">
           <span class="material-icons">chat</span>
@@ -82,87 +84,5 @@
       </div>
     </div>
 
-    <script>
-      let messages = {};
-
-      document
-        .getElementById("searchInput")
-        .addEventListener("input", function () {
-          let filter = this.value.toLowerCase();
-          let chatItems = document.querySelectorAll(".chat-item");
-
-          chatItems.forEach((item) => {
-            let name = item
-              .querySelector(".chat-name")
-              .textContent.toLowerCase();
-            item.style.display = name.includes(filter) ? "flex" : "none";
-          });
-        });
-
-      const chatItems = document.querySelectorAll(".chat-item");
-      const chatMessages = document.querySelector(".chat-messages");
-      const chatInput = document.querySelector(".chat-input");
-      let activeChatName = "";
-      let activeAvatar = "";
-
-      chatInput.style.display = "none";
-
-      chatItems.forEach((item) => {
-        item.addEventListener("click", function () {
-          chatItems.forEach((i) => i.classList.remove("active"));
-          this.classList.add("active");
-
-          activeChatName = this.getAttribute("data-name");
-          const lastMessage = this.getAttribute("data-message");
-          activeAvatar = this.getAttribute("data-avatar");
-
-          this.querySelector(".unread-badge")?.remove();
-
-          chatInput.style.display = "flex";
-
-          chatMessages.innerHTML = `<div class="person-a">
-                    <div class="icon" style="background-image: url('${activeAvatar}');"></div>
-                    <div class="message">${lastMessage}</div>
-                </div>`;
-
-          if (messages[activeChatName]) {
-            messages[activeChatName].forEach((message) => {
-              chatMessages.innerHTML += `<div class="${
-                message.sender === "user" ? "person-b" : "person-a"
-              }">
-                            <div class="message">${message.text}</div>
-                        </div>`;
-            });
-          }
-        });
-      });
-
-      document
-        .getElementById("messageInput")
-        .addEventListener("keypress", function (event) {
-          if (event.key === "Enter") {
-            sendMessage();
-          }
-        });
-
-      function sendMessage() {
-        const input = document.getElementById("messageInput");
-        if (input.value.trim() === "" || activeChatName === "") return;
-
-        if (!messages[activeChatName]) {
-          messages[activeChatName] = [];
-        }
-
-        messages[activeChatName].push({
-          sender: "user",
-          text: input.value,
-        });
-
-        chatMessages.innerHTML += `<div class="person-b"><div class="message">${input.value}</div></div>`;
-        input.value = "";
-
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
-    </script>
   </body>
 </html>

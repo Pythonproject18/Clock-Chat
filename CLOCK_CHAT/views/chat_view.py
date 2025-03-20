@@ -16,8 +16,6 @@ class ChatListView(View):
     def get(self, request):
         user_id = request.user.id
 
-        chat_data = user_service.get_user_chats(user_id)
-
         all_chats = user_service.get_chat_details(user_id)
 
         unique_chats = []
@@ -28,7 +26,7 @@ class ChatListView(View):
                 unique_chats.append(chat)
                 existing_chat_ids.add(chat["id"]) 
 
-        return render(request, 'enduser/Chats/test.html', {'chat_data': chat_data, 'chats': unique_chats})
+        return render(request, 'enduser/Chats/test.html', {'chats': unique_chats})
 
     
 
