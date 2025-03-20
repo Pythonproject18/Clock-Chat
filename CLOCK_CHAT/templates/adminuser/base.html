@@ -1,330 +1,314 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Quick-come Admin{% endblock %}</title>
+  <!-- Bootstrap and Font Awesome CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <!-- Toast Message Implemention-->
+   
+    <script>
+        window.djangoMessages = [
+        {% for message in messages %}
+            {
+            "tags": "{{ message.tags }}",
+            "message": "{{ message|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+        ];
+        console.log("djangoMessages:", window.djangoMessages);  // Debug output
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+    <!-- Include external toast script -->
+    <script src="{% static 'js/toast_message.js' %}"></script>
+    <!-- End Toast -->
+
+  <style>
+    /* CSS Variables */
+    :root {
+      --bg-light: #f8f9fa;
+      --bg-dark: #121212;
+      --text-light: #ffffff;
+      --text-dark: #000000;
+      --primary-color: #007bff;
+      --icon-color: #ffdd00;
+    }
+    /* Global Styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      overflow-x: hidden;
+    }
+    /* Dark Mode */
+    .dark-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+    }
+    .dark-mode .bg-light {
+      background-color: #333 !important;
+      color: var(--text-light);
+    }
+    /* Navbar: Always full width */
+    .navbar {
+      width: 100%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    /* Wrapper: contains sidebar and page content */
+    #wrapper {
+      display: flex;
+      min-height: calc(100vh - 56px); /* subtract navbar height */
+      transition: all 0.3s ease;
+    }
+    /* Sidebar */
+    #sidebar {
+      width: 250px;
+      background-color: var(--bg-light);
+      border-right: 1px solid #dee2e6;
+      transition: transform 0.3s ease;
+    }
+    /* Hide sidebar (desktop) by shifting it left */
+    #sidebar.hide {
+      transform: translateX(-250px);
+    }
+    /* Sidebar Header */
+    #sidebar .sidebar-header {
+      padding: 1rem 1.5rem;
+      background: var(--primary-color);
+      color: var(--text-light);
+      position: relative;
+    }
+    /* Mobile Close Button */
+    #sidebar .close-btn {
+      display: none;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+    /* Sidebar Menu */
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #sidebar ul li {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #ddd;
+    }
+    #sidebar ul li a {
+      text-decoration: none;
+      color: var(--text-dark);
+      display: block;
+    }
+    #sidebar ul li a:hover {
+      background-color: var(--primary-color);
+      color: var(--text-light);
+    }
+    /* Page Content */
+    #page-content-wrapper {
+      flex: 1;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+    }
+    /* Mobile Adjustments */
+    @media (max-width: 768px) {
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        height: 100%;
+        z-index: 1050;
+        transform: translateX(-100%);
+      }
+      /* When visible, slide sidebar in */
+      #sidebar.show {
+        transform: translateX(0);
+      }
+      /* Show close button on mobile */
+      #sidebar .close-btn {
+        display: block;
+      }
+      /* Wrapper: full width content on mobile */
+      #wrapper {
+        flex-direction: column;
+      }
+    }
+    #sidebar ul li a {
+      display: block;
+      padding: 0.75rem 1rem;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      width: 100%;
+      height: 100%;
+    }
+    
+    #sidebar ul li a:hover {
+      background-color: var(--primary-color);
+      color: var(--text-light);
+    }
+    #sidebar i {
+      transition: color 0.3s ease;
+    }
+  </style>
 </head>
 <body>
-    <div class="d-flex" id="wrapper">
-
-        {% comment %} This is belongs the sidebar {% endcomment %}
-        <div class="bg-light border-right" id="sidebar-wrapper">
-            <div class="sidebar-heading">Admin Panel</div>
-            <div class="list-group list-group-flush">
-                <a href="#dashboardSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle list-group-item list-group-item-action bg-light"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                <ul class="collapse list-unstyled" id="dashboardSubmenu">
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light">Overview</a>
-                    </li>
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light">Reports</a>
-                    </li>
-                </ul>
-                <a href="#" class="list-group-item list-group-item-action bg-light"><i class="fas fa-user"></i> Profile</a>
-                <a href="#settingsSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle list-group-item list-group-item-action bg-light"><i class="fas fa-cogs"></i> Settings</a>
-                <ul class="collapse list-unstyled" id="settingsSubmenu">
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                    </li>
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light"><i class="fas fa-folder"></i> Folder</a>
-                    </li>
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light"><i class="fas fa-comments"></i> Chat</a>
-                    </li>
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light"><i class="fas fa-inbox"></i> Inbox</a>
-                    </li>
-                </ul>
-                <a href="#" class="list-group-item list-group-item-action bg-light"><i class="fas fa-calendar-alt"></i> Calendar</a>
-                <a href="#eventsSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle list-group-item list-group-item-action bg-light"><i class="fas fa-calendar-check"></i> Events</a>
-                <ul class="collapse list-unstyled" id="eventsSubmenu">
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light">Events 1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light">Events 2</a>
-                    </li>
-                </ul>
-                <a href="#tasksSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle list-group-item list-group-item-action bg-light"><i class="fas fa-tasks"></i> Tasks</a>
-                <ul class="collapse list-unstyled" id="tasksSubmenu">
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light">Task 1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light">Task 2</a>
-                    </li>
-                    <li>
-                        <a href="#" class="list-group-item list-group-item-action bg-light">Task 3</a>
-                    </li>
-                </ul>
-                <a href="#" class="list-group-item list-group-item-action bg-light"><i class="fas fa-file-alt"></i> Pages</a>
-                <a href="#" class="list-group-item list-group-item-action bg-light"><i class="fas fa-thumbs-up"></i> Social App</a>
-            </div>
-        </div>
- {% comment %} Here the sidebar will be wrapped(wrapper.toggled) {% endcomment %}
-
-
-{% comment %} The main page content will start from here {% endcomment %}
-        <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                <button class="btn btn-primary" id="menu-toggle">Toggle Menu</button>
-                <button class="btn btn-secondary" id="theme-toggle"><i class="fas fa-sun"></i></button>
-            </nav>
-            <div class="container-fluid">
-                <h1 class="mt-4">Admin Panel</h1>
-                <p>Welcome to the admin panel!</p>
-            </div>
-        </div>
+  <!-- Full-width Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <button class="btn btn-primary" id="sidebarToggle">
+      <i class="fas fa-bars"></i>
+    </button>
+    <a class="navbar-brand ml-2" href="#">Admin Panel</a>
+    <div class="ml-auto d-flex align-items-center">
+      <button class="btn btn-secondary mr-2" id="themeToggle">
+        <i class="fas fa-sun"></i>
+      </button>
+      <a href="{% url 'logout_myadmin' %}" class="btn btn-danger">Logout</a>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="scripts.js"></script>
+  </nav>
+
+  <!-- Wrapper for Sidebar and Page Content -->
+  <div id="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <div class="sidebar-header">
+        <h4>Menu</h4>
+        <span class="close-btn d-md-none" id="sidebarClose"><i class="fas fa-times"></i></span>
+      </div>
+      <ul>
+        <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li>
+          <a href="#profileSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+              <i class="fas fa-user-circle"></i> Profile
+          </a>
+          <ul class="collapse list-unstyled" id="profileSubmenu">
+              <li>
+                  <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
+              </li>
+              <li>
+                  <a href="{% url 'logout_myadmin' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+              </li>
+          </ul>
+      </li>
+      <li>
+        <a href="#usersSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+            <i class="fas fa-users"></i> Users
+        </a>
+        <ul class="collapse list-unstyled" id="usersSubmenu">
+            <li>
+                <a href="#"><i class="fas fa-list"></i> Users List</a>
+            </li>
+            <li>
+                <a href="#"><i class="fas fa-user-plus"></i> User Create</a>
+            </li>
+        </ul>
+    </li>
+    <li>
+      <a href="#chatsSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+          <i class="fas fa-comments"></i> Chats
+      </a>
+      <ul class="collapse list-unstyled" id="chatsSubmenu">
+          <li>
+              <a href="{% url 'admin_chats_list' %}"><i class="fas fa-list-alt"></i> Chats List</a>
+          </li>
+          <li>
+              <a href="#"><i class="fas fa-plus"></i> Chat Create</a>
+          </li>
+      </ul>
+  </li>
+  <li>
+    <a href="#extraSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+        <i class="fas fa-folder"></i> Extra
+    </a>
+    <ul class="collapse list-unstyled" id="extraSubmenu">
+        <li>
+            <a href="#"><i class="fas fa-folder"></i> #</a>
+        </li>
+        <li>
+            <a href="#"><i class="fas fa-folder-open"></i> #</a>
+        </li>
+    </ul>
+</li>
+      </ul>
+    </nav>
+
+    
+    <!-- Main Content Area -->
+    <div class="center-bodycontent" id="mainContent">
+      <main class="container">
+        {% block content %}
+        <!-- Page-specific content goes here -->
+        {% endblock %}
+      </main>
+    </div>
+
+  <!-- jQuery, Popper.js, and Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      // Function to toggle dark mode
+      function toggleDarkMode(enableDarkMode) {
+        if (enableDarkMode) {
+          $("body").addClass("dark-mode");
+          $(".navbar, #sidebar, #sidebar ul li a").addClass("dark-mode");
+          $("#themeToggle i").removeClass("fa-sun").addClass("fa-moon");
+          $("i, h4, p, a, .sidebar-header, .navbar").css("color", "white"); // Text & icons white
+          $("body, #sidebar").css("background-color", "#121212"); // Dark background
+          localStorage.setItem("theme", "dark");
+        } else {
+          $("body").removeClass("dark-mode");
+          $(".navbar, #sidebar, #sidebar ul li a").removeClass("dark-mode");
+          $("#themeToggle i").removeClass("fa-moon").addClass("fa-sun");
+          $("i, h4, p, a, .sidebar-header, .navbar").css("color", "black"); // Text & icons black
+          $("body").css("background-color", "#f8f9fa"); // Light background
+          $("#sidebar").css("background-color", "#ffffff"); // Sidebar light background
+          localStorage.setItem("theme", "light");
+        }
+      }
+  
+      if (localStorage.getItem("theme") === "dark") {
+        toggleDarkMode(true);
+      } else {
+        toggleDarkMode(false);
+      }
+  
+      $("#themeToggle").click(function (e) {
+        e.preventDefault();
+        if ($("body").hasClass("dark-mode")) {
+          toggleDarkMode(false);
+        } else {
+          toggleDarkMode(true);
+        }
+      });
+  
+      $("#sidebarToggle").click(function (e) {
+        e.preventDefault();
+        if ($(window).width() < 768) {
+          $("#sidebar").toggleClass("show");
+        } else {
+          $("#sidebar").toggleClass("hide");
+        }
+      });
+
+      $("#sidebarClose").click(function (e) {
+        e.preventDefault();
+        $("#sidebar").removeClass("show");
+      });
+    });
+  </script>  
 </body>
 </html>
 
-
-<style>
-    {% comment %} Use css variable for managing colors {% endcomment %}
-    :root {
-        --bg-light: #f8f9fa;
-        --bg-dark: #121212;
-        --text-light: #ffffff;
-        --text-dark: #000000;
-        --green: green;
-        --red: red;
-        --yellow: yellow;
-        --purple: purple;
-        --blue: blue;
-        --orange: orange;
-        --teal: teal;
-        --pink: pink;
-        --icon-color: #ffdd00;
-    }
-    
-    body {
-        font-family: Arial, sans-serif;
-        background-color: var(--bg-light);
-        color: var(--text-dark);
-        transition: background-color 0.3s, color 0.3s;
-    }
-    
-    #wrapper {
-        display: flex;
-        min-height: 100vh;
-        overflow-x: hidden;
-        transition: all 0.3s;
-    }
-    
-    #sidebar-wrapper {
-        min-width: 15rem;
-        max-width: 15rem;
-        background-color: var(--bg-light);
-        border-right: 1px solid #dee2e6;
-        transition: all 0.3s;
-    }
-    
-    #wrapper.toggled #sidebar-wrapper {
-        margin-left: -15rem;
-        transition: all 0.3s;
-    }
-    
-    #page-content-wrapper {
-        flex: 1;
-        width: 100%;
-        padding: 20px;
-        transition: margin-left 0.3s;
-    }
-    
-    #wrapper.toggled #page-content-wrapper {
-        margin-left: 0;
-    }
-    
-    .sidebar-heading {
-        padding: 1rem 1.5rem;
-        font-size: 1.2rem;
-    }
-    
-    .list-group-item {
-        border: none;
-        padding: 0.75rem 1.5rem;
-        transition: color 0.3s;
-    }
-    
-    .collapse {
-        padding-left: 1rem;
-    }
-    
-    {% comment %} This is the section of  Dark mode styles  {% endcomment %}
-    .dark-mode {
-        background-color: var(--bg-dark) !important;
-        color: var(--text-light) !important;
-    }
-    
-    .dark-mode .bg-light {
-        background-color: var(--bg-dark) !important;
-    }
-    
-    .dark-mode .border-right {
-        border-right: 1px solid #343a40 !important;
-    }
-    
-    .dark-mode .list-group-item {
-        color: var(--text-light) !important;
-    }
-    
-    /* Colorful icons */
-    .list-group-item i {
-        margin-right: 10px;
-    }
-    
-    .fas.fa-tachometer-alt {
-        color: var(--green);
-    }
-    
-    .fas.fa-user {
-        color: var(--red);
-    }
-    
-    .fas.fa-cogs {
-        color: var(--yellow);
-    }
-    
-    .fas.fa-calendar-alt {
-        color: var(--purple);
-    }
-    
-    .fas.fa-calendar-check {
-        color: var(--blue);
-    }
-    
-    .fas.fa-tasks {
-        color: var(--orange);
-    }
-    
-    .fas.fa-file-alt {
-        color: var(--teal);
-    }
-    
-    .fas.fa-thumbs-up {
-        color: var(--pink);
-    }
-    
-    .fas.fa-sun, .fas.fa-moon {
-        color: var(--icon-color);
-    }
-    
-{% comment %}  Media Queries for Responsiveness  {% endcomment %}
-    @media (max-width: 780px) {
-        #sidebar-wrapper {
-            min-width: 12rem;
-            max-width: 12rem;
-        }
-    
-        .sidebar-heading {
-            font-size: 1rem;
-        }
-    
-        .list-group-item {
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-        }
-    
-        .collapse {
-            padding-left: 0.5rem;
-        }
-    
-        #page-content-wrapper {
-            padding: 15px;
-        }
-    
-        .navbar .btn {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        #sidebar-wrapper {
-            min-width: 10rem;
-            max-width: 10rem;
-        }
-    
-        .sidebar-heading {
-            font-size: 0.8rem;
-        }
-    
-        .list-group-item {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.8rem;
-        }
-    
-        .collapse {
-            padding-left: 0.3rem;
-        }
-    
-        #page-content-wrapper {
-            padding: 10px;
-        }
-    
-        .navbar .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.8rem;
-        }
-    }
-    
-    @media (max-width: 200px) {
-        #sidebar-wrapper {
-            min-width: 8rem;
-            max-width: 8rem;
-        }
-    
-        .sidebar-heading {
-            font-size: 0.7rem;
-        }
-    
-        .list-group-item {
-            padding: 0.3rem 0.6rem;
-            font-size: 0.7rem;
-        }
-    
-        .collapse {
-            padding-left: 0.2rem;
-        }
-    
-        #page-content-wrapper {
-            padding: 5px;
-        }
-    
-        .navbar .btn {
-            padding: 0.2rem 0.4rem;
-            font-size: 0.7rem;
-        }
-    }
-    
-</style>
-
-<script>
- {% comment %} The js for toggled & change the color of the admin panel {% endcomment %}
-$("#menu-toggle").click(function(e) {
-    e.preventDefault();
-    $("#wrapper").toggleClass("toggled");
-});
-
-$("#theme-toggle").click(function(e) {
-    e.preventDefault();
-    $("body").toggleClass("dark-mode");
-    var icon = $(this).find("i");
-    if (icon.hasClass("fa-sun")) {
-        icon.removeClass("fa-sun").addClass("fa-moon");
-    } else {
-        icon.removeClass("fa-moon").addClass("fa-sun");
-    }
-});
-
-</script>
