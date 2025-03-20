@@ -14,8 +14,8 @@ class MessageReaction(models.Model):
     updated_by = models.ForeignKey('User', on_delete=models.CASCADE, related_name='reactions_updated')
 
 
-class Meta:
-        db_table = 'message_reactions'
+    class Meta:
+                db_table = 'message_reactions'
 
 def __str__(self):
         return f"ID: {self.id}, Created_at: {self.created_at}, Active: {self.is_active}"

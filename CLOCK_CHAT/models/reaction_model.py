@@ -13,7 +13,7 @@ class Reaction(models.Model):
 
 
 
-class Meta:
+   class Meta:
         db_table = 'reactions'
 
     

@@ -10,7 +10,10 @@ urlpatterns = [
     path('api/login/send_otp/', views.OtpSendView.as_view(), name='login_otp_send'),
     path('logout/', views.UserLogoutView.as_view(), name='log_out'),
 
+    path('login/admin/', views.LoginAdminView.as_view(), name='login_myadmin'),
+    path('admin/log-out/', views.LoginOutAdminView.as_view(), name='logout_myadmin'),
     path('admin/', views.AdminHomeView.as_view(), name='admin_home'),
+    path('admin/chats', views.AdminChatListView.as_view(), name='admin_chats_list'),
 
     path('', views.ChatListView.as_view(), name='chat_list'),
     path('chat/search/api', views.ChatSearchView.as_view(), name='search_api'),

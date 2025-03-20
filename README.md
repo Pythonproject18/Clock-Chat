@@ -39,3 +39,4 @@
 # open runserver:
 
 => python manage.py runserver
+venv/scripts/activate
