@@ -29,6 +29,7 @@ class ChatListView(View):
         return render(request, 'enduser/Chats/test.html', {'chats': unique_chats})
 
     
+    
 
 class ChatSearchView(View):
     def get(self, request):

@@ -47,10 +47,14 @@ def get_user_status(user_id):
                 'created_by': latest_status.created_by if latest_status else None,
             }
         
-def create_status(created_by,media_url,status_type):
+def create_status(image,user_id,status_type):
+    status = Status.objects.create(
+            status_media=image,  # Directly assign file
+            status_type=status_type,
+            created_by_id=user_id  # Ensure it matches the User model's ID
+        )
+    return status
+
+        
+
     
-    Status.objects.create(
-        status_media= media_url,
-        status_type= status_type,
-        created_by=created_by
-    )        
