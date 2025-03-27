@@ -1,14 +1,21 @@
-from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.http import JsonResponse
 from CLOCK_CHAT.services import status_service
 from django.shortcuts import render
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-import os
+from CLOCK_CHAT.decorator import auth_required, role_required
+from CLOCK_CHAT.constants.default_values import Role
+from CLOCK_CHAT.packages.file_management import save_uploaded_file
+from django.contrib import messages
+from CLOCK_CHAT.constants.error_message import ErrorMessage
+from CLOCK_CHAT.constants.success_message import SuccessMessage
+
+
+
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
 
 class StatusListView(View):  # Use LoginRequiredMixin
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         user = request.user.id  # Get logged-in user
         print(user)
 
@@ -19,13 +26,10 @@ class StatusListView(View):  # Use LoginRequiredMixin
         
         return render(request,'status/status.html', {"friends": friends,'user_status':user_status})  # Use appropriate template
     
- 
-from django.views import View
-from django.http import JsonResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 
+
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
 
 class StatusCreateView(View):
     def get(self, request):
@@ -36,12 +40,12 @@ class StatusCreateView(View):
             image = request.FILES.get('image')  # File object
             status_type = request.POST.get('type')
             user_id = request.user.id
-
+            image_path = save_uploaded_file(image, 'Status')
             if not image:
                 return JsonResponse({'error': 'No image uploaded'}, status=400)
 
             # Save the image to media storage
-            status = status_service.create_status(image,user_id,status_type)
+            status = status_service.create_status(image_path, user_id, status_type)
             return JsonResponse({'message': 'Status posted successfully!', 'id': status.id})
 
         except Exception as e:
