@@ -155,10 +155,10 @@
 
     <div class="container">
              <div class="top-bar">
-            <span class="title">Updates</span>
+            <!-- <span class="title">Updates</span> -->
             <div class="icons">
-                <span class="search-icon">🔍</span>
-                <span class="menu-icon">⋮</span>
+                <!-- <span class="search-icon">🔍</span>
+                <span class="menu-icon">⋮</span> -->
             </div>
         </div>
         <div class="status">
@@ -194,17 +194,18 @@
 
         <div class="floating-icons">
             <div class="floating-button edit-button">✎</div>
-            <div class="floating-button">📷</div>
+            <div onclick="window.location.href='{% url '/status_create/' %}'" class="floating-button">📷</div>
+
         </div>
 
-        <!-- Bottom Navigation -->
+        <!-- Bottom Navigation
         <div class="nav">
             <div>Chats</div>
             <div class="active">Updates</div>
             <div>Communities</div>
             <div>Calls</div>
         </div> 
-    </div>
+    </div> -->
 
 </body>
 </html>
