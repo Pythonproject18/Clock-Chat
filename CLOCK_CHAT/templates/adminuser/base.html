@@ -187,14 +187,14 @@
         <span class="close-btn d-md-none" id="sidebarClose"><i class="fas fa-times"></i></span>
       </div>
       <ul>
-        <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a href="{% url 'admin_home' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
         <li>
           <a href="#profileSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
               <i class="fas fa-user-circle"></i> Profile
           </a>
           <ul class="collapse list-unstyled" id="profileSubmenu">
               <li>
-                  <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
+                  <a href="{% url 'admin_profile' %}"><i class="fas fa-user"></i> Admin Profile</a>
               </li>
               <li>
                   <a href="{% url 'logout_myadmin' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
