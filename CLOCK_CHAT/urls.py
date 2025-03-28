@@ -16,10 +16,14 @@ urlpatterns = [
 
     
     # Admin
-    path('login/admin/', views.LoginAdminView.as_view(), name='login_myadmin'),
-    path('admin/log-out/', views.LoginOutAdminView.as_view(), name='logout_myadmin'),
+    path('login/admin', views.LoginAdminView.as_view(), name='login_myadmin'),
+    path('admin/log-out', views.LoginOutAdminView.as_view(), name='logout_myadmin'),
     path('admin/', views.AdminHomeView.as_view(), name='admin_home'),
     path('admin/chats', views.AdminChatListView.as_view(), name='admin_chats_list'),
+
+    # Admin Profile
+    path('admin/profile/', views.AdminProfileView.as_view(), name='admin_profile'),
+    
     
 
     # Chats
