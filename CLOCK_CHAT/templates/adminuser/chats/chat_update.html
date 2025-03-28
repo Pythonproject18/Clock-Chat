@@ -1,0 +1,139 @@
+{% extends "adminuser/base.html" %}
+{% load static %}
+
+{% block title %}Clock-Chat Admin-Chat Update{% endblock %}
+
+{% black content %}
+
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .profile-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border-collapse: collapse;
+            text-align: left;
+        }
+        td input {
+            width: 100%;
+            border: none;
+            padding: 5px;
+            background: transparent;
+        }
+        .status-btn, .edit-btn, .upload-btn {
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+        }
+        .active { background-color: green; color: white; }
+        .deactivate { background-color: red; color: white; }
+        .edit-btn { background-color: blue; color: white; }
+        .upload-btn { background-color: grey; color: white; }
+  </style>
+</head>
+<body>
+    <div class="profile-card">
+        <img id="profile-img" src="bacground.jpg" alt="Profile Photo" class="profile-photo">
+        <input type="file" id="upload-photo" accept="image/*" class="upload-btn" onchange="updatePhoto()">
+        
+        <table>
+            <tr>
+                <th>Chat_title</th>
+                <td><input type="text" id="user-name" value="abcd......"></td>
+            </tr>
+            <tr>
+                <th>Type:</th>
+                <td><input type="text" id="user-type" value="group/privet"></td>
+            </tr>
+            <tr>
+                <th>Chat_bio:</th>
+                <td><input type="text" id="Chat_bio" value="Not provided"></td>
+            </tr>
+            <tr>
+                <th>Status:</th>
+                <td><span id="user-status">Active</span></td>
+            </tr>
+        </table>
+
+        <button id="status-toggle" class="status-btn active" onclick="toggleStatus()">Deactivate</button>
+        <button class="edit-btn" onclick="saveProfile()">Save Changes</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadProfile);
+
+        function toggleStatus() {
+            let statusText = document.getElementById("user-status");
+            let statusButton = document.getElementById("status-toggle");
+
+            if (statusText.textContent === "Active") {
+                statusText.textContent = "Deactivated";
+                statusButton.textContent = "Activate";
+                statusButton.classList.remove("active");
+                statusButton.classList.add("deactivate");
+            } else {
+                statusText.textContent = "Active";
+                statusButton.textContent = "Deactivate";
+                statusButton.classList.remove("deactivate");
+                statusButton.classList.add("active");
+            }
+            localStorage.setItem("userStatus", statusText.textContent);
+        }
+
+        function saveProfile() {
+            localStorage.setItem("userName", document.getElementById("user-name").value);
+            localStorage.setItem("userEmail", document.getElementById("user-email").value);
+            localStorage.setItem("userGender", document.getElementById("user-gender").value);
+            alert("Profile updated successfully!");
+        }
+
+        function loadProfile() {
+            if (localStorage.getItem("userName")) {
+                document.getElementById("user-name").value = localStorage.getItem("userName");
+                document.getElementById("user-email").value = localStorage.getItem("userEmail");
+                document.getElementById("user-gender").value = localStorage.getItem("userGender");
+                document.getElementById("user-status").textContent = localStorage.getItem("userStatus") || "Active";
+            }
+        }
+
+        function updatePhoto() {
+            const file = document.getElementById("upload-photo").files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("profile-img").src = e.target.result;
+                    localStorage.setItem("profileImage", e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+{% endblock %}

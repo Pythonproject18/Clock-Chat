@@ -8,13 +8,15 @@ from django.views.decorators.csrf import csrf_exempt
 from CLOCK_CHAT.services import auth_service
 from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
+from CLOCK_CHAT.constants.default_values import Role
 from CLOCK_CHAT.packages.response import success_response,error_response
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class OtpSendView(View):
     def post(self, request):
         email = request.POST.get("email")
-        purpose = request.POST.get("purpose")  # Get purpose (signup or login)
+        purpose = request.POST.get("purpose")  # e.g., "signup", "login", "admin_signin"
 
         if not email or not purpose:
             return JsonResponse({"status": "error", "message": "Email and purpose are required"}, status=400)
@@ -23,25 +25,30 @@ class OtpSendView(View):
 
         if purpose == "login":
             if not user_exists:
-                return JsonResponse(error_response(ErrorMessage.E00003.value))
+                return JsonResponse(error_response(ErrorMessage.E00003.value), status=400)
 
         elif purpose == "signup":
             if user_exists:
-                return JsonResponse(error_response(ErrorMessage.E00002.value))
+                return JsonResponse(error_response(ErrorMessage.E00002.value), status=400)
 
+        elif purpose == "admin_signin":
+            if not user_exists:
+                return JsonResponse(error_response(ErrorMessage.E00003.value), status=400)
+            # Retrieve the user and check admin role
+            user = auth_service.get_user(email)
+            if user.role != Role.ADMIN.value:
+                return JsonResponse(error_response(ErrorMessage.E00001.value), status=400)
         else:
             return JsonResponse({"status": "error", "message": "Invalid purpose."}, status=400)
 
-        # Generate OTP and store it
+        # Generate OTP and store it in the cache (5-minute expiration)
         otp = auth_service.generate_otp(email)
-        cache.set(f"otp_{email}", otp, timeout=300)  # Store OTP for 5 minutes
+        cache.set(f"otp_{email}", otp, timeout=300)
         print(f"Your OTP for {email} is: {otp}")
 
-
-        msg = f"An OTP has been sent to {email}. Please check your email." # custom OTP Success Message
-        
+        msg = f"An OTP has been sent to {email}. Please check your email."
         return JsonResponse(success_response(msg), status=200)
-        
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class OtpVerifyView(View):
