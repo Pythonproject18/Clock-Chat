@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat App</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <script src="{% static 'js/chat_js.js' %}"></script>
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -67,27 +68,19 @@
         </div>
       </div>
       
-        <i class="fa fa-plus" style="position: absolute;display: flex;left: 40%;bottom: 10%;font-size: 30px;" onclick="openmodal()" aria-hidden="true"></i>
+        <i class="fa fa-plus" id="plus_icon" onclick="openmodal()" aria-hidden="true"></i>
         
-        <div class="modal" id="openmodal" style="display:none;
-    position: absolute;
-    height: 40%;
-    width: 40%;
-    background: green;
-    margin: auto;
-    border-radius: 20px;">
-          <div class="modal-dialog">
+        <div class="modal open_modal" id="openmodal" style="display:none;">
+            <i class="fa-solid fa-xmark" style="right: 20px;position: absolute;display: flex; top:20px;cursor:pointer;" onclick="close_modal()"></i>
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">Start conversation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title title_modal">Start conversation</h5>
               </div>
               <div class="modal-body">
               </div>
               <div class="modal-footer">
               </div>
             </div>
-          </div>
         </div>
 
       <div class="chat-content">
@@ -106,22 +99,6 @@
         
       </div>
     </div>
-    <script>
-      function openmodal(){
-        let modal=document.getElementById("openmodal");
-        modal.style.display="block";
-      }
-    </script>
-    <style>
-      #openmodal{
-    position: absolute;
-    height: 80%;
-    width: 25%;
-    background: #d3e3fd;
-    border-radius: 20px;
-    margin-left: 35%;
-    top: 10%;
-     }
-    </style>
+
   </body>
 </html>
