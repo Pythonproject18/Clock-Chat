@@ -72,3 +72,10 @@ class AdminHomeView(View):
 class AdminProfileView(View):
     def get(self, request):
         return render(request, 'adminuser/admin_profile/admin_profile.html')
+    
+
+@auth_required( login_url='/login/admin/')
+@role_required(Role.ADMIN.value, page_type='admin')
+class AdminProfileUpdateView(View):
+    def get(self, request):
+        return render(request, '')

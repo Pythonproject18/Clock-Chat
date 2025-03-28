@@ -23,6 +23,7 @@ urlpatterns = [
 
     # Admin Profile
     path('admin/profile/', views.AdminProfileView.as_view(), name='admin_profile'),
+    path('admin/profile/update/', views.AdminProfileUpdateView.as_view(), name='admin_profile_update'),
     
     
 
