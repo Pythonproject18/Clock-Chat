@@ -66,6 +66,29 @@
           ></i>
         </div>
       </div>
+      
+        <i class="fa fa-plus" style="position: absolute;display: flex;left: 40%;bottom: 10%;font-size: 30px;" onclick="openmodal()" aria-hidden="true"></i>
+        
+        <div class="modal" id="openmodal" style="display:none;
+    position: absolute;
+    height: 40%;
+    width: 40%;
+    background: green;
+    margin: auto;
+    border-radius: 20px;">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Start conversation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+              </div>
+              <div class="modal-footer">
+              </div>
+            </div>
+          </div>
+        </div>
 
       <div class="chat-content">
         <div class="chat-messages"></div>
@@ -83,6 +106,22 @@
         
       </div>
     </div>
-
+    <script>
+      function openmodal(){
+        let modal=document.getElementById("openmodal");
+        modal.style.display="block";
+      }
+    </script>
+    <style>
+      #openmodal{
+    position: absolute;
+    height: 80%;
+    width: 25%;
+    background: #d3e3fd;
+    border-radius: 20px;
+    margin-left: 35%;
+    top: 10%;
+     }
+    </style>
   </body>
 </html>
