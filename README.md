@@ -39,4 +39,3 @@
 # open runserver:
 
 => python manage.py runserver
-

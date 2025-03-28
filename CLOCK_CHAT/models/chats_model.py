@@ -4,7 +4,7 @@ from ..constants import Chat_Type
 
 
 class Chat(models.Model):
-    chat_title = models.CharField(max_length=50)
+    chat_title = models.CharField(max_length=50, null=True, blank=True)
     chat_cover_photo = models.URLField(max_length=255, null=True, blank=True)
     chat_bio = models.CharField(max_length=50, null=True, blank=True)
     type = models.IntegerField(

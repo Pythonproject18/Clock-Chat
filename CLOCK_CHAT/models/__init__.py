@@ -7,3 +7,4 @@ from .reaction_model import *
 from .status_models import *
 from .status_reaction_models import *
 from .status_viewer_models import *
+from .friend_model import *
