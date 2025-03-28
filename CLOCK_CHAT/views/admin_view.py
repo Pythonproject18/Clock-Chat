@@ -63,5 +63,5 @@ class LoginOutAdminView(View):
 @role_required(Role.ADMIN.value, page_type='admin')
 class AdminHomeView(View):
     def get(self, request):
-        return render(request, 'adminuser/base.html')
+        return render(request, 'adminuser/dashboard.html')
     
