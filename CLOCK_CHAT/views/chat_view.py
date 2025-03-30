@@ -21,11 +21,19 @@ class ChatListView(View):
         return render(request, 'enduser/Chats/test.html', {'chats': all_chats})
 
 
+
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+
 class ChatSearchView(View):
     def get(self, request):
         search_query = request.GET.get('q', '')
         
         return JsonResponse({"results": []}) 
+
+
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
 
 class ChatCreateView(View):
     def get(self, request):

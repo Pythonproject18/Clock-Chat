@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat App</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <script src="{% static 'js/chat_js.js' %}"></script>
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -57,9 +58,7 @@
 
         <div class="bottom-icons">
           <span class="material-icons">chat</span>
-                <a href="/status/">
-              <span class="material-icons">motion_photos_on</span>
-                </a>
+          <span onclick ="window.location.href='{% url 'status_list' %}'" class="material-icons">motion_photos_on</span>
           <span class="material-icons">settings</span>
           <i
             class="fa-solid fa-power-off"
@@ -68,6 +67,21 @@
           ></i>
         </div>
       </div>
+      
+        <i class="fa fa-plus" id="plus_icon" onclick="openmodal()" aria-hidden="true"></i>
+        
+        <div class="modal open_modal" id="openmodal" style="display:none;">
+            <i class="fa-solid fa-xmark" style="right: 20px;position: absolute;display: flex; top:20px;cursor:pointer;" onclick="close_modal()"></i>
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title title_modal">Start conversation</h5>
+              </div>
+              <div class="modal-body">
+              </div>
+              <div class="modal-footer">
+              </div>
+            </div>
+        </div>
 
       <div class="chat-content">
         <div class="chat-messages"></div>

@@ -29,7 +29,7 @@ urlpatterns = [
 
     # Status
     path('status/', views.StatusListView.as_view(), name='status_list'),
-    path('status/create', views.StatusCreateView.as_view(), name='status_create'),
+    path('status/create/', views.StatusCreateView.as_view(), name='status_create'),
 
 
 

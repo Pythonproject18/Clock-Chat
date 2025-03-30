@@ -5,6 +5,32 @@ body {
     height: 100vh;
     margin: 0;
 }
+.open_modal{
+    position: absolute;
+    height: 80%;
+    width: 25%;
+    background: #d3e3fd;
+    border-radius: 10px;
+    right: 38%;
+    top: 10%;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  }
+  #plus_icon{
+    position: absolute;
+    display: flex;
+    left: 40%;
+    bottom: 10%;
+    font-size: 30px;
+    cursor: pointer;
+  }
+
+.title_modal{
+    width: 90%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-size: 20px;
+}
 
 .chat-container {
     display: flex;
