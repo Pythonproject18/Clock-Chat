@@ -7,18 +7,17 @@ from django.contrib import messages
 from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
 from CLOCK_CHAT.services import user_service
-
+# from CLOCK_CHAT.models import User
 
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
-
 class ChatListView(View):
     def get(self, request):
         user_id = request.user.id
 
         all_chats = user_service.get_chat_details(user_id)
 
-        return render(request, 'enduser/Chats/test.html', {'chats': all_chats})
+        return render(request, 'enduser/Chats/chat.html', {'chats': all_chats})
 
 
 
