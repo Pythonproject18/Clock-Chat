@@ -220,7 +220,7 @@
                 <p id="status1" class="status deactive">Deactivated</p>
             </td>
             <td>
-                <a href="chat_update.html"><button class="action-btn">Edit</button></a>
+                <a href="{% url 'admin_chat_update' 5 %}"><button class="action-btn">Edit</button></a>
             </td>
         </tr>
         <tr>
@@ -235,7 +235,7 @@
                 <p id="status2" class="status deactive">Deactivated</p>
             </td>
             <td>
-                <a href="xyz.html"><button class="action-btn">Edit</button></a>
+                <a href="{% url 'admin_chat_update' 6 %}"><button class="action-btn">Edit</button></a>
             </td>
         </tr>
     </tbody>
