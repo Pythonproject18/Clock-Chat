@@ -5,28 +5,127 @@
 
 {% block content %}
 
-            <!-- Chart Start -->
-            <div class="container-fluid pt-4 px-4">
-                <div class="row g-4">
-                    <div class="col-sm-12 col-xl-6">
-                        <div class="bg-light rounded h-100 p-4">
-                            <h6 class="mb-4">Single Line Chart</h6>
-                            <canvas id="line-chart"></canvas>
-                        </div>
-                    </div>
-                  
-                  
-                    <div class="col-sm-12 col-xl-6">
-                        <div class="bg-light rounded h-100 p-4">
-                            <h6 class="mb-4">Multiple Bar Chart</h6>
-                            <canvas id="worldwide-sales"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
- 
-    </div>
+<style>
+{% comment %} body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f0f8ff; /* Light blue background */
+    gap: 45px;
+} {% endcomment %}
+
+.chart-container {
+    width: 400px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="chart-container">
+    <canvas id="lineChart"></canvas>
+</div>
+
+<div class="chart-container">
+    <canvas id="barChart"></canvas>
+</div>
+
+<script>
+// Line Chart Data
+const lineData = {
+    labels: [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
+    datasets: [{
+        label: 'Users',
+        data: [7, 8, 8, 9, 9, 10, 11, 14, 14, 14, 15],
+        fill: true,
+        borderColor: '#a8c8e8',
+        backgroundColor: 'rgba(168, 200, 232, 0.3)',
+        tension: 0.1
+    }]
+};
+
+// Bar Chart Data
+const barData = {
+    labels: ['2016', '2017', '2018', '2019', '2020', '2021', '2022'],
+    datasets: [{
+        label: 'Group Chat',
+        data: [10, 30, 40, 60, 60, 80, 70],
+        backgroundColor: '#66b3ff',
+    }, {
+        label: 'Single Chat',
+        data: [5, 35, 65, 60, 70, 95, 80],
+        backgroundColor: '#a8c8e8',
+    }]
+};
+
+// Line Chart Configuration
+const lineConfig = {
+    type: 'line',
+    data: lineData,
+    options: {
+        plugins: {
+            title: {
+                display: true,
+                text: 'Single Line Chart',
+                align: 'start'
+            },
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+};
+
+// Bar Chart Configuration
+const barConfig = {
+    type: 'bar',
+    data: barData,
+    options: {
+        plugins: {
+            title: {
+                display: true,
+                text: 'Multiple Bar Chart',
+                align: 'start'
+            },
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+};
+
+// Create Charts
+const lineChart = new Chart(
+    document.getElementById('lineChart'),
+    lineConfig
+);
+
+const barChart = new Chart(
+    document.getElementById('barChart'),
+    barConfig
+);
+</script>
 
 
     
