@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+
+    <!-- Adding Bootstrap CSS Link -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .custom-shadow {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        }
+        .profile-main-div {
+            width: 100%;
+            height: 100vh;
+        }
+        label {
+            display: block; /* Makes label appear on a new line */
+            margin-bottom: 5px; /* Adds space between label and the input */
+            font-weight: bold;
+            text-align: left; /* Aligns labels to the left */
+        }
+        .card-body {
+            padding: 2rem;
+        }
+        .btn {
+            width: 100%;
+        }
+    </style>
+    
+</head>
+<body>
+    
+<div class="container-fluid d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg w-75 m-5">
+        <div class="card-body">
+            <div class="row">
+               <div class="col-md-3 border-right">
+        <div ><img class="rounded-circle " height="150px" width="140px" src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg" ><span class="font-weight-bold"></span></div>
+        </div>
+            </div>
+            <div class="text-info mb-3 fs-4 text-center">Profile Update</div>
+            <form method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="first-name">Full Name</label>
+                        <input type="text" name="first_name" id="first-name" class="form-control" placeholder="Your First Name">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" name="last_name" id="last-name" class="form-control" placeholder="Your Last Name">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" id="email" class="form-control" placeholder="Your Email">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="contact">Contact</label>
+                        <input type="text" name="contact" id="contact" class="form-control" placeholder="Your Contact Number">
+                    </div>
+                </div>    
+
+                <div class="row"> 
+                    <div class="col-md-6 mb-3">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" name="dob" id="dob" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="gender">Gender</label>
+                        <select name="gender" id="gender" class="form-control">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>        
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="address">Address</label>
+                        <input type="text" name="address" id="address" class="form-control" placeholder="Your Address">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="country">Country</label>
+                        <input type="text" name="country" id="country" class="form-control" placeholder="Your Country">
+                    </div>
+                </div>
+
+                <div class="text-start">
+                    <button type="submit" class="btn btn-sm btn-primary mt-2" style="width: 50px;">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Adding Bootstrap JS & jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

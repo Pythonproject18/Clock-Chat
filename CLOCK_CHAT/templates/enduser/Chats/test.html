@@ -1,149 +1,88 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat App</title>
-    <link rel="stylesheet" href="static/css/style.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
 
-    <!-- Toast Message Implemention-->
-   
+    <!-- Toast Message Implementation -->
     <script>
-        window.djangoMessages = [
-        {% for message in messages %}
-            {
-            "tags": "{{ message.tags }}",
-            "message": "{{ message|escapejs }}"
-            }{% if not forloop.last %},{% endif %}
-        {% endfor %}
-        ];
-        console.log("djangoMessages:", window.djangoMessages);  // Debug output
+      window.djangoMessages = [
+      {% for message in messages %}
+          {
+          "tags": "{{ message.tags }}",
+          "message": "{{ message|escapejs }}"
+          }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+      ];
     </script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
-    <!-- Include external toast script -->
+
     <script src="{% static 'js/toast_message.js' %}"></script>
-    <!-- End Toast -->
-
-</head>
-<body>
+  </head>
+  <body>
     <div class="chat-container">
-        <div class="chat-list">
-            <div class="chat-search">
-                <input type="text" id="searchInput" placeholder="Search chats...">
-                <span class="material-icons search-icon">search</span>
-            </div>
-
-            <div class="chat-item" data-name="Thor" data-message="Hey! How are you?" data-avatar="icon1.png">
-                <img src="icon1.png" alt="User" class="avatar">
-                <div class="chat-info">
-                    <div class="chat-name">Thor</div>
-                    <div class="chat-message">Hey! How are you?</div>
-                </div>
-                <span class="unread-badge">1</span>
-            </div>
-
-            <div class="bottom-icons">
-                <span class="material-icons">chat</span>
-                <span class="material-icons">motion_photos_on</span>
-                <span class="material-icons">settings</span>
-                <i class="fa-solid fa-power-off" onclick="window.location.href='{% url 'log_out' %}'" style="color: #000000;"></i>
-            </div>
-            
-
+      <div class="chat-list">
+        <div class="chat-search">
+          <input type="text" id="searchInput" placeholder="Search chats..." />
+          <span class="material-icons search-icon">search</span>
         </div>
 
-        <div class="chat-content">
-            <div class="chat-messages"></div>
-            <div class="chat-input">
-                <input type="text" placeholder="Type a message..." id="messageInput"/>
-                <button onclick="sendMessage()">Send</button>
-            </div>
+        {% if chats %}
+        {% for chat in chats %}
+        <div class="chat-item">
+          <div class="chat-info">
+            <div class="chat-name">{{ chat.title }}</div>
+          </div>
         </div>
+        {% endfor %}
+        {% else %}
+        <p>No chats available.</p>
+        {% endif %}
+
+        <div class="bottom-icons">
+          <span class="material-icons">chat</span>
+          <span onclick ="window.location.href='{% url 'status_list' %}'" class="material-icons">motion_photos_on</span>
+          <span class="material-icons">settings</span>
+          <i
+            class="fa-solid fa-power-off"
+            onclick="window.location.href='{% url 'log_out' %}'"
+            style="color: #000000"
+          ></i>
+        </div>
+      </div>
+
+      <div class="chat-content">
+        <div class="chat-messages"></div>
+
+        <div class="chat-input">
+          <input
+            type="text"
+            placeholder="Type a message..."
+            id="messageInput"
+          />
+          <button onclick="sendMessage()">Send</button>
+          {% csrf_token %}
+        </div>
+
+        
+      </div>
     </div>
 
-   
-    <script>
-    
-        let messages = {};
-
-        document.getElementById("searchInput").addEventListener("input", function() {
-            let filter = this.value.toLowerCase();
-            let chatItems = document.querySelectorAll(".chat-item");
-
-            chatItems.forEach(item => {
-                let name = item.querySelector(".chat-name").textContent.toLowerCase();
-                item.style.display = name.includes(filter) ? "flex" : "none";
-            });
-        });
-
-        const chatItems = document.querySelectorAll(".chat-item");
-        const chatMessages = document.querySelector(".chat-messages");
-        const chatInput = document.querySelector(".chat-input");
-        let activeChatName = "";
-        let activeAvatar = "";
-
-        chatInput.style.display = "none";
-
-        chatItems.forEach(item => {
-            item.addEventListener("click", function() {
-                chatItems.forEach(i => i.classList.remove("active"));
-                this.classList.add("active");
-        
-                activeChatName = this.getAttribute("data-name");
-                const lastMessage = this.getAttribute("data-message");
-                activeAvatar = this.getAttribute("data-avatar");
-        
-                this.querySelector(".unread-badge")?.remove();
-        
-                chatInput.style.display = "flex";
-        
-                chatMessages.innerHTML = '';
-                chatMessages.innerHTML += `<div class="person-a">
-                    <div class="icon" style="background-image: url('${activeAvatar}');"></div>
-                    <div class="message">${lastMessage}</div>
-                </div>`;
-        
-                if (messages[activeChatName]) {
-                    messages[activeChatName].forEach(message => {
-                        chatMessages.innerHTML += `<div class="${message.sender === 'user' ? 'person-b' : 'person-a'}">
-                            <div class="message">${message.text}</div>
-                        </div>`;
-                    });
-                }
-            });
-        });
-        
-        document.getElementById("messageInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                sendMessage();
-            }
-        });
-
-        function sendMessage() {
-            const input = document.getElementById("messageInput");
-            if (input.value.trim() === "" || activeChatName === "") return;
-        
-            if (!messages[activeChatName]) {
-                messages[activeChatName] = [];
-            }
-        
-            messages[activeChatName].push({
-                sender: 'user',
-                text: input.value
-            });
-        
-            chatMessages.innerHTML += `<div class="person-b"><div class="message">${input.value}</div></div>`;
-            input.value = "";
-        
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-    </script>
-
-</body>
+  </body>
 </html>
