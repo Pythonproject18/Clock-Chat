@@ -16,13 +16,13 @@ urlpatterns = [
 
     
     # Admin
-    path('login/admin', views.LoginAdminView.as_view(), name='login_myadmin'),
-    path('admin/log-out', views.LoginOutAdminView.as_view(), name='logout_myadmin'),
+    path('login/admin/', views.LoginAdminView.as_view(), name='login_myadmin'),
+    path('admin/log-out/', views.LoginOutAdminView.as_view(), name='logout_myadmin'),
     path('admin/', views.AdminHomeView.as_view(), name='admin_home'),
 
     # Admin Chats
-    path('admin/chats', views.AdminChatListView.as_view(), name='admin_chats_list'),
-    path('admin/chats/<int:chat_id>/update', views.AdminChatUpdateView.as_view(), name='admin_chat_update'),
+    path('admin/chats/', views.AdminChatListView.as_view(), name='admin_chats_list'),
+    path('admin/chats/<int:chat_id>/update/', views.AdminChatUpdateView.as_view(), name='admin_chat_update'),
 
     # Admin Profile
     path('admin/profile/', views.AdminProfileView.as_view(), name='admin_profile'),
