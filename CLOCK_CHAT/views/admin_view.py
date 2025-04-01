@@ -78,4 +78,4 @@ class AdminProfileView(View):
 @role_required(Role.ADMIN.value, page_type='admin')
 class AdminProfileUpdateView(View):
     def get(self, request):
-        return render(request, '')
+        return render(request, 'adminuser/admin_profile/admin_profile_update.html')
