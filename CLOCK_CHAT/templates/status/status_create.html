@@ -94,7 +94,7 @@ function postStatus() {
     })
     .then(data => {
         alert('Status posted successfully!');
-        location.reload();
+        window.location.href="/status/";
     })
     .catch(error => console.error('Error:', error));
 }

@@ -1,6 +1,7 @@
-from CLOCK_CHAT.models import Friend,Status
+from CLOCK_CHAT.models import Friend,Status,User
 from django.db.models import Q
 from django.core.exceptions import ValidationError
+from CLOCK_CHAT.constants.default_values import Status_Type
 
 
 
@@ -50,19 +51,16 @@ def get_user_status(user_id):
    
 
 def create_status(image, user_id, status_type):
-    try:
-        status = Status.objects.create(
-            media=image,  # Fixed field name
-            status_type=status_type,
-            created_by_id=user_id  # Ensure it matches the User model's ID
-        )
-        return {'success': True, 'message': 'Status created successfully', 'status_id': status.id}
-    
-    except ValidationError as e:
-        return {'success': False, 'message': str(e)}
-    
-    except Exception as e:
-        return {'success': False, 'message': 'Something went wrong: ' + str(e)}
+    user=User.objects.filter(id=user_id,is_active=True).first()
+    type= Status_Type(int(status_type)).value
+    status = Status.objects.create(
+        status_media=image,  # Fixed field name
+        status_type=type,
+        created_by=user,  # Ensure it matches the User model's ID
+    )
+    return status
+
+
 
 
         
