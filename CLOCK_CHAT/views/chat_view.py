@@ -44,3 +44,13 @@ class ChatCreateView(View):
         chat_name = request.POST.get('chat_name')
 
         return JsonResponse({"status": "success", "message": "Chat created successfully"})
+    
+
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+
+class MessageListView(View):
+    def get(self, request):
+        return render(request, 'enduser/Chats/message.html')
+
+    
