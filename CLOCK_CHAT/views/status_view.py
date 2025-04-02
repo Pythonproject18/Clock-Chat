@@ -8,6 +8,8 @@ from CLOCK_CHAT.packages.file_management import save_uploaded_file
 from django.contrib import messages
 from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
+from CLOCK_CHAT.models import Status,StatusViewer
+
 
 
 
@@ -50,3 +52,38 @@ class StatusCreateView(View):
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+        
+
+
+
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+class StatusDetailView(View):
+    def get(self, request, user_id):
+        statuses = Status.objects.filter(user_id=user_id).order_by('-created_at')
+
+        if not statuses.exists():
+            return JsonResponse({'message': 'No status found'}, status=404)
+
+      
+        status_list = []
+        for status in statuses:
+            viewers = StatusViewer.objects.filter(status=status).select_related('viewed_by')
+            viewer_list = [
+                {
+                    'id': viewer.id,
+                    'viewed_by': viewer.viewed_by.username, 
+                    'viewed_at': viewer.created_at
+                }
+                for viewer in viewers
+            ]
+
+            status_list.append({
+                'id': status.id,
+                'media_url': status.media.url if status.media else None,
+                'created_at': status.created_at,
+                'type': status.status_type,
+                'viewers': viewer_list  # Sending viewer list as JSON
+            })
+
+        return render(request, "status/status_details.html", {'statuses': status_list})
