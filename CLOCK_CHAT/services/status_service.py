@@ -1,5 +1,6 @@
 from CLOCK_CHAT.models import Friend,Status
 from django.db.models import Q
+from django.core.exceptions import ValidationError
 
 
 
@@ -46,14 +47,23 @@ def get_user_status(user_id):
                 'status_media': latest_status.status_media if latest_status.status_media else None,
                 'created_by': latest_status.created_by if latest_status else None,
             }
-        
-def create_status(image,user_id,status_type):
-    status = Status.objects.create(
-            status_media=image,  # Directly assign file
+   
+
+def create_status(image, user_id, status_type):
+    try:
+        status = Status.objects.create(
+            media=image,  # Fixed field name
             status_type=status_type,
             created_by_id=user_id  # Ensure it matches the User model's ID
         )
-    return status
+        return {'success': True, 'message': 'Status created successfully', 'status_id': status.id}
+    
+    except ValidationError as e:
+        return {'success': False, 'message': str(e)}
+    
+    except Exception as e:
+        return {'success': False, 'message': 'Something went wrong: ' + str(e)}
+
 
         
 

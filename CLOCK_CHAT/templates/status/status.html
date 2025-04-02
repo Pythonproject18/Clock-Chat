@@ -190,7 +190,21 @@
             </div>
             {% endfor %}
         </div>
-       
+
+        {% for status in statuses %}
+    <p>{{ status.user.username }} - {{ status.created_at }}</p>
+    {% if status.media %}
+        {% if status.status_type == "video" %}
+            <video controls>
+                <source src="{{ status.media.url }}" type="video/mp4">
+            </video>
+        {% else %}
+            <img src="{{ status.media.url }}" alt="Status Image">
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+        
 
         <div class="floating-icons">
             <div class="floating-button edit-button">✎</div>
