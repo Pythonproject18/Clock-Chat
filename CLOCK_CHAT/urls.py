@@ -3,7 +3,8 @@ from . import views
 
 urlpatterns = [
     # Home
-    path('', views.ChatListView.as_view(), name='chat_list'),
+    path('', views.HomeView.as_view(), name='chat_list'),
+
 
 
     # Authentication
@@ -34,5 +35,7 @@ urlpatterns = [
     
 
     path('message/',views.MessageListView.as_view(), name="message"),
+    path('chat/', views.ChatListView.as_view(), name='chat_list'),
+
 
 ]
