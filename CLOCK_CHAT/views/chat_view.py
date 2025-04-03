@@ -20,7 +20,6 @@ class ChatListView(View):
         return render(request, 'enduser/Chats/chat.html', {'chats': all_chats})
 
 
-
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
 
