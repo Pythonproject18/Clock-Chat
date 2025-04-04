@@ -10,8 +10,6 @@ from CLOCK_CHAT.services import user_service
 # from CLOCK_CHAT.models import User
 
 
-@auth_required
-@role_required(Role.END_USER.value, page_type='enduser')
 class HomeView(View):
     def get(self, request):
         return render(request, 'enduser/home/landing.html', )
