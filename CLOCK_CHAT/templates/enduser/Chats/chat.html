@@ -194,9 +194,12 @@
                 <h2>Chats</h2>
                 <div class="search-bar">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" placeholder="Search conversations...">
+                    <input type="text" id="searchInput" placeholder="Search chats..." />
+                        <div id="resultsContainer"></div>
                 </div>
             </div>
+            <p id="message"></p>
+            <div id="resultsContainer"></div>
             {% if chats %}
             <div class="chat-list">
                 {% for chat in chats %}
@@ -269,6 +272,45 @@
     </div>
 
     <script>
+        function fetchChats(query) {
+            if (query.length === 0) {
+                $('#resultsContainer').html('');
+                return;
+            }
+    
+            $.ajax({
+                url: '/chat/search/api/',
+                method: 'GET',
+                data: { search: query },
+                success: function (data) {
+                    if (data.length === 0) {
+                        $('#resultsContainer').html('<p>No chats found</p>');
+                        return;
+                    }
+    
+                    let html = '<ul>';
+                    data.forEach(chat => {
+                        html += `<li class="chat-item">
+                            <img src="${chat.chat_cover}" alt="img" width="40" style="border-radius:50%; margin-right:10px;" />
+                            <strong>${chat.title}</strong>
+                        </li>`;
+                    });
+                    html += '</ul>';
+                    $('#resultsContainer').html(html);
+                },
+                error: function () {
+                    $('#resultsContainer').html('<p>Error loading chats</p>');
+                }
+            });
+        }
+    
+        $('#searchInput').on('input', function () {
+            const query = $(this).val().trim();
+            fetchChats(query);
+        });
+    
+
+
         const messageInput = document.getElementById('messageInput');
         const plusIcon = document.getElementById('plusIcon');
         const micIcon = document.getElementById('micIcon');
