@@ -1,7 +1,6 @@
 from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type
 
 def get_user_chats(user_id):
-    
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
     chats = Chat.objects.filter(id__in=chat_ids, is_active=True).order_by('id')  # Ensures order 1-4
     return chats
