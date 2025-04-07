@@ -1,0 +1,117 @@
+{% extends 'base.html' %}  
+
+{% block content %}
+<div class="container">
+    <h2>User Statuses</h2>
+
+    <div class="status-list">
+        {% for status in statuses %}
+        <div class="status-card">
+            {% if status.media_url %}
+            <img src="{{ status.media_url }}" alt="Status Image" class="status-image">
+            {% else %}
+            <p>No media available</p>
+            {% endif %}
+            
+            <p><strong>Type:</strong> {{ status.type }}</p>
+            <p><strong>Created At:</strong> {{ status.created_at }}</p>
+
+            <!-- Status Viewers List -->
+            <div class="viewers">
+                <h4>Viewed By:</h4>
+                <ul>
+                    {% for viewer in status.viewers %}
+                        <li>{{ viewer.viewed_by.username }}</li>
+                    {% empty %}
+                        <li>No views yet</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% empty %}
+        <p>No statuses found.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="my-status">
+    <h3>My Status</h3>
+    <div id="status-container"></div>
+</div>
+
+<script>
+    function fetchMyStatus() {
+        fetch('/my_status/')  // ✅ API call
+            .then(response => response.json())
+            .then(data => {
+                let container = document.getElementById("status-container");
+                container.innerHTML = "";  // 🔄 Clear previous data
+
+                if (data.statuses.length > 0) {
+                    data.statuses.forEach(status => {
+                        let statusDiv = document.createElement("div");
+                        statusDiv.classList.add("status-item");
+                        
+                        // ✅ If status has an image, show it
+                        if (status.media_url) {
+                            statusDiv.innerHTML = `<img src="${status.media_url}" class="status-img">`;
+                        } else {
+                            statusDiv.innerHTML = `<p>No Media</p>`;
+                        }
+
+                        statusDiv.innerHTML += `<p><strong>Type:</strong> ${status.type}</p>`;
+                        statusDiv.innerHTML += `<p><strong>Created At:</strong> ${status.created_at}</p>`;
+
+                        container.appendChild(statusDiv);
+                    });
+                } else {
+                    container.innerHTML = "<p>No Status Found</p>";
+                }
+            })
+            .catch(error => console.error("Error fetching status:", error));
+    }
+
+    fetchMyStatus();  // 🚀 Load on page load
+    setInterval(fetchMyStatus, 5000);  // ⏳ Refresh every 5 sec
+</script>
+
+<style>
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .status-card {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 8px;
+        background: white;
+    }
+    .status-image {
+        max-width: 100%;
+        border-radius: 5px;
+    }
+    #my-status {
+        border: 2px solid #ddd;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 10px;
+        background: #f8f9fa;
+    }
+    .status-item {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 5px;
+        background: white;
+    }
+    .status-img {
+        max-width: 100%;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}

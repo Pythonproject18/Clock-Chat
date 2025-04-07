@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Status</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .status-container {
+            width: 350px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+        .upload-btn {
+            margin: 10px 0;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-container">
+        <h2>Create Status</h2>
+        <input type="file" id="statusImage" accept="image/*" class="upload-btn">
+        <button class="submit-btn" onclick="postStatus()">Post Status</button>
+    </div>
+
+    <script>
+       function getCSRFToken() {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+}
+
+function postStatus() {
+    let imageInput = document.getElementById('statusImage');
+    let file = imageInput.files[0];
+
+    let type = file && file.type.startsWith('image/') ? 1 : 2;
+
+    console.log(type);
+
+    if (!file) {
+        alert('Please select an image.');
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append('image', file);
+    formData.append('type', type);
+
+    fetch('/status/create/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        },
+        credentials: 'include' // Ensures cookies are sent (if using session authentication)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Status posted successfully!');
+        window.location.href="/status/";
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+    </script>
+</body>
+</html>
+
+
+

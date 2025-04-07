@@ -1,0 +1,46 @@
+{% extends "enduser/Chats/chat.html" %}
+{% block title %}Message{% endblock %}
+
+{% block content %}
+<div class="chat-section">
+    <div class="chat-header">
+        <div class="chat-header-avatar">T</div>
+        <div class="chat-header-info">
+            <h2>Thor Odinson</h2>
+            <p>Last seen today at 12:30 PM</p>
+        </div>
+        <div class="chat-header-actions">
+            <span class="icon"><i class="fas fa-phone-alt"></i></span>
+            <span class="icon"><i class="fas fa-video"></i></span>
+            <span class="icon"><i class="fas fa-ellipsis-v"></i></span>
+        </div>
+    </div>
+    <div class="chat-messages">
+        <div class="message received">
+            <div class="message-avatar">T</div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    Hey there! How's the new project coming along?
+                </div>
+                <div class="message-time">12:30 PM</div>
+            </div>
+        </div>
+        <div class="message sent">
+            <div class="message-content">
+                <div class="message-bubble">
+                    It's going well! I've completed the initial design mockups. Should I send them over for review?
+                </div>
+                <div class="message-time">12:32 PM</div>
+            </div>
+        </div>
+    </div>
+    <div class="chat-input">
+        <span class="icon sticker-icon"><i class="far fa-smile"></i></span>
+        <input type="text" id="messageInput" placeholder="Type a message...">
+        <span class="icon mic-icon" id="micIcon"><i class="fas fa-microphone"></i></span>
+        <span class="icon plus-icon" id="plusIcon" onclick="openmodal()"><i class="fas fa-plus"></i></span>
+        <span class="icon send-icon hidden" id="sendIcon"><i class="fas fa-paper-plane"></i></span>
+    </div>
+</div>
+</div>
+{% endblock  %}
