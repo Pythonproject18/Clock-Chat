@@ -44,6 +44,7 @@ def get_user_status(user_id):
         
         if latest_status:
             return {
+                'user_id':user_id,
                 'id': latest_status.id,
                 'status_media': latest_status.status_media if latest_status.status_media else None,
                 'created_by': latest_status.created_by if latest_status else None,
@@ -59,6 +60,9 @@ def create_status(image, user_id, status_type):
         created_by=user,  # Ensure it matches the User model's ID
     )
     return status
+
+def get_all_status_by_user_id(user_id):
+    return Status.objects.filter(created_by=user_id).order_by('-created_at')
 
 
 

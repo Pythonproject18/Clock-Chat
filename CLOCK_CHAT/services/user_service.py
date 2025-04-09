@@ -62,3 +62,7 @@ def get_chat_details(user_id):
         })
     
     return chat_list
+
+
+def get_user_object(user_id):
+    return User.objects.filter(id=user_id,is_active=True).first()    
