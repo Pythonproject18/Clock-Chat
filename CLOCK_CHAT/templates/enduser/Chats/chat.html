@@ -200,29 +200,29 @@
                 <h2>Chats</h2>
                 <div class="search-bar">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" placeholder="Search conversations...">
+                    <input type="text" id="chatSearch" placeholder="Search conversations...">
                 </div>
             </div>
             {% if chats %}
-            <div class="chat-list">
-                {% for chat in chats %}
-                <div class="chat-item" onclick="window.location.href='/message/?chat_id={{ chat.id }}'">
-                    <div class="chat-avatar">{{ chat.title|first }}</div>
-                    <div class="chat-header-info">
-                        <h3>{{ chat.title }}</h3>
-                    </div>
+            <div class="chat-list" id="chatList">
+            {% for chat in chats %}
+            <div class="chat-item" onclick="window.location.href='/message/?chat_id={{ chat.id }}'">
+                <div class="chat-avatar">{{ chat.title|first }}</div>
+                <div class="chat-header-info">
+                <h3 class="chat-title">{{ chat.title }}</h3>
                 </div>
-                {% endfor %}
             </div>
-            {% else %}
-            <p>No chats available</p>
-            {% endif %}
-            <div class="fab-container">
-                <div class="fab" id="plus_icon" onclick="openmodal()">
-                    <i class="fas fa-plus"></i>
-                </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No chats available</p>
+        {% endif %}
+        <div class="fab-container">
+            <div class="fab" id="plus_icon" onclick="openmodal()">
+                <i class="fas fa-plus"></i>
             </div>
         </div>
+    </div>
         {% block content %}  
         
         
@@ -250,6 +250,19 @@
 
 
     <script>
+        document.getElementById("chatSearch").addEventListener("input", function () {
+            const query = this.value.toLowerCase();
+            const chatItems = document.querySelectorAll("#chatList .chat-item");
+        
+            chatItems.forEach(item => {
+            const title = item.querySelector(".chat-title").textContent.toLowerCase();
+            item.style.display = title.includes(query) ? "flex" : "none";
+            });
+        });
+
+
+
+
         document.getElementById("userSearch").addEventListener("input", function () {
           const query = this.value.toLowerCase();
           const users = document.querySelectorAll("#userList .modal-option");
