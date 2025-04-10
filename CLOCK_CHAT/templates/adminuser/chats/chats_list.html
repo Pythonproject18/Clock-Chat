@@ -3,174 +3,252 @@
 
 {% block title %}Clock-Chat Admin-Chat List{% endblock %}
 {% block content %}
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h2 {
-            text-align: center;
-        }
-        .search-box {
-            width:  100%;
-            margin-bottom: 1px;
-            display: flex;
-            justify-content: space-between;
-        }
-        input[type="text"] {
-            width: 90%;
-            padding: 7px;
-            font-size: 13px;
-            font-weight: bold;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 9px;
-        }
-        th, td {
-            border: 1.4px solid #0e0c0c;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #8fb844;
-        }
-        img {
-        border-radius: 45%;
-        }
-        .status {
-             active {
-            color: green;
-            font-weight: bold;
-        }
-              deactive {
-            color: red;
-            font-weight: bold;
-        }
-        }
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 34px;
-}
+<style>
+    /* General Body Styling */
+    body {
+        background-color: #f5f9fc; /* Light Gray-Blue */
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
+    /* Heading Style */
+    h2 {
+        color: #4a90e2; /* Light Blue */
+        text-align: center;
+        margin-bottom: 10px;
+    }
 
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
+    /* Search Box Styling (Right Aligned) */
+    .search-container {
+        display: flex;
+        justify-content: flex-end;
+        width: 90%;
+        margin-bottom: 10px;
+    }
 
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 25px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
+    .search-box {
+        display: flex;
+        align-items: center;
+    }
 
-input:checked + .slider {
-  background-color: #2196F3;
-}
+    .search-box input[type="text"] {
+        padding: 8px 10px;
+        border: 1px solid #4a90e2;
+        border-radius: 5px 0 0 5px;
+        font-size: 14px;
+        right: 0;
+        width: 211px;
+        outline: none;
+    }
 
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
+    .search-box button {
+        padding: 8px 12px;
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
 
-input:checked + .slider:before {
-  -webkit-transform: translateX(16px);
-  -ms-transform: translateX(16px);
-  transform: translateX(16px);
-}
+    .search-box button:hover {
+        background-color: #3b7fb2;
+    }
 
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
+    /* Table Styling */
+    table {
+        border-collapse: collapse;
+        margin: 20px auto;
+        font-size: 0.9em;
+        width: 90%;
+        min-width: 1050px;
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
 
-.slider.round:before {
-  border-radius: 50%;
-}       
-    </style>
+    th, td {
+        padding: 15px;
+        text-align: center;
+    }
 
+    th {
+        background-color: #4a90e2; /* Light Blue */
+        color: white;
+    }
 
-   <h2 style="color:#b87639;">Chat List </h2>
+    td {
+        background-color: #eaf4fb; /* Light Gray-Blue */
+    }
 
-   <div class="search-box">
-      <input type="text" placeholder="Search...">
-      <button class="search-button">
-        🔍
-    </button>
-    </div>
-     
-    <p align="right"><strong>Total Chart:</strong> 2</p>
+    /* Avatar Styling */
+    img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    /* Toggle Switch Styling */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 30px; /* Reduced Width */
+        height: 18px; /* Reduced Height */
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 18px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #4a90e2;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(12px);
+    }
+
+    /* Status Styling */
+    .status {
+        display: inline-block;
+        font-weight: bold;
     
-    <table>
-        <thead>
-            <tr>    
-                <th>Chartcover</th>
-                <th>Title</th>
-                <th>Type</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>                
-                <td><img src="bacground.jpg" alt="Avatar" style="width:70px"></td>
-                <td>Chat 1</td>
-                <td>privet</td>
-                <td><label class="switch">
-                    <input type="checkbox" id="toggleSwitch" onchange="toggleSwitch()">
-                    <span class="slider round"></span>
-                    </label>
-                    <p id="status">Deactivated</p>
-                    <script>
-                        function toggleSwitch() {
-                        let switchElement = document.getElementById("toggleSwitch");
-                        let status = document.getElementById("status");
-                        status.innerText = switchElement.checked ? "Activated" :"Deactivated";
-                          }
-                        </script>
-                    </td>                               
-            </tr>
-            <tr>                
-                <td><img src="bacground.jpg" alt="Avatar" style="width:70px"></td>
-                <td>Chat 2</td>
-                <td>group</td>
-                <td><label class="switch">
-                    <input type="checkbox" id="toggleSwitch" onchange="toggleSwitch()">
-                    <span class="slider round"></span>
-                    </label>
-                    <p id="status">Deactivated</p>
-                    <script>
-                        function toggleSwitch() {
-                        let switchElement = document.getElementById("toggleSwitch");
-                        let status = document.getElementById("status");
-                        status.innerText = switchElement.checked ? "Activated" :"Deactivated";
-                          }
-                        </script>
-                    </td>                               
-            </tr>                       
-                          
-              
-        </tbody>
-    </table>    
 
+       .active {
+          color: green;
+        }
+
+        .deactive {
+           color: red;
+        }
+    }
+
+    /* Edit Button Styling */
+    .action-btn {
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .action-btn:hover {
+        background-color: #3b7fb2;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        table {
+            font-size: 0.8em;
+            width: 95%;
+        }
+
+        .search-box input[type="text"] {
+            width: 150px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<h2>Chat List</h2>
+
+<!-- Search Box Right Aligned -->
+<div class="search-container">
+    <div class="search-box">
+        <input type="text" placeholder="Search...">
+        <button type="button">🔍</button>
+    </div>
+</div>
+
+<p style="text-align:left; width: 90%;"><strong>Total Chat:</strong> 2</p>
+
+<!-- Chat List Table -->
+<table>
+    <thead>
+        <tr>
+            <th>Chartcover</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><img src="bacground.jpg" alt="Avatar"></td>
+            <td>Chat 1</td>
+            <td>Private</td>
+            <td>
+                <label class="switch">
+                    <input type="checkbox" id="toggleSwitch1" onchange="toggleSwitch('status1', 'toggleSwitch1')">
+                    <span class="slider"></span>
+                </label>
+                <p id="status1" class="status deactive">Deactivated</p>
+            </td>
+            <td>
+                <a href="{% url 'admin_chat_update' 5 %}"><button class="action-btn">Edit</button></a>
+            </td>
+        </tr>
+        <tr>
+            <td><img src="bacground.jpg" alt="Avatar"></td>
+            <td>Chat 2</td>
+            <td>Group</td>
+            <td>
+                <label class="switch">
+                    <input type="checkbox" id="toggleSwitch2" onchange="toggleSwitch('status2', 'toggleSwitch2')">
+                    <span class="slider"></span>
+                </label>
+                <p id="status2" class="status deactive">Deactivated</p>
+            </td>
+            <td>
+                <a href="{% url 'admin_chat_update' 6 %}"><button class="action-btn">Edit</button></a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+    function toggleSwitch(statusId, switchId) {
+        let switchElement = document.getElementById(switchId);
+        let status = document.getElementById(statusId);
+        status.innerText = switchElement.checked ? "Activated" : "Deactivated";
+        status.className = switchElement.checked ? "status active" : "status deactive";
+    }
+</script>
+
+</body>
 {% endblock %}

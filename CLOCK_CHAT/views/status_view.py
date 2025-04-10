@@ -1,6 +1,6 @@
 from django.views import View
 from django.http import JsonResponse
-from CLOCK_CHAT.services import status_service
+from CLOCK_CHAT.services import status_service,user_service
 from django.shortcuts import render
 from CLOCK_CHAT.decorator import auth_required, role_required
 from CLOCK_CHAT.constants.default_values import Role
@@ -60,12 +60,25 @@ class StatusCreateView(View):
 @role_required(Role.END_USER.value, page_type='enduser')
 class StatusDetailView(View):
     def get(self, request, user_id):
-        statuses = Status.objects.filter(user_id=user_id).order_by('-created_at')
-
+        print(user_id)
+        statuses = status_service.get_all_status_by_user_id(user_id)
+        print(statuses)
         if not statuses.exists():
             return JsonResponse({'message': 'No status found'}, status=404)
 
-      
+        user = user_service.get_user_object(user_id)
+        user_details = []
+
+        if not user:
+            return render(request, "status/status_view.html")
+
+        user_details = {
+            'id': user.id,
+            'full_name': f"{user.first_name} {user.last_name}",
+            'user_profile': user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png' ,
+        }
+        print(user_details)
+
         status_list = []
         for status in statuses:
             viewers = StatusViewer.objects.filter(status=status).select_related('viewed_by')
@@ -80,10 +93,11 @@ class StatusDetailView(View):
 
             status_list.append({
                 'id': status.id,
-                'media_url': status.media.url if status.media else None,
+                'media_url': status.status_media if status.status_media else None,
                 'created_at': status.created_at,
                 'type': status.status_type,
                 'viewers': viewer_list  # Sending viewer list as JSON
             })
+            print(status_list)
 
-        return render(request, "status/status_details.html", {'statuses': status_list})
+        return render(request, "status/status_view.html", {'status_details': status_list,'user_details':user_details})

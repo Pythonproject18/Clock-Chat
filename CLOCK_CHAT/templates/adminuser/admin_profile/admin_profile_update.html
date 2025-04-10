@@ -1,109 +1,195 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Page</title>
+{% extends "adminuser/base.html" %}
+{% load static %}
 
-    <!-- Adding Bootstrap CSS Link -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+{% block title %}Clock-Chat | Admin Profile Update{% endblock %}
+{% block content %}
 
-    <style>
-        .custom-shadow {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
-        }
-        .profile-main-div {
-            width: 100%;
-            height: 100vh;
-        }
-        label {
-            display: block; /* Makes label appear on a new line */
-            margin-bottom: 5px; /* Adds space between label and the input */
-            font-weight: bold;
-            text-align: left; /* Aligns labels to the left */
-        }
-        .card-body {
-            padding: 2rem;
-        }
-        .btn {
-            width: 100%;
-        }
-    </style>
-    
-</head>
-<body>
-    
+<style>
+   
+    .custom-shadow {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    }
+    .profile-main-div{
+        width: 100%;
+        height: 100vh;
+    }
+
+    label {
+      display: block; /* Makes label appear on a new line */
+      margin-bottom: 5px; /* Adds space between label and the h5 */
+      font-weight: bold;
+      text-align: center;
+  }
+
+</style>
+
 <div class="container-fluid d-flex justify-content-center align-items-center min-vh-100">
     <div class="card shadow-lg w-75 m-5">
-        <div class="card-body">
+        <div class="card-body p-2 m-5">
             <div class="row">
-               <div class="col-md-3 border-right">
-        <div ><img class="rounded-circle " height="150px" width="140px" src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg" ><span class="font-weight-bold"></span></div>
-        </div>
+
+                <!-- Profile Picture and Basic Information -->
+                <div class="col-md-4 text-center mb-4 mb-md-0">
+            
+                    <div class="col-md-4 text-center mb-4 mb-md-0">              
+            
+                        <div class="img-container">
+                        <!-- Profile Picture -->
+                        <img
+                            id="profile-pic"
+                            src="{% if user.profile_photo_url %}{{ user.profile_photo_url }}{% else %}/static/images/avt.jpg{% endif %}"
+                            class="rounded-circle mb-3 border border-primary"
+                            alt="Profile Picture"
+                            width="150" height="150"
+                            style="cursor: pointer;"
+                            onerror="this.onerror=null; this.src='/static/images/avt.jpg';">
+            
+                        <!-- Hidden file input -->
+                        <input type="file" id="file-input" accept="image/*" style="display: none;">
+            
+                        <h5 class="text-dark fs-6">{{ user.first_name }}  {{ user.last_name }}</h5>
+                        </div>                 
+                    </div>
+                </div>
+
+            <div class=" text-info mb-3 fs-4">Profile Page</div>
+                <form method="post" id="admin_form" action="/admin/users/profile/{{ user.user_id }}/">
+                {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first-name" class="form-label" style="text-align: left;">Full Name</label>
+                            <input type="text" name="first_name" id="first-name" class="form-control" placeholder="Your First Name" value="{{ user.first_name }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="last-name" class="form-label" style="text-align: left;">Last Name</label>
+                            <input type="text" name="last_name" id="last-name" class="form-control" placeholder="Your Nick Name" value="{{ user.last_name }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label" style="text-align: left;">Email</label>
+                            <input type="text" name="email" id="email" class="form-control" placeholder="Your Gender" value="{{ user.email }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="contact" class="form-label" style="text-align: left;">Contact</label>
+                            <input type="text" name="contact" id="contact" class="form-control" placeholder="Contact" value="{{ user.contact }}">
+                        </div>
+                    </div>    
+
+                    <div class="row"> 
+                        <div class="col-md-6 mb-3">
+                            <label for="dob" class="form-label text-dark" style="text-align: left;">Date of Birth</label>
+                            <input type="date" class="form-control" name="dob" id="dob" name="dob" value="{{ user.dob }}">
+                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="gender" class="form-label text-dark" style="text-align: left;">Gender</label>
+                        {% comment %} <div class="form-group col-md-4 col-lg-4 col-sm-12 mb-3"> {% endcomment %}
+                            {% comment %} {{ form.gender.label }} {% endcomment %}
+                            <select id="gender" name="gender" class="form-select">
+                                <!-- Default "None" option -->
+                                <option value="" selected>Select Gender</option>
+                                {% for gender in choices_gender %}
+                                    {% for name, value in gender.items %}
+                                        <option value="{{ name }}" {% if user.gender == name %}selected{% endif %}>{{ value }}</option>
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>        
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="address" class="form-label" style="text-align: left;">Address</label>
+                            <input type="text" name="address" id="address" class="form-control" placeholder="Address" value="{{ user.address }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="country" class="form-label text-dark" style="text-align: left;">Country</label>
+                            <input type="text" class="form-control" name="country" id="country" placeholder="Country" value="{{ user.country }}">
+                            </div>
+                    </div>
+                        {% comment %} <h5 class="mt-2">My Email Address</h5>
+                        <div class="d-flex align-items-center bg-light p-2 rounded-3 mt-2">
+                            <div class="bg-primary text-white d-flex justify-content-center align-items-center rounded-circle" style="width: 30px; height: 30px;">📧</div>
+                            <div class="ms-3">
+                                <p class="mb-0">alexarawles@gmail.com</p>
+                                <small class="text-muted">1 month ago</small>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-start mt-3">
+                            <button class="btn btn-primary me-2">Save Changes</button>
+                            <button class="btn btn-secondary">Edit</button>
+                        </div> {% endcomment %}
+
+                        <div class="text-start">
+                            <button type="submit" class="btn btn-sm btn-primary mt-2">Save</button>
+                        </div>
+
+                    </div>
+                </form>
             </div>
-            <div class="text-info mb-3 fs-4 text-center">Profile Update</div>
-            <form method="post">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="first-name">Full Name</label>
-                        <input type="text" name="first_name" id="first-name" class="form-control" placeholder="Your First Name">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="last-name">Last Name</label>
-                        <input type="text" name="last_name" id="last-name" class="form-control" placeholder="Your Last Name">
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="email">Email</label>
-                        <input type="email" name="email" id="email" class="form-control" placeholder="Your Email">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="contact">Contact</label>
-                        <input type="text" name="contact" id="contact" class="form-control" placeholder="Your Contact Number">
-                    </div>
-                </div>    
-
-                <div class="row"> 
-                    <div class="col-md-6 mb-3">
-                        <label for="dob">Date of Birth</label>
-                        <input type="date" name="dob" id="dob" class="form-control">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="gender">Gender</label>
-                        <select name="gender" id="gender" class="form-control">
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>        
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="address">Address</label>
-                        <input type="text" name="address" id="address" class="form-control" placeholder="Your Address">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="country">Country</label>
-                        <input type="text" name="country" id="country" class="form-control" placeholder="Your Country">
-                    </div>
-                </div>
-
-                <div class="text-start">
-                    <button type="submit" class="btn btn-sm btn-primary mt-2" style="width: 50px;">Save</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
 
-<!-- Adding Bootstrap JS & jQuery -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function(){
+        // Load saved profile picture from the database and adjust URL if necessary
+        let savedProfilePic = "{{ user.profile_photo_url }}";
+        if (savedProfilePic) {
+            // If savedProfilePic has "/media/", replace with "/static/media/"
+            savedProfilePic = savedProfilePic.replace('/media/', '/static/media/');
+            $("#profile-pic").attr("src", savedProfilePic);
+        }
 
-</body>
-</html>
+        $("#profile-pic").click(function(){
+            $("#file-input").click();  // Open file selection
+        });
+
+        $("#file-input").change(function(){
+            var file = this.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $("#profile-pic").attr("src", e.target.result); // Preview image
+            };
+            reader.readAsDataURL(file);
+
+            // Prepare form data to send with the file
+            var formData = new FormData();
+            formData.append("profile_picture", file);
+
+            $.ajax({
+                url: '/admin/users/profileimg/{{ user.user_id }}/',  // Dynamic user ID
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                success: function(response) {
+                    if (response.success) {
+                        let profileUrl = response.profile_photo_url;
+
+                        // Modify the URL to match the "/static/media/" if needed
+                        profileUrl = profileUrl.replace('/media/', '/static/media/');
+
+                        $("#profile-pic").attr("src", profileUrl);  // Update profile image
+                        localStorage.setItem("profile_photo_url", profileUrl); // Store in localStorage
+
+                        alert("Profile picture updated successfully!");
+                    } else {
+                        alert(response.message || "Error updating profile picture!");
+                    }
+                },
+                error: function() {
+                    alert("An error occurred while uploading the profile picture.");
+                }
+            });
+        });
+    });
+</script>
+    
+{% endblock %}

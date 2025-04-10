@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     # Home
-    path('', views.HomeView.as_view(), name='chat_list'),
+    path('', views.HomeView.as_view(), name='home'),
 
 
 
@@ -20,12 +20,19 @@ urlpatterns = [
     path('login/admin/', views.LoginAdminView.as_view(), name='login_myadmin'),
     path('admin/log-out/', views.LoginOutAdminView.as_view(), name='logout_myadmin'),
     path('admin/', views.AdminHomeView.as_view(), name='admin_home'),
-    path('admin/chats', views.AdminChatListView.as_view(), name='admin_chats_list'),
+
+    # Admin Chats
+    path('admin/chats/', views.AdminChatListView.as_view(), name='admin_chats_list'),
+    path('admin/chats/<int:chat_id>/update/', views.AdminChatUpdateView.as_view(), name='admin_chat_update'),
+
+    # Admin Profile
+    path('admin/profile/', views.AdminProfileView.as_view(), name='admin_profile'),
+    path('admin/profile/update/', views.AdminProfileUpdateView.as_view(), name='admin_profile_update'),
+    
     
 
     # Chats
-    path('chat/search/api', views.ChatSearchView.as_view(), name='search_api'),
-    path('chat/create/api', views.ChatCreateView.as_view(), name='create_api'),
+    path('chat/create/', views.ChatCreateView.as_view(), name='create'),
     
 
     # Status
@@ -34,8 +41,10 @@ urlpatterns = [
     path('status/<int:user_id>/',views.StatusDetailView.as_view(), name='status_detail'),
     
 
-    path('message/',views.MessageListView.as_view(), name="message"),
     path('chat/', views.ChatListView.as_view(), name='chat_list'),
+    path('message/<int:chat_id>', views.MessageListView.as_view(), name="message"),
+    path('message/create/<int:chat_id>', views.MessageCreateView.as_view(), name="message_create"),
+
 
 
 ]
