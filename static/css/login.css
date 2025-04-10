@@ -1,0 +1,116 @@
+h2 {
+  color: #333;
+  margin-bottom: 15px;
+}
+.container-log{
+  padding: 30px;
+  position: relative;
+  border: 2px solid #08134b;
+  margin: auto;
+  max-width: 500px;
+}
+
+input {
+  width: 100%;
+  padding: 5px;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  padding: 5px;
+  background:#0046cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+button:active {
+  background: #3a8dfe;
+}
+
+.hidden {
+  display: none;
+}
+.anc{
+  margin-top: 20px;
+  height: 30px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+;
+}
+
+@media (min-width: 480px) {
+  #loading{
+      top: 44% !important;
+      right: 36% !important;
+  }
+}
+@media (min-width: 786px) {
+  #loading{
+      top: 46% !important;
+      right: 37% !important;
+  }
+
+}
+@media (min-width: 992px) {
+  #loading{
+      top: 44% !important;
+      right: 42% !important;
+  }
+
+}
+@media (min-width: 300px) and (max-width: 480px) {
+  #loading {
+      top: 44% !important;
+      right: 23% !important;
+  }
+}
+#modal{
+  position:fixed;
+  background: rgb(0 0 0 / 0%);
+  height: 100vh;
+  width: 100%;
+  backdrop-filter: blur(5px);
+  opacity: 10;
+  transform: scale(1);
+}
+
+#modal.show {
+  opacity: 10;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.spinner {
+border: 3px solid #f3f3f3;
+border-top: 3px solid #3498db;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+animation: spin 1s linear infinite;
+display: inline-block;
+}
+#loading{
+align-items: center;
+color: black;
+font-size: 25px;
+width: 200px;
+height: 70px;
+top: 44%;
+right: 43%;
+position: absolute;
+display: flex;
+justify-content: center;
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}

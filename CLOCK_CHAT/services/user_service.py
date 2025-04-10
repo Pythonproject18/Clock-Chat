@@ -42,16 +42,7 @@ def get_chat_details(user_id):
                 "name": f"{user.first_name} {user.last_name}",
                 "email": user.email,
             })
-
-        print(f"\nChat ID: {chat.id}")
-        print(f"Title: {title}")
-        print(f"Type: {chat_type}")
-        print(f"Members: {member_count}")
-        print(f"Created By: {creator_name}")
-        print("Members List:")
-        for member in member_details:
-            print(f"  - ID: {member['user_id']}, Name: {member['name']}, Email: {member['email']}")
-
+        
         chat_list.append({
             "id": chat.id,
             "title": title,

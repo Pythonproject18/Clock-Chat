@@ -69,7 +69,7 @@ class OtpVerifyView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class SignUpView(View):
     def get(self, request):
-        return render(request, 'auth/signup.html')
+        return render(request, 'enduser/home/landing.html')
 
     def post(self, request):
         first_name = request.POST.get("first_name")
@@ -85,12 +85,12 @@ class SignUpView(View):
 
         auth_service.create_user(first_name, middle_name, last_name, email)
         cache.delete(f"verified_{email}")
-        return JsonResponse(success_response(SuccessMessage.S00004.value, redirect="/sign-in/"), status=200)
+        return JsonResponse(success_response(SuccessMessage.S00004.value, redirect="/sign_in/"), status=200)
         
 
 class VerifyOTPLoginView(View):
     def get(self, request):
-        return render(request, 'auth/signin.html')
+        return render(request, 'enduser/home/landing.html')
 
     def post(self, request):
         email = request.POST.get("email")
@@ -108,4 +108,4 @@ class UserLogoutView(View):
     def get(self, request):
         logout(request)
         request.session.flush()
-        return redirect("/api/verify-otp-login/")
+        return redirect("/")
