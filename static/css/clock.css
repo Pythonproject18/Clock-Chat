@@ -109,7 +109,7 @@ body {
 }
 
 .sidebar {
-    width: 600px;
+    width: 40%;
     background: linear-gradient(to bottom, #1a1a2e, #16213e);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
