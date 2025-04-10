@@ -16,10 +16,29 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
   <link rel="stylesheet" href="static/css/Lpage.css">
+  <link rel ="stylesheet" href="static/css/login.css">
+  <script src="/static/js/login.js"></script>
+  <script src="/static/js/sign_up.js"></script>
 
+  <script>
+    window.djangoMessages = [
+    {% for message in messages %}
+        {
+        "tags": "{{ message.tags }}",
+        "message": "{{ message|escapejs }}"
+        }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    ];
+    console.log("djangoMessages:", window.djangoMessages);  // Debug output
+</script>
 </head>
 <body>
-
+<!-- Add this loader to your HTML (Initially Hidden) -->
+<div class="modal" id="modal" style="display:none;">
+  <div id="loading">
+      <p>Loading....</p><span class="spinner"></span>
+  </div>
+</div>
   <div class="particles" id="particles-js"></div>
   
 
@@ -41,23 +60,92 @@
           <li class="nav-item">
             <a class="nav-link" href="#">Contact</a>
           </li>
-          <li class="nav-item ms-lg-3">
-            <a class="nav-link btn btn-sm btn-login px-3 py-2" href="/api/verify-otp-login/">Login</a>
+          {% if request.user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="{{ request.user.profile_photo_url|default:'/static/images/default_avatar.png' }}" 
+                   alt="Profile" 
+                   style="height:40px; width:40px; object-fit:cover; border-radius:50%;">
+            </a>
+            <div class="dropdown-menu" aria-labelledby="userDropdown" style="min-width: auto; width: 100px;">
+              <div class="dropdown-item" onclick="window.location.href='{% url 'log_out' %}'">Logout</div>
+            </div>            
           </li>
-        </ul>
+          {% else %}
+            <li class="nav-item ms-lg-3">
+              <a class="nav-link btn btn-sm btn-login px-3 py-2" onclick="open_login_modal()">Login</a>
+            </li>
+          {% endif %}
+          </ul>
       </div>
     </div>
   </nav>
 
+
   <!-- Hero Section -->
   <section class="hero-section">
-    <div class="container">
+    <div class="container" style="padding-top:10%;gap: 30px;flex-direction: column;display: flex;padding-top: 10%;">
+      <!-- log in template modal start-->
+          <div class="container-log" id="log_in"style="display:none;">
+            <h2 style="color: white;justify-content: center;align-items: center;display: flex;">Sigin</h2>
+            <meta name="csrf-token" content="{{ csrf_token }}">
+        
+            <!-- Email Input Section -->
+            <div id="emailSection">
+                <input type="email" id="email" placeholder="Enter your email" required autofocus>
+                <button type="button" onclick="sendOTP()">Send OTP</button>
+            </div>
+        
+            <!-- OTP Verification Section (Initially Hidden) -->
+            <div id="otpSection" class="hidden">
+                <input type="text" id="otp" placeholder="Enter OTP" required>
+                <button type="button" onclick="verifyOTP()">Verify OTP</button>
+            </div>
+            
+            <a class="anc" onclick ="open_sign_up_modal()" >Create Account</a>
+          </div>
+      <!-- log in template modal end-->
+      <!-- sing up template modal start-->
+          <div class="container-log" id="sign_up" style="display:none;">
+            <h2 style="color: white;justify-content: center;align-items: center;display: flex;">Sign Up</h2>
+            <meta name="csrf-token" content="{{ csrf_token }}">
+
+            <!-- Email Input Section -->
+            <div id="emailSection2">
+                <input type="email" id="email2" placeholder="Enter your email" required>
+                <button type="button" onclick="sendOTP2()">Send OTP</button>
+            </div>
+            <!-- Add this loader to your HTML (Initially Hidden) -->
+            <div id="loading" style="display: none; top: 46%;left: 46%;position: fixed;">
+                <p>Sending OTP... <span class="spinner"></span></p>
+            </div>
+            <!-- OTP Verification Section (Initially Hidden) -->
+            <div id="otpSection2" class="hidden">
+                <input type="text" id="otp2" placeholder="Enter OTP" required>
+                <button type="button" onclick="verifyOTP2()">Verify OTP</button>
+            </div>
+
+            <!-- Name Input Section (Initially Hidden) -->
+            <div id="nameSection" class="hidden">
+                <input type="text" id="first_name" placeholder="First Name" required>
+                <input type="text" id="middle_name" placeholder="Middle Name (Optional)">
+                <input type="text" id="last_name" placeholder="Last Name" required>
+                <button type="button" onclick="submitForm()">Submit</button>
+            </div>
+            <a class="anc" onclick = "open_login_modal()">Already have an account</a>
+        </div>
+
       <div class="hero-content animate__animated animate__fadeIn">
+
         <h1 class="mb-4">Connect in real-time with ClockChat</h1>
         <p class="mb-5">The next-generation messaging platform with end-to-end encryption, seamless sync across devices, and lightning-fast delivery. Join millions of users worldwide for secure and private communication.</p>
 
         <div class="d-flex justify-content-center flex-wrap gap-3">
-          <a href="#" class="btn btn-hero-getstarted me-3 mb-3 animate__animated animate__pulse animate__infinite animate__slower">Get Started</a>
+          {% if request.user.is_authenticated %}
+          <a href="/chat/" class="btn btn-hero-getstarted me-3 mb-3 animate__animated animate__pulse animate__infinite animate__slower">Get Started</a>
+          {% else %}
+          <a onclick="open_login_modal()" class="btn btn-hero-getstarted me-3 mb-3 animate__animated animate__pulse animate__infinite animate__slower">Get Started</a>
+          {% endif %}
           <a href="#" class="btn btn-hero-learnmore mb-3">Learn More</a>
         </div>
       </div>
