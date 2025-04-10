@@ -69,7 +69,7 @@ class OtpVerifyView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class SignUpView(View):
     def get(self, request):
-        return render(request, 'auth/signup.html')
+        return render(request, 'enduser/home/landing.html')
 
     def post(self, request):
         first_name = request.POST.get("first_name")
