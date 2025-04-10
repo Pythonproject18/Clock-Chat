@@ -10,7 +10,7 @@ body {
     align-items: center;
     height: 100vh;
     background: white;
-    color: #a29bfe;
+    color: #ffffff;
 }
 
 .container {
@@ -69,6 +69,13 @@ body {
     align-items: center;
     font-size: 18px;
     color: rgb(255, 255, 255);
+}
+.status{
+    gap: 20px;
+    align-items: center;
+    display: flex;
+    padding: 10px;
+    margin-top: 20px;
 }
 
 .floating-icons {

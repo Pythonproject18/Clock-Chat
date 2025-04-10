@@ -35,13 +35,15 @@
             <div> <h3 style="border-bottom: 2px solid #b2b2ff;">Recent Updates</h3> </div>      
 
             {% if friends %}
-            <div class="status-list">
+            <div class="status_list">
                 {% for friend in friends %}
-                <div class = "status">
-                    <img src ="{{friend.status_media}}" alt="media">
+                <div class = "status" onclick="window.location.href='{% url 'status_detail' user_id=friend.id %}'">
+                    <div style="height:50px;width:50px;object-fit:cover;">
+                    <img src ="{{friend.status_media}}" alt="media" style="height:100%;width:100%;border-radius:50%;">
+                    </div>
                     <div class="info">
-                        <h4> {{friend.name}}</h4>
-                        <p>{{friend.created_at}}</p>
+                        <h4 style="font-size: larger;"> {{friend.name}}</h4>
+                        <p style="font-size: small;">{{friend.created_at}}</p>
                     </div>
                 </div>
                 {% endfor %}
