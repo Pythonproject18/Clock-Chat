@@ -25,30 +25,22 @@
           {{ message.created_at|date:"h:i A" }}
         </div>
       </div>
+      <!-- Add emoji reaction icon for received messages -->
+      {% if message.sender_id.id != request.user.id %}
+      <div class="message-reaction">
+        <span class="reaction-icon"><i class="far fa-smile"></i></span>
+      </div>
+      {% endif %}
     </div>
     {% endfor %}
   </div>
   <div class="chat-input">
-    <span class="icon sticker-icon" id="emojiPickerIcon"><i class="far fa-smile"></i></span>
+    <span class="icon sticker-icon"><i class="far fa-smile"></i></span>
     <input type="text" id="messageInput" placeholder="Type a message..." />
     <input type="hidden" id="chatId" value="{{ chat_id }}" />
     <span class="icon mic-icon" id="micIcon"><i class="fas fa-microphone"></i></span>
     <span class="icon plus-icon" id="plusIcon"><i class="fas fa-plus"></i></span>
     <span class="icon send-icon hidden" id="sendIcon"><i class="fas fa-paper-plane"></i></span>
-    
-    <!-- Emoji Picker Container -->
-    <div id="emojiPickerContainer" class="emoji-picker-container hidden">
-      <div class="emoji-picker">
-        <div class="emoji-categories">
-          <button class="emoji-category-btn active" data-category="smileys">😀</button>
-          <button class="emoji-category-btn" data-category="animals">🐻</button>
-          <button class="emoji-category-btn" data-category="food">🍎</button>
-          <button class="emoji-category-btn" data-category="travel">✈️</button>
-          <button class="emoji-category-btn" data-category="objects">💡</button>
-        </div>
-        <div class="emoji-grid" id="emojiGrid"></div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -70,92 +62,44 @@
     transform: scale(1);
   }
 
-  /* Emoji Picker Styles */
-  .emoji-picker-container {
-    position: absolute;
-    bottom: 70px;
-    left: 20px;
-    z-index: 1000;
-    background: linear-gradient(to bottom, #1a1a2e, #16213e);
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    width: 300px;
-    height: 350px;
-    overflow: hidden;
+  /*.message-reaction {
+    opacity: 0;
+    visibility: hidden;
     transition: all 0.3s ease;
-  }
+    align-self: center;
+  }*/
 
-  .emoji-picker {
+  .message-reaction {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    top: -5px; /* Slightly shifts the icon up */
     display: flex;
-    flex-direction: column;
-    height: 100%;
+    align-items: center; /* Centers vertically */
+    height: 100%; /* Takes full height of message container */
   }
 
-  .emoji-categories {
-    display: flex;
-    padding: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: linear-gradient(to right, #1a1a2e, #16213e);
+  .message:hover .message-reaction {
+    opacity: 1;
+    visibility: visible;
   }
 
-  .emoji-category-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    padding: 5px 10px;
-    cursor: pointer;
+  .reaction-icon {
     color: var(--text-light);
-    transition: all 0.3s ease;
-  }
-
-  .emoji-category-btn.active {
-    color: var(--primary-color);
-    transform: scale(1.2);
-  }
-
-  .emoji-grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 5px;
-    padding: 10px;
-    overflow-y: auto;
-  }
-
-  .emoji-item {
-    font-size: 24px;
     cursor: pointer;
-    text-align: center;
-    padding: 5px;
-    border-radius: 5px;
+    font-size: 16px;
     transition: all 0.2s ease;
   }
 
-  .emoji-item:hover {
-    background: rgba(108, 92, 231, 0.2);
+  .reaction-icon:hover {
+    color: var(--primary-color);
     transform: scale(1.2);
-  }
-
-  .hidden {
-    display: none;
   }
 </style>
 
 <script>
-  // Emoji data
-  const emojiData = {
-    smileys: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳'],
-    animals: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄'],
-    food: ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶', '🌽', '🥕', '🧄', '🧅', '🥔'],
-    travel: ['✈️', '🚀', '🚁', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚋', '🚌', '🚍', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚕', '🚖', '🚗', '🚘', '🚙', '🚚', '🚛'],
-    objects: ['⌚️', '📱', '💻', '⌨️', '🖥', '🖨', '🖱', '🖲', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '📽', '🎞', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙', '🎚']
-  };
-
   // DOM Elements
-  const emojiPickerIcon = document.getElementById('emojiPickerIcon');
-  const emojiPickerContainer = document.getElementById('emojiPickerContainer');
-  const emojiGrid = document.getElementById('emojiGrid');
   const messageInput = document.getElementById('messageInput');
   const sendIcon = document.getElementById('sendIcon');
   const micIcon = document.getElementById('micIcon');
@@ -207,45 +151,6 @@
     timeElements.forEach(el => {
       const timestamp = parseInt(el.getAttribute('data-timestamp'));
       el.textContent = convertToIndianTime(timestamp);
-    });
-  });
-
-  // Emoji Picker Functionality
-  emojiPickerIcon.addEventListener('click', (e) => {
-    e.stopPropagation();
-    emojiPickerContainer.classList.toggle('hidden');
-    loadEmojis('smileys');
-  });
-
-  // Close emoji picker when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!emojiPickerContainer.contains(e.target) && e.target !== emojiPickerIcon) {
-      emojiPickerContainer.classList.add('hidden');
-    }
-  });
-
-  // Load emojis for a category
-  function loadEmojis(category) {
-    emojiGrid.innerHTML = '';
-    emojiData[category].forEach(emoji => {
-      const emojiElement = document.createElement('div');
-      emojiElement.className = 'emoji-item';
-      emojiElement.textContent = emoji;
-      emojiElement.addEventListener('click', () => {
-        messageInput.value += emoji;
-        messageInput.focus();
-        toggleIcons(); // Update icons after adding emoji
-      });
-      emojiGrid.appendChild(emojiElement);
-    });
-  }
-
-  // Category switching
-  document.querySelectorAll('.emoji-category-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.emoji-category-btn').forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      loadEmojis(e.target.dataset.category);
     });
   });
 
