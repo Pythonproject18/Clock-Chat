@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title> Whatsapp Status </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status</title>
     <style>
         * {
             margin: 0;
@@ -9,128 +11,84 @@
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
-
-         body { 
-            background-color: white;
-            color: white;
-         } 
-
-         .top-bar {
+        body {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            padding: 10px;
-            font-size: 22px;
-            font-weight: bold;
-        }
-        .icons {
-            display: flex;
-            gap: 15px;
-            font-size: 18px;
-        }
-
-        status {
-            font-size: 20px;
-            padding: 15px;
-            font-weight: bold;
+            height: 100vh;
+            background: white;
+            color: #a29bfe;
         }
 
         .container {
-            width: 400px;
-            max-width: 400px;
-            margin-right: 20px;
-            background: black;
-            height: 100vh;
             display: flex;
-            flex-direction: column;
-            border-style: solid ;
-        }
-
-        .header {
-            padding: 20px;
-            font-size: 22px;
-            font-weight: bold;
-            border-bottom: 2px solid #ddd; 
-            color: white;
-            text-align: center;
-        }
-
-        .my-status {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-        }
-
-        .my-status img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 10px;
-           
-        }
-
-        .my-status .text p {
-            font-size: 12px;
-            color: gray;
-        }
-
-        .status-list {
-            padding: 10px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .status {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .status img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid #49ce24;
-            margin-right: 10px;
-        }
-
-        .status .info p {
-            font-size: 12px;
-            color: gray;
-        }
-
-        .nav {
-            display: flex;
-            justify-content: space-around;
-            padding: 15px;
-            background: white;
-            position: fixed;
-            bottom: 0;
             width: 100%;
-            max-width: 395px;
-            background-color: black;
-        } 
-
-        .nav div {
-            text-align: center;
-            font-size: 12px;
-            color: gray;
+            height: 100vh;
+            background:#5649c0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgb(241, 238, 238);
         }
 
-        .nav div.active {
-        color: #128C7E;
-        font-weight: bold;
+        /* Status List */
+        .status-list {
+            width: 46%;
+            background: linear-gradient(to bottom, #1a1a2e, #16213e);
+            padding: 0px;
+            overflow-y: auto;
+            border-right: 1px solid #5649c0;
+        }
+
+        .status-list h2 {
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        .my-status, .status-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .status-item img, .my-status img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #6ece91;
+        }
+
+        .status-info h4 {
+            font-size: 20px;
+            color: #dbd0d0;
+        }
+
+        .status-info p {
+            font-size: 10px;
+            color: rgb(255, 255, 255);
         }
         
+        .status-content {
+            width: 70%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: rgb(255, 255, 255);
+        }
+
         .floating-icons {
             position: fixed;
             bottom: 60px;
-            left: 330px;
+            left: 580px;
             display: flex;
             flex-direction: column;
-            gap: 50px;
+            gap: 30px;
         }
+
         .floating-button {
             width: 50px;
             height: 50px;
@@ -139,7 +97,7 @@
             justify-content: center;
             align-items: center;
             background: #166d36;
-            color: white;
+            color: rgb(255, 255, 255);
             font-size: 24px;
             cursor: pointer;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -152,36 +110,38 @@
 </head>
 <body>
 
-
     <div class="container">
-             <div class="top-bar">
-            <!-- <span class="title">Updates</span> -->
-            <div class="icons">
-                <!-- <span class="search-icon">🔍</span>
-                <span class="menu-icon">⋮</span> -->
+        <div class="status-list">
+            <div class="my-status">
+                <span></span>
             </div>
-        </div>
-        <div class="status">
-            <span>Status</span>
-        </div>
-       
-
-        <div class="my-status">
-           
-            <img src="{{user_status.status_media}}" alt="My Status">
-            <div class="text">
-                <h4>My Status</h4>
-                {% if not user_status  %}
-                <p>Tap to add status update</p>
-                {% endif %}
+            <h2>Status</h2>
+            <div class="my-status" onclick="window.location.href='{% url 'status_detail' user_id=user_status.user_id %}'">
+                <img src="{{user_status.status_media}}" alt="My Status">
+                <div class = "text"> </div>
+                    <div class="status-info">
+                    <h4>My status</h4>
+                    {% if not user_status %}
+                    <p>No updates</p>
+                    {% endif %}
+                
+                </div>
             </div>
-        </div>
 
-        Recent Updates 
+            <div> <h3>Recent Updates</h3> </div>
+            
+        
+                <div class="status-info">
+             <div class="status-table">
+                <div class="status-item">
+                </div>
+            </div> 
+        
+
 
         <div class="status-list">
             {% for friend in friends %}
-            <div class="status">
+            <div class = "status">
                 <img src ="{{friend.status_media}}" alt="media">
                 <div class="info">
                     <h4> {{friend.name}}</h4>
@@ -204,22 +164,13 @@
     {% endif %}
 {% endfor %}
 
-        
-
         <div class="floating-icons">
             <div class="floating-button edit-button">✎</div>
             <div onclick="window.location.href='{% url 'status_create' %}'" class="floating-button">📷</div>
 
         </div>
 
-        <!-- Bottom Navigation
-        <div class="nav">
-            <div>Chats</div>
-            <div class="active">Updates</div>
-            <div>Communities</div>
-            <div>Calls</div>
-        </div> 
-    </div> -->
 
 </body>
-</html>
+</html> 
+

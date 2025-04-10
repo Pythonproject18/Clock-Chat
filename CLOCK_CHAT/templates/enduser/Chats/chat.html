@@ -200,8 +200,8 @@
             {% if chats %}
             <div class="chat-list">
                 {% for chat in chats %}
-                <div class="chat-item" onclick="window.location.href='url {'message'} chat_id = chat.id'">
-                    <div class="chat-avatar">T</div>
+                <div class="chat-item" onclick="window.location.href='/message/?chat_id={{ chat.id }}'">
+                    <div class="chat-avatar">{{ chat.title|first }}</div>
                     <div class="chat-header-info">
                         <h3>{{ chat.title }}</h3>
                     </div>
@@ -267,58 +267,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        const messageInput = document.getElementById('messageInput');
-        const plusIcon = document.getElementById('plusIcon');
-        const micIcon = document.getElementById('micIcon');
-        const sendIcon = document.getElementById('sendIcon');
-        const chatItems = document.querySelectorAll('.chat-item');
-        const toolbarIcons = document.querySelectorAll('.toolbar-icon');
-
-        // Input field behavior
-        messageInput.addEventListener('input', () => {
-            if (messageInput.value.trim() !== '') {
-                sendIcon.classList.remove('hidden');
-                plusIcon.classList.add('hidden');
-                micIcon.classList.add('hidden');
-            } else {
-                plusIcon.classList.remove('hidden');
-                micIcon.classList.remove('hidden');
-                sendIcon.classList.add('hidden');
-            }
-        });
-
-        // Chat item selection
-        chatItems.forEach(item => {
-            item.addEventListener('click', () => {
-                chatItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-            });
-        });
-
-        // Toolbar icon selection
-        toolbarIcons.forEach(icon => {
-            icon.addEventListener('click', () => {
-                toolbarIcons.forEach(i => i.classList.remove('active'));
-                icon.classList.add('active');
-            });
-        });
-
-        // Auto-scroll to bottom of messages
-        const messagesContainer = document.querySelector('.chat-messages');
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        // Voice recording functionality
-        micIcon.addEventListener('click', () => {
-            micIcon.style.color = '#e84393';
-            alert('Voice recording started (this would be implemented with the Web Audio API in a real app)');
-            
-            setTimeout(() => {
-                micIcon.style.color = '';
-                alert('Voice recording stopped');
-            }, 3000);
-        });
-    </script>
 </body>
 </html>
