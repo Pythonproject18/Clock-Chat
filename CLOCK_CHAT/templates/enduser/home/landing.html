@@ -16,6 +16,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
   <link rel="stylesheet" href="static/css/Lpage.css">
+  <link rel ="stylesheet" href="static/css\login.css">
+  <script src="static/js/login.js"></script>
 
 </head>
 <body>
@@ -72,231 +74,7 @@
 
            
 
-<script>
 
-  function open_login_modal(){
-    let loginModal = document.getElementById('log_in');
-    loginModal.style.display="block";
-  }
-    function getCSRFToken() {
-        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    }
-
-    async function sendOTP() {
-        let purpose = "login";
-        let email = document.getElementById("email").value;
-        let loader = document.getElementById("modal"); // Get the loader element
-
-        if (!email) {
-            console.log("Error: Please enter your email.");
-            return;
-        }
-
-        console.log("Sending OTP to:", email, "Purpose:", purpose);
-        loader.style.display = "block"; // Show the loader
-        document.body.style.overflow = 'hidden';
-
-
-        try {
-            let response = await fetch("/api/send-otp/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "X-CSRFToken": getCSRFToken()
-                },
-                body: new URLSearchParams({ email: email, purpose: purpose })
-            });
-
-            let result = await response.json();
-            console.log("Response received:", result);
-
-            if (response.ok) {
-                console.log("OTP sent successfully.");
-                document.getElementById("otpSection").classList.remove("hidden");
-                document.getElementById("emailSection").classList.add("hidden");
-            } else {
-                console.log("Error:", result.message);
-            }
-        } catch (error) {
-            console.error("Error:", error);
-        } finally {
-            loader.style.display = "none"; // Hide the loader after request completes
-            document.body.style.overflow = 'auto';
-        }
-    }
-
-    async function verifyOTP() {
-        let email = document.getElementById("email").value;
-        let otp = document.getElementById("otp").value;
-        let loader = document.getElementById("modal"); // Get the loader element
-    
-        if (!otp) {
-            console.log("Error: Please enter the OTP.");
-            return;
-        }
-    
-        console.log("Verifying OTP for:", email, "OTP:", otp); // Debug Log
-        loader.style.display = "block"; // Show the loader before making the request
-        document.body.style.overflow = 'hidden';
-    
-        try {
-            let response = await fetch("/api/verify-otp-login/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "X-CSRFToken": getCSRFToken()
-                },
-                body: new URLSearchParams({ email: email, otp: otp })
-            });
-    
-            let result = await response.json();
-            console.log("Response received:", result); // Debug Log
-    
-            if (response.ok) {
-                console.log("OTP verification successful. Redirecting...");
-    
-                // Keep the loader visible during redirection
-                setTimeout(() => {
-                    window.location.href = "/";
-                }, 2000);
-                
-                document.body.style.overflow = 'auto';
-                
-            } else {
-                console.log("Error:", result.message);
-                loader.style.display = "none"; // Hide loader only if verification fails
-                document.body.style.overflow = 'auto';
-            }
-        } catch (error) {
-            console.error("Error:", error); // Debug Log
-            loader.style.display = "none"; // Hide loader on error
-            document.body.style.overflow = 'auto';
-        }
-    }
-    
-</script>
-
-<style>
-
-
-h2 {
-  color: #333;
-  margin-bottom: 15px;
-}
-.container-log{
-  padding: 30px;
-  position: relative;
-  border: 2px solid #08134b;
-  margin: auto;
-  max-width: 500px;
-}
-
-input {
-  width: 100%;
-  padding: 5px;
-  margin: 15px 0;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-button {
-  width: 100%;
-  padding: 5px;
-  background:#0046cc;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 18px;
-  transition: 0.3s;
-}
-
-button:active {
-  background: #3a8dfe;
-}
-
-.hidden {
-  display: none;
-}
-.anc{
-  margin-top: 20px;
-  height: 30px;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-;
-}
-
-@media (min-width: 480px) {
-  #loading{
-      top: 44% !important;
-      right: 36% !important;
-  }
-}
-@media (min-width: 786px) {
-  #loading{
-      top: 46% !important;
-      right: 37% !important;
-  }
-
-}
-@media (min-width: 992px) {
-  #loading{
-      top: 44% !important;
-      right: 42% !important;
-  }
-
-}
-@media (min-width: 300px) and (max-width: 480px) {
-  #loading {
-      top: 44% !important;
-      right: 23% !important;
-  }
-}
-#modal{
-  position:fixed;
-  background: rgb(0 0 0 / 0%);
-  height: 100vh;
-  width: 100%;
-  backdrop-filter: blur(5px);
-  opacity: 10;
-  transform: scale(1);
-}
-
-#modal.show {
-  opacity: 10;
-  visibility: visible;
-  transform: scale(1);
-}
-
-.spinner {
-border: 3px solid #f3f3f3;
-border-top: 3px solid #3498db;
-border-radius: 50%;
-width: 40px;
-height: 40px;
-animation: spin 1s linear infinite;
-display: inline-block;
-}
-#loading{
-align-items: center;
-color: black;
-font-size: 25px;
-width: 200px;
-height: 70px;
-top: 44%;
-right: 43%;
-position: absolute;
-display: flex;
-justify-content: center;
-}
-
-@keyframes spin {
-0% { transform: rotate(0deg); }
-100% { transform: rotate(360deg); }
-}
-
-</style>
 
 
 
@@ -311,7 +89,7 @@ justify-content: center;
     
         <!-- Email Input Section -->
         <div id="emailSection">
-            <input type="email" id="email" placeholder="Enter your email" required>
+            <input type="email" id="email" placeholder="Enter your email" required autofocus>
             <button type="button" onclick="sendOTP()">Send OTP</button>
         </div>
     
@@ -332,7 +110,7 @@ justify-content: center;
           {% if request.user.is_authenticated %}
           <a href="/chat/" class="btn btn-hero-getstarted me-3 mb-3 animate__animated animate__pulse animate__infinite animate__slower">Get Started</a>
           {% else %}
-          <a href="/api/verify-otp-login/" class="btn btn-hero-getstarted me-3 mb-3 animate__animated animate__pulse animate__infinite animate__slower">Get Started</a>
+          <a onclick="open_login_modal()" class="btn btn-hero-getstarted me-3 mb-3 animate__animated animate__pulse animate__infinite animate__slower">Get Started</a>
           {% endif %}
           <a href="#" class="btn btn-hero-learnmore mb-3">Learn More</a>
         </div>
