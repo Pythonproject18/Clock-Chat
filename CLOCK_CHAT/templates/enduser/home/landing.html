@@ -19,7 +19,12 @@
 
 </head>
 <body>
-
+<!-- Add this loader to your HTML (Initially Hidden) -->
+<div class="modal" id="modal" style="display:none;">
+  <div id="loading">
+      <p>Loading....</p><span class="spinner"></span>
+  </div>
+</div>
   <div class="particles" id="particles-js"></div>
   
 
@@ -41,23 +46,294 @@
           <li class="nav-item">
             <a class="nav-link" href="#">Contact</a>
           </li>
-          <li class="nav-item ms-lg-3">
-            <a class="nav-link btn btn-sm btn-login px-3 py-2" href="/api/verify-otp-login/">Login</a>
+          {% if request.user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="{{ request.user.profile_photo_url|default:'/static/images/default_avatar.png' }}" 
+                   alt="Profile" 
+                   style="height:40px; width:40px; object-fit:cover; border-radius:50%;">
+            </a>
+            <div class="dropdown-menu" aria-labelledby="userDropdown" style="min-width: auto; width: 100px;">
+              <div class="dropdown-item" onclick="window.location.href='{% url 'log_out' %}'">Logout</div>
+            </div>            
           </li>
-        </ul>
+          {% else %}
+            <li class="nav-item ms-lg-3">
+              <a class="nav-link btn btn-sm btn-login px-3 py-2" onclick="open_login_modal()">Login</a>
+            </li>
+          {% endif %}
+          </ul>
       </div>
     </div>
   </nav>
 
+
+  
+
+           
+
+<script>
+
+  function open_login_modal(){
+    let loginModal = document.getElementById('log_in');
+    loginModal.style.display="block";
+  }
+    function getCSRFToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
+    async function sendOTP() {
+        let purpose = "login";
+        let email = document.getElementById("email").value;
+        let loader = document.getElementById("modal"); // Get the loader element
+
+        if (!email) {
+            console.log("Error: Please enter your email.");
+            return;
+        }
+
+        console.log("Sending OTP to:", email, "Purpose:", purpose);
+        loader.style.display = "block"; // Show the loader
+        document.body.style.overflow = 'hidden';
+
+
+        try {
+            let response = await fetch("/api/send-otp/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": getCSRFToken()
+                },
+                body: new URLSearchParams({ email: email, purpose: purpose })
+            });
+
+            let result = await response.json();
+            console.log("Response received:", result);
+
+            if (response.ok) {
+                console.log("OTP sent successfully.");
+                document.getElementById("otpSection").classList.remove("hidden");
+                document.getElementById("emailSection").classList.add("hidden");
+            } else {
+                console.log("Error:", result.message);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            loader.style.display = "none"; // Hide the loader after request completes
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    async function verifyOTP() {
+        let email = document.getElementById("email").value;
+        let otp = document.getElementById("otp").value;
+        let loader = document.getElementById("modal"); // Get the loader element
+    
+        if (!otp) {
+            console.log("Error: Please enter the OTP.");
+            return;
+        }
+    
+        console.log("Verifying OTP for:", email, "OTP:", otp); // Debug Log
+        loader.style.display = "block"; // Show the loader before making the request
+        document.body.style.overflow = 'hidden';
+    
+        try {
+            let response = await fetch("/api/verify-otp-login/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": getCSRFToken()
+                },
+                body: new URLSearchParams({ email: email, otp: otp })
+            });
+    
+            let result = await response.json();
+            console.log("Response received:", result); // Debug Log
+    
+            if (response.ok) {
+                console.log("OTP verification successful. Redirecting...");
+    
+                // Keep the loader visible during redirection
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 2000);
+                
+                document.body.style.overflow = 'auto';
+                
+            } else {
+                console.log("Error:", result.message);
+                loader.style.display = "none"; // Hide loader only if verification fails
+                document.body.style.overflow = 'auto';
+            }
+        } catch (error) {
+            console.error("Error:", error); // Debug Log
+            loader.style.display = "none"; // Hide loader on error
+            document.body.style.overflow = 'auto';
+        }
+    }
+    
+</script>
+
+<style>
+
+
+h2 {
+  color: #333;
+  margin-bottom: 15px;
+}
+.container-log{
+  padding: 30px;
+  position: relative;
+  border: 2px solid #08134b;
+  margin: auto;
+  max-width: 500px;
+}
+
+input {
+  width: 100%;
+  padding: 5px;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  padding: 5px;
+  background:#0046cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+button:active {
+  background: #3a8dfe;
+}
+
+.hidden {
+  display: none;
+}
+.anc{
+  margin-top: 20px;
+  height: 30px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+;
+}
+
+@media (min-width: 480px) {
+  #loading{
+      top: 44% !important;
+      right: 36% !important;
+  }
+}
+@media (min-width: 786px) {
+  #loading{
+      top: 46% !important;
+      right: 37% !important;
+  }
+
+}
+@media (min-width: 992px) {
+  #loading{
+      top: 44% !important;
+      right: 42% !important;
+  }
+
+}
+@media (min-width: 300px) and (max-width: 480px) {
+  #loading {
+      top: 44% !important;
+      right: 23% !important;
+  }
+}
+#modal{
+  position:fixed;
+  background: rgb(0 0 0 / 0%);
+  height: 100vh;
+  width: 100%;
+  backdrop-filter: blur(5px);
+  opacity: 10;
+  transform: scale(1);
+}
+
+#modal.show {
+  opacity: 10;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.spinner {
+border: 3px solid #f3f3f3;
+border-top: 3px solid #3498db;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+animation: spin 1s linear infinite;
+display: inline-block;
+}
+#loading{
+align-items: center;
+color: black;
+font-size: 25px;
+width: 200px;
+height: 70px;
+top: 44%;
+right: 43%;
+position: absolute;
+display: flex;
+justify-content: center;
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+</style>
+
+
+
+
+
   <!-- Hero Section -->
   <section class="hero-section">
-    <div class="container">
+    <div class="container" style="padding-top:10%;gap: 30px;flex-direction: column;display: flex;padding-top: 10%;">
+      <div class="container-log" id="log_in"style="display:none;">
+        <h2 style="color: white;justify-content: center;align-items: center;display: flex;">Sigin</h2>
+        <meta name="csrf-token" content="{{ csrf_token }}">
+    
+        <!-- Email Input Section -->
+        <div id="emailSection">
+            <input type="email" id="email" placeholder="Enter your email" required>
+            <button type="button" onclick="sendOTP()">Send OTP</button>
+        </div>
+    
+        <!-- OTP Verification Section (Initially Hidden) -->
+        <div id="otpSection" class="hidden">
+            <input type="text" id="otp" placeholder="Enter OTP" required>
+            <button type="button" onclick="verifyOTP()">Verify OTP</button>
+        </div>
+        
+        <a class="anc" href="/api/signup/">Create Account</a>
+    </div>
       <div class="hero-content animate__animated animate__fadeIn">
+
         <h1 class="mb-4">Connect in real-time with ClockChat</h1>
         <p class="mb-5">The next-generation messaging platform with end-to-end encryption, seamless sync across devices, and lightning-fast delivery. Join millions of users worldwide for secure and private communication.</p>
 
         <div class="d-flex justify-content-center flex-wrap gap-3">
-          <a href="#" class="btn btn-hero-getstarted me-3 mb-3 animate__animated animate__pulse animate__infinite animate__slower">Get Started</a>
+          {% if request.user.is_authenticated %}
+          <a href="/chat/" class="btn btn-hero-getstarted me-3 mb-3 animate__animated animate__pulse animate__infinite animate__slower">Get Started</a>
+          {% else %}
+          <a href="/api/verify-otp-login/" class="btn btn-hero-getstarted me-3 mb-3 animate__animated animate__pulse animate__infinite animate__slower">Get Started</a>
+          {% endif %}
           <a href="#" class="btn btn-hero-learnmore mb-3">Learn More</a>
         </div>
       </div>

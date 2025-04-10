@@ -90,7 +90,7 @@ class SignUpView(View):
 
 class VerifyOTPLoginView(View):
     def get(self, request):
-        return render(request, 'auth/signin.html')
+        return render(request, 'enduser/home/landing.html')
 
     def post(self, request):
         email = request.POST.get("email")
@@ -108,4 +108,4 @@ class UserLogoutView(View):
     def get(self, request):
         logout(request)
         request.session.flush()
-        return redirect("/api/verify-otp-login/")
+        return redirect("/")
