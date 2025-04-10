@@ -1,6 +1,8 @@
 
   function open_login_modal(){
     let loginModal = document.getElementById('log_in');
+    let signupmodal = document.getElementById('sign_up');
+    signupmodal.style.display = "none";
     loginModal.style.display="block";
   }
     function getCSRFToken() {
