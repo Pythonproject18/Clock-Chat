@@ -29,7 +29,7 @@ class ChatListView(View):
                 {
                     'id': user.id,
                     'profile_pic': user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png',
-                    'full_name':f"{user.first_name}{user.last_name}",
+                    'full_name':f"{user.first_name} {user.middle_name} {user.last_name}",
                 }
                 for user in users
             ]
