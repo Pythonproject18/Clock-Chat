@@ -25,7 +25,8 @@ class StatusListView(View):  # Use LoginRequiredMixin
         friends = status_service.get_friends_by_user(user)
         user_status = status_service.get_user_status(user)
         # Fetch statuses of friends (logic needed)
-        
+        print(user_status)
+        print("status",friends)
         return render(request,'status/status.html', {"friends": friends,'user_status':user_status})  # Use appropriate template
     
 
