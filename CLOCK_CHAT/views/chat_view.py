@@ -63,7 +63,7 @@ class MessageListView(View):
                 {
                     'id': msg.id,
                     'text': msg.text,
-                    'created_at': msg.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    'created_at': msg.created_at.strftime("%I:%M %p"),
                     'sender_id': msg.sender_id.id,
                     'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}"
                 }
