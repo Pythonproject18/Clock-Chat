@@ -74,7 +74,6 @@ function renderMessages(chatId, chatTitle, messages) {
     chatSection.innerHTML = html;
     setTimeout(scrollToBottom, 0);
 
-    // Add event listener for input changes
     const messageInput = document.getElementById('messageInput');
     const micIcon = document.getElementById('micIcon');
     const plusIcon = document.getElementById('plusIcon');
@@ -98,8 +97,6 @@ function renderMessages(chatId, chatTitle, messages) {
         }
     });
 }
-
-// Utility to get CSRF token from cookie
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -157,7 +154,6 @@ window.sendMessage = function () {
             messageInput.value = "";
             scrollToBottom();
             
-            // Reset icons after sending
             sendIcon.style.display = 'none';
             micIcon.style.display = 'inline-block';
             plusIcon.style.display = 'inline-block';
