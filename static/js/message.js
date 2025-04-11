@@ -1,3 +1,10 @@
+function scrollToBottom() {
+    const messagesContainer = document.getElementById('messagesContainer');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+}
+
 function loadChatMessages(chatId, chatTitle) {
     fetch(`/message/${chatId}`, {
         headers: {
@@ -66,10 +73,42 @@ function renderMessages(chatId, chatTitle, messages) {
 
         <span class="icon mic-icon" id="micIcon"><i class="fas fa-microphone"></i></span>
         <span class="icon plus-icon" id="plusIcon"><i class="fas fa-plus"></i></span>
-        <span class="icon send-icon" onclick="sendMessage()" id="sendIcon">
+        <span class="icon send-icon" onclick="sendMessage()" id="sendIcon" style="display:none;">
             <i class="fas fa-paper-plane"></i>
         </span>
     `;
+
+    setTimeout(scrollToBottom, 0);
+
+    // Add event listener for input changes
+    const messageInput = document.getElementById('messageInput');
+    const micIcon = document.getElementById('micIcon');
+    const plusIcon = document.getElementById('plusIcon');
+    const sendIcon = document.getElementById('sendIcon');
+
+    messageInput.addEventListener('input', function () {
+        if (this.value.trim() !== '') {
+            sendIcon.style.display = 'inline-block';
+            micIcon.style.display = 'none';
+            plusIcon.style.display = 'none';
+        } else {
+            sendIcon.style.display = 'none';
+            micIcon.style.display = 'inline-block';
+            plusIcon.style.display = 'inline-block';
+        }
+    });
+
+    messageInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' && this.value.trim() !== '') {
+            sendMessage();
+        }
+    });
+}
+
+function formatMessageTime(timestamp) {
+    // Handles ISO timestamp and converts to "hh:mm AM/PM"
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 }
 
 
@@ -93,6 +132,9 @@ window.sendMessage = function () {
     const messageInput = document.getElementById("messageInput");
     const chatId = document.getElementById("chatId")?.value;
     const messagesContainer = document.getElementById("messagesContainer");
+    const micIcon = document.getElementById("micIcon");
+    const plusIcon = document.getElementById("plusIcon");
+    const sendIcon = document.getElementById("sendIcon");
 
     const messageText = messageInput.value.trim();
     if (!messageText) return;
@@ -126,7 +168,12 @@ window.sendMessage = function () {
             `;
             messagesContainer.appendChild(messageDiv);
             messageInput.value = "";
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            scrollToBottom();
+            
+            // Reset icons after sending
+            sendIcon.style.display = 'none';
+            micIcon.style.display = 'inline-block';
+            plusIcon.style.display = 'inline-block';
         }
     })
     .catch((error) => console.error("Error:", error));

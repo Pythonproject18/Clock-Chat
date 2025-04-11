@@ -46,40 +46,40 @@
   <div class="floating-element two"></div>
   
 
-  <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-    <div class="container">
-      <h1 class="navbar-brand mb-0">ClockChat</h1>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-bars"></i>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link active" href="#">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Contact</a>
-          </li>
-          {% if request.user.is_authenticated %}
-          <li class="nav-item dropdown">
-            <a class="nav-link p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="{{ request.user.profile_photo_url|default:'/static/images/default_avatar.png' }}" 
-                   alt="Profile" 
-                   style="height:40px; width:40px; object-fit:cover; border-radius:50%;">
-            </a>
-            <div class="dropdown-menu" aria-labelledby="userDropdown" style="min-width: auto; width: 100px;">
-              <div class="dropdown-item" onclick="window.location.href='{% url 'log_out' %}'">Logout</div>
-            </div>            
-          </li>
-          {% else %}
-            <li class="nav-item ms-lg-3">
-              <a class="nav-link btn btn-sm btn-login px-3 py-2" onclick="open_login_modal()">Login</a>
-            </li>
-          {% endif %}
+<nav class="navbar navbar-expand-lg navbar-light fixed-top">
+  <div class="container">
+    <h1 class="navbar-brand mb-0">ClockChat</h1>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Contact</a>
+        </li>
+        {% if request.user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ request.user.profile_photo_url|default:'/static/images/default_avatar.png' }}" 
+                 class="profile-img"
+                 alt="Profile">
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><div class="dropdown-item" onclick="window.location.href='{% url 'log_out' %}'">Logout</div></li>
           </ul>
-      </div>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link btn btn-login" onclick="open_login_modal()">Login</a>
+        </li>
+        {% endif %}
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 
 
   <!-- Hero Section -->
@@ -318,102 +318,101 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
 
   <script>
-    // Initialize particles.js with enhanced visibility settings
-    document.addEventListener('DOMContentLoaded', function() {
-      if (document.getElementById('particles-js')) {
-        particlesJS('particles-js', {
-          particles: {
-            number: { 
-              value: 80, 
-              density: { 
-                enable: true, 
-                value_area: 800 
-              } 
-            },
-            color: { value: "#818cf8" },
-            shape: { 
-              type: "circle",
-              stroke: {
-                width: 0,
-                color: "#000000"
-              }
-            },
-            opacity: { 
-              value: 0.8, 
-              random: true,
-              anim: {
-                enable: true,
-                speed: 1,
-                opacity_min: 0.1,
-                sync: false
-              }
-            },
-            size: { 
-              value: 4, 
-              random: true,
-              anim: {
-                enable: true,
-                speed: 2,
-                size_min: 0.1,
-                sync: false
-              }
-            },
-            line_linked: { 
-              enable: true, 
-              distance: 150, 
-              color: "#6366f1", 
-              opacity: 0.4,
-              width: 1.5
-            },
-            move: { 
-              enable: true, 
-              speed: 3,
-              direction: "none", 
-              random: true, 
-              straight: false, 
-              out_mode: "out",
-              bounce: false,
-              attract: {
-                enable: true,
-                rotateX: 600,
-                rotateY: 1200
-              }
+// Initialize particles.js with enhanced visibility settings
+document.addEventListener('DOMContentLoaded', function() {
+  if (document.getElementById('particles-js')) {
+    particlesJS('particles-js', {
+      particles: {
+        number: { 
+          value: 80, 
+          density: { 
+            enable: true, 
+            value_area: 800 
+          } 
+        },
+        color: { value: "#818cf8" },
+        shape: { 
+          type: "circle",
+          stroke: {
+            width: 0,
+            color: "#000000"
+          }
+        },
+        opacity: { 
+          value: 0.8, 
+          random: true,
+          anim: {
+            enable: true,
+            speed: 1,
+            opacity_min: 0.1,
+            sync: false
+          }
+        },
+        size: { 
+          value: 4, 
+          random: true,
+          anim: {
+            enable: true,
+            speed: 2,
+            size_min: 0.1,
+            sync: false
+          }
+        },
+        line_linked: { 
+          enable: true, 
+          distance: 150, 
+          color: "#6366f1", 
+          opacity: 0.4,
+          width: 1.5
+        },
+        move: { 
+          enable: true, 
+          speed: 3,
+          direction: "none", 
+          random: true, 
+          straight: false, 
+          out_mode: "out",
+          bounce: false,
+          attract: {
+            enable: true,
+            rotateX: 600,
+            rotateY: 1200
+          }
+        }
+      },
+      interactivity: {
+        detect_on: "window",
+        events: {
+          onhover: { 
+            enable: true, 
+            mode: "grab",
+            parallax: {
+              enable: true,
+              force: 60,
+              smooth: 10
             }
           },
-          interactivity: {
-            detect_on: "window",
-            events: {
-              onhover: { 
-                enable: true, 
-                mode: "grab",
-                parallax: {
-                  enable: true,
-                  force: 60,
-                  smooth: 10
-                }
-              },
-              onclick: { 
-                enable: true, 
-                mode: "push" 
-              },
-              resize: true
-            },
-            modes: {
-              grab: {
-                distance: 140,
-                line_linked: {
-                  opacity: 1
-                }
-              },
-              push: {
-                particles_nb: 4
-              }
+          onclick: { 
+            enable: true, 
+            mode: "push" 
+          },
+          resize: true
+        },
+        modes: {
+          grab: {
+            distance: 140,
+            line_linked: {
+              opacity: 1
             }
           },
-          retina_detect: true
-        });
-      }
-
+          push: {
+            particles_nb: 4
+          }
+        }
+      },
+      retina_detect: true
+    });
+  }
       // Navbar scroll effect
       window.addEventListener('scroll', function() {
         const navbar = document.querySelector('.navbar');
