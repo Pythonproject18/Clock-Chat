@@ -51,6 +51,10 @@
                 <div class="chat-header-info">
                 <h3 class="chat-title">{{ chat.title }}</h3>
                 </div>
+                <div style="max-width: 100px;gap: 10px;flex-direction: column;display: flex;">
+                <div style="justify-content: flex-end;align-items: center;display: flex;">2+</div>
+                <div style="justify-content: flex-end;align-items: center;display: flex;">{{chat.created_at}}</div>
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -63,12 +67,12 @@
             </div>
         </div>
     </div>
-    <div class="chat-section" id="chatSection">
-
- 
-        <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
-
+    <div class="chat-section hidden" id="chatSection" data-user-id="{{ request.user.id }}">
+        <div class="chat-header" id="chatHeader"></div>
+        <div class="chat-messages" id="messagesContainer"></div>
+        <div class="chat-input" id="chatInput"></div>
     </div>
+    
 
     <div id="openmodal" class="modal">
         <div class="modal-content">

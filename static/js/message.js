@@ -19,27 +19,33 @@ function renderMessages(chatId, chatTitle, messages) {
     const chatSection = document.getElementById('chatSection');
     const userId = document.body.dataset.userId;
 
-    let html = `
-        <div class="chat-header">
-            <div class="chat-header-avatar">${chatTitle[0]}</div>
-            <div class="chat-header-info">
-                <h2>${chatTitle}</h2>
-                <p>Last seen today at ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-            </div>
-            <div class="chat-header-actions">
-                <span class="icon"><i class="fas fa-phone-alt"></i></span>
-                <span class="icon"><i class="fas fa-video"></i></span>
-                <span class="icon"><i class="fas fa-ellipsis-v"></i></span>
-            </div>
-        </div>
+    // Show chat section
+    chatSection.classList.remove('hidden');
 
-        <div class="chat-messages" id="messagesContainer">`;
+    // Set header content
+    document.getElementById('chatHeader').innerHTML = `
+        <div class="chat-header-avatar">${chatTitle[0]}</div>
+        <div class="chat-header-info">
+            <h2>${chatTitle}</h2>
+            <p>Last seen today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+        </div>
+        <div class="chat-header-actions">
+            <span class="icon"><i class="fas fa-phone-alt"></i></span>
+            <span class="icon"><i class="fas fa-video"></i></span>
+            <span class="icon"><i class="fas fa-ellipsis-v"></i></span>
+        </div>
+    `;
+
+    // Set messages
+    const messagesContainer = document.getElementById('messagesContainer');
+    messagesContainer.innerHTML = ''; // Clear old messages
 
     messages.forEach(msg => {
         const isSender = String(msg.sender_id) === String(userId);
         const messageClass = isSender ? 'sent' : 'received';
         const avatar = isSender ? '' : `<div class="message-avatar">${msg.sender_name[0]}</div>`;
-        html += `
+
+        const messageHtml = `
             <div class="message ${messageClass}">
                 ${avatar}
                 <div class="message-content">
@@ -48,24 +54,24 @@ function renderMessages(chatId, chatTitle, messages) {
                 </div>
             </div>
         `;
+
+        messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
     });
 
-    html += `</div>
-        <div class="chat-input">
-            <input type="text" id="messageInput" placeholder="Type a message..." />
-            <input type="hidden" id="chatId" value="${chatId}" />
-            <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+    // Set input box
+    document.getElementById('chatInput').innerHTML = `
+        <input type="text" id="messageInput" placeholder="Type a message..." />
+        <input type="hidden" id="chatId" value="${chatId}" />
+        <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
 
-            <span class="icon mic-icon" id="micIcon"><i class="fas fa-microphone"></i></span>
-            <span class="icon plus-icon" id="plusIcon"><i class="fas fa-plus"></i></span>
-            <span class="icon send-icon" onclick="sendMessage()" id="sendIcon">
-                <i class="fas fa-paper-plane"></i>
-            </span>
-        </div>
+        <span class="icon mic-icon" id="micIcon"><i class="fas fa-microphone"></i></span>
+        <span class="icon plus-icon" id="plusIcon"><i class="fas fa-plus"></i></span>
+        <span class="icon send-icon" onclick="sendMessage()" id="sendIcon">
+            <i class="fas fa-paper-plane"></i>
+        </span>
     `;
-
-    chatSection.innerHTML = html;
 }
+
 
 // Utility to get CSRF token from cookie
 function getCookie(name) {
