@@ -59,6 +59,19 @@ function renderMessages(chatId, chatTitle, messages) {
                     <div class="message-bubble">${msg.text}</div>
                     <div class="message-time">${msg.created_at}</div>
                 </div>
+                ${isSender ? `
+                <div class="message-actions">
+                    <div class="message-actions-dots">
+                        <div class="message-actions-dot"></div>
+                        <div class="message-actions-dot"></div>
+                        <div class="message-actions-dot"></div>
+                    </div>
+                    <div class="message-actions-menu">
+                        <div class="message-action-edit">Edit</div>
+                        <div class="message-action-delete">Delete</div>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         `;
 
@@ -163,6 +176,17 @@ window.sendMessage = function () {
                 <div class="message-content">
                     <div class="message-bubble">${data.data.text}</div>
                     <div class="message-time">${new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+                <div class="message-actions">
+                    <div class="message-actions-dots">
+                        <div class="message-actions-dot"></div>
+                        <div class="message-actions-dot"></div>
+                        <div class="message-actions-dot"></div>
+                    </div>
+                    <div class="message-actions-menu">
+                        <div class="message-action-edit">Edit</div>
+                        <div class="message-action-delete">Delete</div>
+                    </div>
                 </div>
             `;
             messagesContainer.appendChild(messageDiv);
