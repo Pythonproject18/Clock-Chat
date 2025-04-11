@@ -1,12 +1,15 @@
 from django.views import View
 from django.shortcuts import render,redirect
 from django.http import JsonResponse 
+from CLOCK_CHAT.constants import Chat_Type
 from CLOCK_CHAT.constants.default_values import Role
 from CLOCK_CHAT.decorator import role_required,auth_required
 from django.contrib import messages
 from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
 from CLOCK_CHAT.services import user_service, message_service
+from CLOCK_CHAT.models import Chat, ChatMember, Friend, User
+import json
 # from CLOCK_CHAT.models import User
 
 
@@ -42,10 +45,57 @@ class ChatListView(View):
 
 class ChatCreateView(View):
     def post(self, request):
-      
-        chat_name = request.POST.get('chat_name')
+        try:
+            data = json.loads(request.body)
+            target_user_id = data.get('user_id')
+            current_user = request.user
 
-        return JsonResponse({"status": "success", "message": "Chat created successfully"})
+            if not target_user_id:
+                return JsonResponse({'error': 'User ID is required'}, status=400)
+
+            try:
+                target_user = User.objects.get(id=target_user_id)
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'Target user does not exist'}, status=404)
+
+            # Create friendship both directions (if not exists)
+            for user1, user2 in [(current_user, target_user), (target_user, current_user)]:
+                Friend.objects.get_or_create(
+                    user=user1,
+                    friend=user2,
+                    defaults={'created_by': current_user}
+                )
+
+            # Optional: Check if chat already exists
+            existing_chat = Chat.objects.filter(
+                type=Chat_Type.Personal.value,
+                members=current_user
+            ).filter(members=target_user).first()
+
+            if existing_chat:
+                return JsonResponse({'chat_id': existing_chat.id, 'title': f"{target_user.first_name} {target_user.middle_name or ''} {target_user.last_name}".strip()})
+
+            # Create new personal chat
+            new_chat = Chat.objects.create(
+                type=Chat_Type.Personal.value,
+                created_by=current_user,
+                updated_by=current_user
+            )
+
+            # Add members
+            for member, is_admin in [(current_user, True), (target_user, False)]:
+                ChatMember.objects.create(
+                    chat=new_chat,
+                    member=member,
+                    is_admin=is_admin,
+                    created_by=current_user,
+                    updated_by=current_user
+                )
+
+            return JsonResponse({'chat_id': new_chat.id, 'title': target_user.get_full_name()})
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
     
 
 @auth_required
