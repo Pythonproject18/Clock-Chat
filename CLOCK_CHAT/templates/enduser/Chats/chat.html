@@ -17,10 +17,37 @@
     
         <script src="/static/js/chat_js.js"></script>
         <script src="/static/js/message.js"></script>
+        
+        <script>
+            function createFriendAndChat(userId) {
+            const csrfToken = document.getElementById('csrfToken').value;
+        
+            fetch('/chat/create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ user_id: userId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.chat_id) {
+                    loadChatMessages(data.chat_id, data.title);
+                    close_modal();
+                } else {
+                    alert("Error creating chat: " + (data.error || "Unknown error"));
+                }
+            })
+            .catch(error => {
+                console.error("Request failed:", error);
+            });
+        }
+        </script>
     </head>
     
 
-</head>
+
 <body data-user-id="{{ request.user.id }}">
 
     <div class="toolbar">
@@ -82,7 +109,7 @@
 
             <div class="modal-options" id="userList">
             {% for user in users %}
-                <div class="modal-option">
+                <div class="modal-option" onclick="createFriendAndChat({{ user.id }})">
                 <div class="option-icon">
                     <img src="{{ user.profile_pic }}" style="height:100%; border-radius:50%;">
                 </div>
@@ -92,6 +119,7 @@
             </div>
         </div>
     </div>
-
+    
+   
 </body>
 </html>
