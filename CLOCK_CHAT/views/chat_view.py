@@ -1,12 +1,14 @@
 from django.views import View
 from django.shortcuts import render,redirect
 from django.http import JsonResponse 
+from CLOCK_CHAT.constants import Chat_Type
 from CLOCK_CHAT.constants.default_values import Role
 from CLOCK_CHAT.decorator import role_required,auth_required
 from django.contrib import messages
 from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
-from CLOCK_CHAT.services import user_service, message_service
+from CLOCK_CHAT.services import user_service, message_service,chat_service
+import json
 # from CLOCK_CHAT.models import User
 
 
@@ -39,15 +41,24 @@ class ChatListView(View):
 
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
-
 class ChatCreateView(View):
     def post(self, request):
-      
-        chat_name = request.POST.get('chat_name')
+        data = json.loads(request.body)
+        user_ids = data.get("user_ids", [])
+        chat_name = data.get("chat_name", "")
+        print(data)
+        current_user_id = request.user.id
 
-        return JsonResponse({"status": "success", "message": "Chat created successfully"})
-    
+        if len(user_ids) == 1:
+            chat = chat_service.create_friend_and_personal_chat(current_user_id, user_ids)
+            print("chat",chat)
+        else:
+            chat = chat_service.create_group_chat_with_friend(current_user_id, user_ids, chat_name)
 
+        if chat:
+            return JsonResponse({"status": "success", "chat_id": chat.id})
+        else:
+            return JsonResponse({"status": "error", "message": "Chat creation failed"}, status=400)
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
 class MessageListView(View):
@@ -76,7 +87,6 @@ class MessageListView(View):
             })
 class MessageCreateView(View):   
     def post(self, request, chat_id):
-        print("helloooo")
         try:
             message_text = request.POST.get('message_text')
             
@@ -119,8 +129,76 @@ class MessageCreateView(View):
         
 
 
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
 class MessageUpdateView(View):
-
-    def post(self,request,message_id):
-
-        return redirect("/message/")
+    def post(self, request, message_id):
+        try:
+            message_text = request.POST.get('message_text')
+            chat_id = request.POST.get('chat_id')
+            
+            if not message_text:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'message_text is required'
+                }, status=400)
+                
+            message = message_service.update_message(
+                message_id=message_id,
+                text=message_text,
+                updated_by_id=request.user.id
+            )
+            
+            if message:
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Message updated successfully',
+                    'data': {
+                        'id': message.id,
+                        'text': message.text,
+                        'updated_at': message.updated_at.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                })
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Message not found or you are not the sender'
+            }, status=404)
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
+            
+            
+            
+            
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+class MessageDeleteView(View):
+    def post(self, request, message_id):
+        try:
+            message = Message.objects.get(id=message_id, sender_id=request.user.id)
+            
+            deleted = message_service.delete_message(message_id)
+            
+            if deleted:
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Message deleted successfully'
+                })
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Failed to delete message'
+            }, status=500)
+            
+        except Message.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Message not found or you are not the sender'
+            }, status=404)
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)

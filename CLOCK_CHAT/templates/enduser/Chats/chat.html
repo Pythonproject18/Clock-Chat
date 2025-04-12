@@ -17,10 +17,12 @@
     
         <script src="/static/js/chat_js.js"></script>
         <script src="/static/js/message.js"></script>
+        <meta name="csrf-token" content="{{ csrf_token }}">
+
     </head>
     
 
-</head>
+
 <body data-user-id="{{ request.user.id }}">
 
     <div class="toolbar">
@@ -69,7 +71,29 @@
     </div>
     <div class="chat-section hidden" id="chatSection" data-user-id="{{ request.user.id }}">
         <div class="chat-header" id="chatHeader"></div>
-        <div class="chat-messages" id="messagesContainer"></div>
+        <div class="chat-messages" id="messagesContainer">
+
+
+            <div class="modal" tabindex="-1" style="display: block;">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Are you wnat to delete it?</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="button1">Delete for me</div>
+                      <div class="button2">Delete for everyone</div>
+                      <div class="button3">Cancel</div>
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+  
+
+
+        </div>
         <div class="chat-input" id="chatInput"></div>
     </div>
     
@@ -79,19 +103,40 @@
             <span class="close-modal" onclick="close_modal()">&times;</span>
             <h3>Create New Chat</h3>
             <input type="search" id="userSearch" placeholder="Search users...">
-
+            
+            <!-- Selected users display -->
+            <button id="createGroupChatBtn" style="display: none;" onclick="createGroupChat()"><div>Create Group Chat</div></button>
+    
             <div class="modal-options" id="userList">
             {% for user in users %}
-                <div class="modal-option">
-                <div class="option-icon">
-                    <img src="{{ user.profile_pic }}" style="height:100%; border-radius:50%;">
-                </div>
-                <p class="user-name">{{ user.full_name }}</p>
+                <div class="modal-option" data-user-id="{{ user.id }}">
+                    <div class="option-icon">
+                        <img src="{{ user.profile_pic }}" style="height:100%; border-radius:50%;">
+                    </div>
+                    <p class="user-name">{{ user.full_name }}</p>
                 </div>
             {% endfor %}
             </div>
         </div>
     </div>
 
+
+
+    <style>
+        #createGroupChatBtn{
+            right: 5%;
+            bottom: 10%;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            position: absolute;
+            background: #2a9dff;
+        }
+        .modal-option.selected {
+            background-color: #d0ebff;
+            border: 2px solid #339af0;
+          }
+          
+    </style>
 </body>
 </html>

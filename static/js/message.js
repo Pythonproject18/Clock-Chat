@@ -5,6 +5,8 @@ function scrollToBottom() {
     }
 }
 
+let editingMessageId = null;
+
 function loadChatMessages(chatId, chatTitle) {
     fetch(`/message/${chatId}`, {
         headers: {
@@ -26,10 +28,8 @@ function renderMessages(chatId, chatTitle, messages) {
     const chatSection = document.getElementById('chatSection');
     const userId = document.body.dataset.userId;
 
-    // Show chat section
     chatSection.classList.remove('hidden');
 
-    // Set header content
     document.getElementById('chatHeader').innerHTML = `
         <div class="chat-header-avatar">${chatTitle[0]}</div>
         <div class="chat-header-info">
@@ -43,9 +43,8 @@ function renderMessages(chatId, chatTitle, messages) {
         </div>
     `;
 
-    // Set messages
     const messagesContainer = document.getElementById('messagesContainer');
-    messagesContainer.innerHTML = ''; // Clear old messages
+    messagesContainer.innerHTML = '';
 
     messages.forEach(msg => {
         const isSender = String(msg.sender_id) === String(userId);
@@ -53,19 +52,48 @@ function renderMessages(chatId, chatTitle, messages) {
         const avatar = isSender ? '' : `<div class="message-avatar">${msg.sender_name[0]}</div>`;
 
         const messageHtml = `
-            <div class="message ${messageClass}">
-                ${avatar}
-                <div class="message-content">
-                    <div class="message-bubble">${msg.text}</div>
-                    <div class="message-time">${msg.created_at}</div>
-                </div>
+        <div class="message ${messageClass}" data-message-id="${msg.id}">
+            ${avatar}
+            <div class="message-content">
+                <div class="message-bubble">${msg.text}</div>
+                <div class="message-time">${msg.created_at}</div>
             </div>
-        `;
+            ${isSender ? `
+            <div class="message-actions">
+                <div class="message-actions-dots">
+                    <div class="message-actions-dot"></div>
+                    <div class="message-actions-dot"></div>
+                    <div class="message-actions-dot"></div>
+                </div>
+                <div class="message-actions-menu">
+                    <div class="message-action-edit">Edit</div>
+                    <div class="message-action-delete" onclick="open_deletemodal">Delete</div>
+                </div>
 
+                <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Are you wnat to delete it?</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="button1">Delete for me</div>
+                      <div class="button2">Delete for everyone</div>
+                      <div class="button3" onclick="close_deletemodal('${msg.id}')">Cancel</div>
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+
+            </div>` : '<div class="message-emoji-container"><i class="far fa-smile message-emoji"></i></div>'}
+        </div>
+    `;
+    
         messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
     });
 
-    // Set input box
     document.getElementById('chatInput').innerHTML = `
         <input type="text" id="messageInput" placeholder="Type a message..." />
         <input type="hidden" id="chatId" value="${chatId}" />
@@ -74,13 +102,13 @@ function renderMessages(chatId, chatTitle, messages) {
         <span class="icon mic-icon" id="micIcon"><i class="fas fa-microphone"></i></span>
         <span class="icon plus-icon" id="plusIcon"><i class="fas fa-plus"></i></span>
         <span class="icon send-icon" onclick="sendMessage()" id="sendIcon" style="display:none;">
-            <i class="fas fa-paper-plane"></i>
+            <i class="fas fa-paper-plane" id="sendPlaneIcon"></i>
+            <i class="fas fa-check" id="sendCheckIcon" style="display:none;"></i>
         </span>
     `;
 
     setTimeout(scrollToBottom, 0);
 
-    // Add event listener for input changes
     const messageInput = document.getElementById('messageInput');
     const micIcon = document.getElementById('micIcon');
     const plusIcon = document.getElementById('plusIcon');
@@ -105,14 +133,6 @@ function renderMessages(chatId, chatTitle, messages) {
     });
 }
 
-function formatMessageTime(timestamp) {
-    // Handles ISO timestamp and converts to "hh:mm AM/PM"
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-}
-
-
-// Utility to get CSRF token from cookie
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -135,46 +155,167 @@ window.sendMessage = function () {
     const micIcon = document.getElementById("micIcon");
     const plusIcon = document.getElementById("plusIcon");
     const sendIcon = document.getElementById("sendIcon");
+    const sendPlaneIcon = document.getElementById("sendPlaneIcon");
+    const sendCheckIcon = document.getElementById("sendCheckIcon");
 
     const messageText = messageInput.value.trim();
     if (!messageText) return;
 
     const csrfToken = getCookie("csrftoken");
 
-    fetch(`/message/create/${chatId}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": csrfToken,
-        },
-        body: new URLSearchParams({
-            chat_id: chatId,
-            message_text: messageText,
-        }),
-    })
-    .then((response) => {
-        if (!response.ok) throw new Error("Failed to send message");
-        return response.json();
-    })
-    .then((data) => {
-        if (data.status === "success") {
-            const messageDiv = document.createElement("div");
-            messageDiv.className = "message sent";
-            messageDiv.innerHTML = `
-                <div class="message-content">
-                    <div class="message-bubble">${data.data.text}</div>
-                    <div class="message-time">${new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}</div>
-                </div>
-            `;
-            messagesContainer.appendChild(messageDiv);
-            messageInput.value = "";
-            scrollToBottom();
-            
-            // Reset icons after sending
-            sendIcon.style.display = 'none';
-            micIcon.style.display = 'inline-block';
-            plusIcon.style.display = 'inline-block';
-        }
-    })
-    .catch((error) => console.error("Error:", error));
+    if (editingMessageId) {
+        fetch(`/message/update/${editingMessageId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken,
+            },
+            body: new URLSearchParams({
+                chat_id: chatId,
+                message_text: messageText,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                const messageElement = messagesContainer.querySelector(`.message[data-message-id='${editingMessageId}']`);
+                if (messageElement) {
+                    messageElement.querySelector(".message-bubble").innerText = data.data.text;
+                }
+                resetInput();
+            } else {
+                console.error(data.message);
+            }
+        })
+        .catch(error => console.error("Edit error:", error));
+    } else {
+        fetch(`/message/create/${chatId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken,
+            },
+            body: new URLSearchParams({
+                chat_id: chatId,
+                message_text: messageText,
+            }),
+        })
+        .then((response) => {
+            if (!response.ok) throw new Error("Failed to send message");
+            return response.json();
+        })
+        .then((data) => {
+            if (data.status === "success") {
+                const messageDiv = document.createElement("div");
+                messageDiv.className = "message sent";
+                messageDiv.dataset.messageId = data.data.id;
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-bubble">${data.data.text}</div>
+                        <div class="message-time">${new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                    <div class="message-actions">
+                        <div class="message-actions-dots">
+                            <div class="message-actions-dot"></div>
+                            <div class="message-actions-dot"></div>
+                            <div class="message-actions-dot"></div>
+                        </div>
+                        <div class="message-actions-menu">
+                            <div class="message-action-edit">Edit</div>
+                            <div class="message-action-delete">Delete</div>
+                        </div>
+                    </div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+                resetInput();
+                scrollToBottom();
+            }
+        })
+        .catch((error) => console.error("Error:", error));
+    }
 };
+
+function resetInput() {
+    const messageInput = document.getElementById("messageInput");
+    const micIcon = document.getElementById("micIcon");
+    const plusIcon = document.getElementById("plusIcon");
+    const sendIcon = document.getElementById("sendIcon");
+    const sendPlaneIcon = document.getElementById("sendPlaneIcon");
+    const sendCheckIcon = document.getElementById("sendCheckIcon");
+
+    messageInput.value = "";
+    editingMessageId = null;
+
+    sendIcon.style.display = "none";
+    sendPlaneIcon.style.display = "inline";
+    sendCheckIcon.style.display = "none";
+    micIcon.style.display = "inline-block";
+    plusIcon.style.display = "inline-block";
+}
+
+document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("message-action-edit")) {
+        const messageElement = e.target.closest(".message");
+        const messageBubble = messageElement.querySelector(".message-bubble");
+        const messageId = messageElement.dataset.messageId;
+
+        editingMessageId = messageId;
+
+        const messageInput = document.getElementById("messageInput");
+        messageInput.value = messageBubble.innerText;
+        messageInput.focus();
+
+        const sendIcon = document.getElementById("sendIcon");
+        const micIcon = document.getElementById("micIcon");
+        const plusIcon = document.getElementById("plusIcon");
+        const sendPlaneIcon = document.getElementById("sendPlaneIcon");
+        const sendCheckIcon = document.getElementById("sendCheckIcon");
+
+        sendIcon.style.display = "inline-block";
+        micIcon.style.display = "none";
+        plusIcon.style.display = "none";
+        sendPlaneIcon.style.display = "none";
+        sendCheckIcon.style.display = "inline";
+    }
+
+    if (e.target.classList.contains("button1")) {
+        const messageElement = e.target.closest(".message");
+        const messageId = messageElement.dataset.messageId;
+        const csrfToken = getCookie("csrftoken");
+        
+        fetch(`/message/delete/${messageId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                messageElement.remove();
+            }
+            // No error notification will be shown
+        })
+        .catch(error => console.error("Delete error:", error));
+    }
+
+
+
+});
+
+
+function open_deletemodal(id) {
+    const modal = document.getElementById(`deletemodal-${id}`);
+    if (modal) {
+        modal.style.display = "block";
+    }
+}
+
+
+function close_deletemodal(id) {
+    const modal = document.getElementById(`deletemodal-${id}`);
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
