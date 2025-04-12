@@ -9,6 +9,7 @@ from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
 from CLOCK_CHAT.services import user_service, message_service,chat_service
 import json
+from CLOCK_CHAT.models import Message
 # from CLOCK_CHAT.models import User
 
 
@@ -63,10 +64,11 @@ class ChatCreateView(View):
 @role_required(Role.END_USER.value, page_type='enduser')
 class MessageListView(View):
     def get(self, request,chat_id):
+        user_id=request.user.id
         if not chat_id:
             return JsonResponse({'status': 'error', 'message': 'Chat ID is required'}, status=400)
 
-        messages = message_service.get_messages(chat_id)
+        messages = message_service.get_messages(chat_id,user_id)
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             # Return messages as JSON for AJAX
@@ -178,9 +180,11 @@ class MessageUpdateView(View):
 class MessageDeleteView(View):
     def post(self, request, message_id):
         try:
-            message = Message.objects.get(id=message_id, sender_id=request.user.id)
+            data = json.loads(request.body)
+            purpose = data.get('purpose')
+            message = message_service.get_message_object(message_id, request.user.id)
             
-            deleted = message_service.delete_message(message_id)
+            deleted = message_service.delete_message(message_id,purpose,request.user)
             
             if deleted:
                 return JsonResponse({
