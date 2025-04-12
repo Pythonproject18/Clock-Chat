@@ -1,4 +1,5 @@
 from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type
+from CLOCK_CHAT.services import chat_service
 
 def get_user_chats(user_id):
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
@@ -49,7 +50,8 @@ def get_chat_details(user_id):
             "type": chat_type,
             "member_count": member_count,
             "created_by": creator_name,
-            "members": member_details 
+            "members": member_details,
+            'created_at':chat_service.global_timestamp(chat.created_at), 
         })
     
     return chat_list

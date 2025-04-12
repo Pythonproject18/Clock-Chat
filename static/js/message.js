@@ -1,3 +1,10 @@
+function scrollToBottom() {
+    const messagesContainer = document.getElementById('messagesContainer');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+}
+
 function loadChatMessages(chatId, chatTitle) {
     fetch(`/message/${chatId}`, {
         headers: {
@@ -19,27 +26,33 @@ function renderMessages(chatId, chatTitle, messages) {
     const chatSection = document.getElementById('chatSection');
     const userId = document.body.dataset.userId;
 
-    let html = `
-        <div class="chat-header">
-            <div class="chat-header-avatar">${chatTitle[0]}</div>
-            <div class="chat-header-info">
-                <h2>${chatTitle}</h2>
-                <p>Last seen today at ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-            </div>
-            <div class="chat-header-actions">
-                <span class="icon"><i class="fas fa-phone-alt"></i></span>
-                <span class="icon"><i class="fas fa-video"></i></span>
-                <span class="icon"><i class="fas fa-ellipsis-v"></i></span>
-            </div>
-        </div>
+    // Show chat section
+    chatSection.classList.remove('hidden');
 
-        <div class="chat-messages" id="messagesContainer">`;
+    // Set header content
+    document.getElementById('chatHeader').innerHTML = `
+        <div class="chat-header-avatar">${chatTitle[0]}</div>
+        <div class="chat-header-info">
+            <h2>${chatTitle}</h2>
+            <p>Last seen today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+        </div>
+        <div class="chat-header-actions">
+            <span class="icon"><i class="fas fa-phone-alt"></i></span>
+            <span class="icon"><i class="fas fa-video"></i></span>
+            <span class="icon"><i class="fas fa-ellipsis-v"></i></span>
+        </div>
+    `;
+
+    // Set messages
+    const messagesContainer = document.getElementById('messagesContainer');
+    messagesContainer.innerHTML = ''; // Clear old messages
 
     messages.forEach(msg => {
         const isSender = String(msg.sender_id) === String(userId);
         const messageClass = isSender ? 'sent' : 'received';
         const avatar = isSender ? '' : `<div class="message-avatar">${msg.sender_name[0]}</div>`;
-        html += `
+
+        const messageHtml = `
             <div class="message ${messageClass}">
                 ${avatar}
                 <div class="message-content">
@@ -48,24 +61,56 @@ function renderMessages(chatId, chatTitle, messages) {
                 </div>
             </div>
         `;
+
+        messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
     });
 
-    html += `</div>
-        <div class="chat-input">
-            <input type="text" id="messageInput" placeholder="Type a message..." />
-            <input type="hidden" id="chatId" value="${chatId}" />
-            <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+    // Set input box
+    document.getElementById('chatInput').innerHTML = `
+        <input type="text" id="messageInput" placeholder="Type a message..." />
+        <input type="hidden" id="chatId" value="${chatId}" />
+        <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
 
-            <span class="icon mic-icon" id="micIcon"><i class="fas fa-microphone"></i></span>
-            <span class="icon plus-icon" id="plusIcon"><i class="fas fa-plus"></i></span>
-            <span class="icon send-icon" onclick="sendMessage()" id="sendIcon">
-                <i class="fas fa-paper-plane"></i>
-            </span>
-        </div>
+        <span class="icon mic-icon" id="micIcon"><i class="fas fa-microphone"></i></span>
+        <span class="icon plus-icon" id="plusIcon"><i class="fas fa-plus"></i></span>
+        <span class="icon send-icon" onclick="sendMessage()" id="sendIcon" style="display:none;">
+            <i class="fas fa-paper-plane"></i>
+        </span>
     `;
 
-    chatSection.innerHTML = html;
+    setTimeout(scrollToBottom, 0);
+
+    // Add event listener for input changes
+    const messageInput = document.getElementById('messageInput');
+    const micIcon = document.getElementById('micIcon');
+    const plusIcon = document.getElementById('plusIcon');
+    const sendIcon = document.getElementById('sendIcon');
+
+    messageInput.addEventListener('input', function () {
+        if (this.value.trim() !== '') {
+            sendIcon.style.display = 'inline-block';
+            micIcon.style.display = 'none';
+            plusIcon.style.display = 'none';
+        } else {
+            sendIcon.style.display = 'none';
+            micIcon.style.display = 'inline-block';
+            plusIcon.style.display = 'inline-block';
+        }
+    });
+
+    messageInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' && this.value.trim() !== '') {
+            sendMessage();
+        }
+    });
 }
+
+function formatMessageTime(timestamp) {
+    // Handles ISO timestamp and converts to "hh:mm AM/PM"
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
 
 // Utility to get CSRF token from cookie
 function getCookie(name) {
@@ -87,6 +132,9 @@ window.sendMessage = function () {
     const messageInput = document.getElementById("messageInput");
     const chatId = document.getElementById("chatId")?.value;
     const messagesContainer = document.getElementById("messagesContainer");
+    const micIcon = document.getElementById("micIcon");
+    const plusIcon = document.getElementById("plusIcon");
+    const sendIcon = document.getElementById("sendIcon");
 
     const messageText = messageInput.value.trim();
     if (!messageText) return;
@@ -120,7 +168,12 @@ window.sendMessage = function () {
             `;
             messagesContainer.appendChild(messageDiv);
             messageInput.value = "";
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            scrollToBottom();
+            
+            // Reset icons after sending
+            sendIcon.style.display = 'none';
+            micIcon.style.display = 'inline-block';
+            plusIcon.style.display = 'inline-block';
         }
     })
     .catch((error) => console.error("Error:", error));
