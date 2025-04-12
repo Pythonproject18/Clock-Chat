@@ -32,3 +32,110 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  let selectedUserIds = []
+  let longPressTimer = null
+  let isLongPress = false
+
+  // Get CSRF token from meta tag
+  function getCSRFToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  }
+
+  function toggleUserSelection(userId, element) {
+    console.log("toggle selection")
+    const idx = selectedUserIds.indexOf(userId)
+    if (idx > -1) {
+      selectedUserIds.splice(idx, 1)
+      element.classList.remove('selected')
+    } else {
+      selectedUserIds.push(userId)
+      element.classList.add('selected')
+    }
+
+    const createBtn = document.getElementById('createGroupChatBtn')
+    createBtn.style.display = selectedUserIds.length > 1 ? 'block' : 'none'
+  }
+
+  function createPersonalChat(userId) {
+    console.log("Creating personal chat with", userId)
+    fetch('/chat/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken(),
+      },
+      body: JSON.stringify({
+        user_ids: [userId]
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        location.reload()
+      } else {
+        alert(data.message)
+      }
+    })
+    .catch(err => console.error('Error creating personal chat:', err))
+  }
+
+  function createGroupChat() {
+    console.log("Creating group chat with", selectedUserIds)
+    fetch('/chat/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken(),
+      },
+      body: JSON.stringify({
+        user_ids: selectedUserIds,
+        chat_name: "New Group Chat"
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        location.reload()
+      } else {
+        alert(data.message)
+      }
+    })
+    .catch(err => console.error('Error creating group chat:', err))
+  }
+
+  document.querySelectorAll('.modal-option').forEach(option => {
+    const userId = parseInt(option.getAttribute('data-user-id'))
+
+    option.addEventListener('mousedown', (e) => {
+      isLongPress = false
+      longPressTimer = setTimeout(() => {
+        isLongPress = true
+        toggleUserSelection(userId, option)
+      }, 500)
+    })
+
+    option.addEventListener('mouseup', () => {
+      clearTimeout(longPressTimer)
+    })
+
+    option.addEventListener('mouseleave', () => {
+      clearTimeout(longPressTimer)
+    })
+
+    option.addEventListener('click', () => {
+      console.log("click on user", userId)
+      if (!isLongPress && selectedUserIds.length === 0) {
+        createPersonalChat(userId)
+      }
+    })
+  })
+
+  const createBtn = document.getElementById('createGroupChatBtn')
+  if (createBtn) {
+    createBtn.addEventListener('click', createGroupChat)
+  }
+})

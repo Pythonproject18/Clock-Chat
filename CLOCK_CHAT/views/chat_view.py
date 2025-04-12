@@ -6,7 +6,8 @@ from CLOCK_CHAT.decorator import role_required,auth_required
 from django.contrib import messages
 from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
-from CLOCK_CHAT.services import user_service, message_service
+from CLOCK_CHAT.services import user_service, message_service,chat_service
+import json
 # from CLOCK_CHAT.models import User
 
 
@@ -39,15 +40,24 @@ class ChatListView(View):
 
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
-
 class ChatCreateView(View):
     def post(self, request):
-      
-        chat_name = request.POST.get('chat_name')
+        data = json.loads(request.body)
+        user_ids = data.get("user_ids", [])
+        chat_name = data.get("chat_name", "")
+        print(data)
+        current_user_id = request.user.id
 
-        return JsonResponse({"status": "success", "message": "Chat created successfully"})
-    
+        if len(user_ids) == 1:
+            chat = chat_service.create_friend_and_personal_chat(current_user_id, user_ids)
+            print("chat",chat)
+        else:
+            chat = chat_service.create_group_chat_with_friend(current_user_id, user_ids, chat_name)
 
+        if chat:
+            return JsonResponse({"status": "success", "chat_id": chat.id})
+        else:
+            return JsonResponse({"status": "error", "message": "Chat creation failed"}, status=400)
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
 class MessageListView(View):

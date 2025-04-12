@@ -8,16 +8,18 @@ def get_user_chats(user_id):
 
 def get_chat_details(user_id):
     user = User.objects.get(id=user_id)
+    print(user)
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
-    chats = Chat.objects.filter(id__in=chat_ids).order_by('id')
+    chats = Chat.objects.filter(id__in=chat_ids).order_by('-created_at')
 
     chat_list = []
     for chat in chats:
         
         if chat.type == Chat_Type.Personal.value:
             member = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user).first().member
+            print("members",member)
             title = f"{member.first_name} {member.last_name}"
-            chat_type = "Personal"
+            chat_type = Chat_Type(chat.type).name
         else:
             if chat.chat_title:
                 title = chat.chat_title
