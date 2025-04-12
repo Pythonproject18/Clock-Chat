@@ -76,7 +76,6 @@ class MessageListView(View):
             })
 class MessageCreateView(View):   
     def post(self, request, chat_id):
-        print("helloooo")
         try:
             message_text = request.POST.get('message_text')
             
@@ -119,8 +118,44 @@ class MessageCreateView(View):
         
 
 
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
 class MessageUpdateView(View):
-
-    def post(self,request,message_id):
-
-        return redirect("/message/")
+    def post(self, request, message_id):
+        try:
+            message_text = request.POST.get('message_text')
+            chat_id = request.POST.get('chat_id')
+            
+            if not message_text:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'message_text is required'
+                }, status=400)
+                
+            # Update the message using the service
+            message = message_service.update_message(
+                message_id=message_id,
+                text=message_text,
+                updated_by_id=request.user.id
+            )
+            
+            if message:
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Message updated successfully',
+                    'data': {
+                        'id': message.id,
+                        'text': message.text,
+                        'updated_at': message.updated_at.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                })
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Message not found or you are not the sender'
+            }, status=404)
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
