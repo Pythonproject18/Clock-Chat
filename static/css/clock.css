@@ -325,6 +325,11 @@ body {
 
 .message.sent {
     align-self: flex-end;
+<<<<<<< HEAD
+=======
+    flex-direction: row-reverse;
+    margin-right: 10px;
+>>>>>>> 8620c48bb0c63c9b535cce97d2dde7d5ddfcb31b
 }
 
 .message.received {
@@ -360,9 +365,18 @@ body {
 .message.sent .message-bubble {
     background: linear-gradient(135deg, #6c5ce7, #8a7cff);
     color: var(--text-white);
+<<<<<<< HEAD
     border-top-right-radius: 4px;
 }
 
+=======
+    border-bottom-right-radius: 4px;
+    margin-right: 10px; /* Shifts the bubble a bit left */
+}
+
+
+/* Received message style with upside-down effect */
+>>>>>>> 8620c48bb0c63c9b535cce97d2dde7d5ddfcb31b
 .message.received .message-bubble {
     background: linear-gradient(135deg, #2d2d2d, #3a3a3a);
     color: var(--text-dark);
@@ -370,11 +384,49 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+
+/* Add these styles to your CSS file */
+.message {
+    position: relative; /* This is crucial for absolute positioning of child elements */
+}
+
+.message-emoji-container {
+    position: absolute;
+    right: -30px;
+    top: 35%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-emoji {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease;
+    color: var(--text-light);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.message.received:hover .message-emoji {
+    opacity: 1;
+    visibility: visible;
+}
+
+.message-emoji:hover {
+    color: var(--primary-color);
+}
+
+
 .message-time {
     font-size: 11px;
     color: var(--text-light);
     margin-top: 5px;
     text-align: right;
+    padding-right: 10px;
 }
 
 .message.received .message-time {
@@ -384,6 +436,78 @@ body {
 .message.sent .message-time {
     color: rgba(255, 255, 255, 0.7);
 }
+
+/* Style for the three-dot menu in sent messages */
+.message.sent {
+    position: relative;
+}
+
+.message-actions {
+    position: absolute;
+    right: -15px;
+    top: 60%;
+    transform: translateY(-50%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    background: transparent; /* Removed background */
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-light);
+    box-shadow: none;
+}
+
+.message.sent:hover .message-actions {
+    opacity: 1;
+    visibility: visible;
+}
+
+.message-actions:hover {
+    background: transparent; /* Keep transparent on hover too */
+    color: var(--text-white); /* Optional: keep the hover color change */
+}
+
+.message-actions-dot {
+    width: 3px;
+    height: 3px;
+    background-color: currentColor;
+    border-radius: 50%;
+}
+
+.message-actions-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: var(--background-light);
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    min-width: 120px;
+    z-index: 10;
+}
+
+.message-actions-menu .message-action-edit,
+.message-actions-menu .message-action-delete {
+    padding: 10px;
+    color: var(--text-dark);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.message-actions-menu .message-action-edit:hover,
+.message-actions-menu .message-action-delete:hover {
+    background: rgba(108, 92, 231, 0.1);
+}
+
+.message-actions:hover .message-actions-menu {
+    display: block;
+}
+
 
 .chat-input {
     padding: 15px 20px;

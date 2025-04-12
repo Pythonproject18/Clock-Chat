@@ -7,16 +7,21 @@ def get_user_chats(user_id):
 
 def get_chat_details(user_id):
     user = User.objects.get(id=user_id)
+    print(user)
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
-    chats = Chat.objects.filter(id__in=chat_ids).order_by('id')
+    chats = Chat.objects.filter(id__in=chat_ids).order_by('-created_at')
 
     chat_list = []
     for chat in chats:
         
-        if chat.type == Chat_Type.Personal.value:
-            member = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user).first().member
-            title = f"{member.first_name} {member.last_name}"
-            chat_type = "Personal"
+        if chat.type == Chat_Type.PERSONAL.value:
+            other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user)
+            if other_members.exists():
+                member = User.objects.get(id=other_members[0].member_id)
+                title = f"{member.first_name} {member.last_name}"
+            else:
+                title = "Unknown"
+            chat_type = Chat_Type(chat.type).name
         else:
             if chat.chat_title:
                 title = chat.chat_title
@@ -27,7 +32,7 @@ def get_chat_details(user_id):
                     user = User.objects.get(id=m.member_id)
                     member_names.append(f"{user.first_name} {user.last_name}")
                 title = ", ".join(member_names) 
-            chat_type = "Group"
+            chat_type = Chat_Type(chat.type).name
 
         member_count = ChatMember.objects.filter(chat=chat, is_active=True).count()
         creator = User.objects.get(id=chat.created_by_id)
