@@ -383,6 +383,43 @@ body {
     position: relative;
 }
 
+
+/* Add these styles to your CSS file */
+.message {
+    position: relative; /* This is crucial for absolute positioning of child elements */
+}
+
+.message-emoji-container {
+    position: absolute;
+    right: -30px;
+    top: 35%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-emoji {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease;
+    color: var(--text-light);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.message.received:hover .message-emoji {
+    opacity: 1;
+    visibility: visible;
+}
+
+.message-emoji:hover {
+    color: var(--primary-color);
+}
+
+
 .message-time {
     font-size: 11px;
     color: var(--text-light);
@@ -405,43 +442,8 @@ body {
 
 .message-actions {
     position: absolute;
-    right: -10px;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    background: transparent; /* Removed background */
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--text-light);
-    box-shadow: none;
-}
-
-.message.sent:hover .message-actions {
-    opacity: 1;
-    visibility: visible;
-}
-
-.message-actions:hover {
-    background: transparent; /* Keep transparent on hover too */
-    color: var(--text-white); /* Optional: keep the hover color change */
-}
-
-/* Style for the three-dot menu in sent messages */
-.message.sent {
-    position: relative;
-}
-
-.message-actions {
-    position: absolute;
-    right: -10px;
-    top: 50%;
+    right: -15px;
+    top: 60%;
     transform: translateY(-50%);
     opacity: 0;
     visibility: hidden;

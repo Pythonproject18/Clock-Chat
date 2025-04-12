@@ -52,27 +52,45 @@ function renderMessages(chatId, chatTitle, messages) {
         const avatar = isSender ? '' : `<div class="message-avatar">${msg.sender_name[0]}</div>`;
 
         const messageHtml = `
-            <div class="message ${messageClass}" data-message-id="${msg.id}">
-                ${avatar}
-                <div class="message-content">
-                    <div class="message-bubble">${msg.text}</div>
-                    <div class="message-time">${msg.created_at}</div>
-                </div>
-                ${isSender ? `
-                <div class="message-actions">
-                    <div class="message-actions-dots">
-                        <div class="message-actions-dot"></div>
-                        <div class="message-actions-dot"></div>
-                        <div class="message-actions-dot"></div>
-                    </div>
-                    <div class="message-actions-menu">
-                        <div class="message-action-edit">Edit</div>
-                        <div class="message-action-delete">Delete</div>
-                    </div>
-                </div>` : ''}
+        <div class="message ${messageClass}" data-message-id="${msg.id}">
+            ${avatar}
+            <div class="message-content">
+                <div class="message-bubble">${msg.text}</div>
+                <div class="message-time">${msg.created_at}</div>
             </div>
-        `;
+            ${isSender ? `
+            <div class="message-actions">
+                <div class="message-actions-dots">
+                    <div class="message-actions-dot"></div>
+                    <div class="message-actions-dot"></div>
+                    <div class="message-actions-dot"></div>
+                </div>
+                <div class="message-actions-menu">
+                    <div class="message-action-edit">Edit</div>
+                    <div class="message-action-delete" onclick="open_deletemodal">Delete</div>
+                </div>
 
+                <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Are you wnat to delete it?</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="button1">Delete for me</div>
+                      <div class="button2">Delete for everyone</div>
+                      <div class="button3" onclick="close_deletemodal('${msg.id}')">Cancel</div>
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+
+            </div>` : '<div class="message-emoji-container"><i class="far fa-smile message-emoji"></i></div>'}
+        </div>
+    `;
+    
         messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
     });
 
@@ -259,4 +277,45 @@ document.addEventListener("click", function (e) {
         sendPlaneIcon.style.display = "none";
         sendCheckIcon.style.display = "inline";
     }
+
+    if (e.target.classList.contains("button1")) {
+        const messageElement = e.target.closest(".message");
+        const messageId = messageElement.dataset.messageId;
+        const csrfToken = getCookie("csrftoken");
+        
+        fetch(`/message/delete/${messageId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                messageElement.remove();
+            }
+            // No error notification will be shown
+        })
+        .catch(error => console.error("Delete error:", error));
+    }
+
+
+
 });
+
+
+function open_deletemodal(id) {
+    const modal = document.getElementById(`deletemodal-${id}`);
+    if (modal) {
+        modal.style.display = "block";
+    }
+}
+
+
+function close_deletemodal(id) {
+    const modal = document.getElementById(`deletemodal-${id}`);
+    if (modal) {
+        modal.style.display = "none";
+    }
+}

@@ -38,3 +38,17 @@ def update_message(message_id, text, updated_by_id):
     except Exception as e:
         print(f"Error updating message: {e}")
         return None
+    
+
+# Add this new function for hard delete
+def delete_message(message_id):
+    try:
+        message = Message.objects.get(id=message_id)
+        message.is_active=False
+    
+        return True
+    except Message.DoesNotExist:
+        return False
+    except Exception as e:
+        print(f"Error deleting message: {e}")
+        return False

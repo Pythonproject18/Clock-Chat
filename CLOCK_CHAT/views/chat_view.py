@@ -8,7 +8,7 @@ from django.contrib import messages
 from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
 from CLOCK_CHAT.services import user_service, message_service
-from CLOCK_CHAT.models import Chat, ChatMember, Friend, User
+from CLOCK_CHAT.models import Chat, ChatMember, Friend, User, Message
 import json
 # from CLOCK_CHAT.models import User
 
@@ -68,16 +68,16 @@ class ChatCreateView(View):
 
             # Optional: Check if chat already exists
             existing_chat = Chat.objects.filter(
-                type=Chat_Type.Personal.value,
+                type=Chat_Type.PERSONAL.value,
                 members=current_user
             ).filter(members=target_user).first()
 
             if existing_chat:
                 return JsonResponse({'chat_id': existing_chat.id, 'title': f"{target_user.first_name} {target_user.middle_name or ''} {target_user.last_name}".strip()})
 
-            # Create new personal chat
+            # Create new PERSONAL chat
             new_chat = Chat.objects.create(
-                type=Chat_Type.Personal.value,
+                type=Chat_Type.PERSONAL.value,
                 created_by=current_user,
                 updated_by=current_user
             )
@@ -182,7 +182,6 @@ class MessageUpdateView(View):
                     'message': 'message_text is required'
                 }, status=400)
                 
-            # Update the message using the service
             message = message_service.update_message(
                 message_id=message_id,
                 text=message_text,
@@ -204,6 +203,39 @@ class MessageUpdateView(View):
                 'message': 'Message not found or you are not the sender'
             }, status=404)
             
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
+            
+            
+            
+            
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+class MessageDeleteView(View):
+    def post(self, request, message_id):
+        try:
+            message = Message.objects.get(id=message_id, sender_id=request.user.id)
+            
+            deleted = message_service.delete_message(message_id)
+            
+            if deleted:
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Message deleted successfully'
+                })
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Failed to delete message'
+            }, status=500)
+            
+        except Message.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Message not found or you are not the sender'
+            }, status=404)
         except Exception as e:
             return JsonResponse({
                 'status': 'error',
