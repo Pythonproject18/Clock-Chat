@@ -22,7 +22,7 @@
     </head>
     
 
-</head>
+
 <body data-user-id="{{ request.user.id }}">
 
     <div class="toolbar">
@@ -71,7 +71,29 @@
     </div>
     <div class="chat-section hidden" id="chatSection" data-user-id="{{ request.user.id }}">
         <div class="chat-header" id="chatHeader"></div>
-        <div class="chat-messages" id="messagesContainer"></div>
+        <div class="chat-messages" id="messagesContainer">
+
+
+            <div class="modal" tabindex="-1" style="display: block;">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Are you wnat to delete it?</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="button1">Delete for me</div>
+                      <div class="button2">Delete for everyone</div>
+                      <div class="button3">Cancel</div>
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+  
+
+
+        </div>
         <div class="chat-input" id="chatInput"></div>
     </div>
     

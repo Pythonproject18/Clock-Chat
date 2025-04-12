@@ -23,8 +23,8 @@ class Chat(models.Model):
         db_table = 'chats'
         constraints = [
             models.CheckConstraint(
-                check=~Q(type=Chat_Type.Personal.value) | (Q(chat_title__isnull=True) & Q(chat_bio__isnull=True)),
-                name="personal_chat_no_title_bio"
+                check=~Q(type=Chat_Type.PERSONAL.value) | (Q(chat_title__isnull=True) & Q(chat_bio__isnull=True)),
+                name="PERSONAL_chat_no_title_bio"
             )
         ]
 
