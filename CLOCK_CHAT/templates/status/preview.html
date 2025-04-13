@@ -1,0 +1,45 @@
+{% extends "enduser/toolbar.html" %}
+{% load static %}
+{% block title %} Status | Preview {% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/statusview.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+  <div class="status-screen">
+    <div class="status-body">
+      <img id="statusPreviewImg" style="width: 100%;" />
+    </div>
+    <form id="submitStatusForm" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="type" value="1">
+      <input type="hidden" name="image_base64" id="imageBase64">
+      <div style="gap: 10px;align-items: center;display: flex;">
+      <input type="text" name="caption" id="caption">
+      <button type="submit" class="send-icon-btn" style="border: none; font-size: 23px;background: black;color: white;">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Get data from sessionStorage
+  const base64Image = sessionStorage.getItem("statusPreview");
+  const fileName = sessionStorage.getItem("statusName");
+
+  if (base64Image) {
+    document.getElementById("statusPreviewImg").src = base64Image;
+    document.getElementById("imageBase64").value = base64Image;
+  }
+
+  // Optional: clear after use
+  sessionStorage.removeItem("statusPreview");
+  sessionStorage.removeItem("statusName");
+
+  // Send base64 to backend
+  document.getElementById("submitStatusForm").action = "{% url 'status_create' %}";
+</script>
+{% endblock %}

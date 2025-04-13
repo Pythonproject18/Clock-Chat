@@ -6,36 +6,42 @@ from CLOCK_CHAT.constants.default_values import Status_Type
 
 
 def get_friends_by_user(user_id):
-
-    # Fetch friends where user is either the initiator or recipient
+    # Fetch all friend relationships involving the user
     friends = Friend.objects.filter(
-        Q(user_id=user_id) | Q(friend_id=user_id), is_active=True
+        Q(user_id=user_id) | Q(friend_id=user_id),
+        is_active=True
     ).distinct()
-    print(friends)
 
-    friend_data = []
-    friend_ids = set()  # Track unique friend IDs
+    friend_ids = set()
 
     for friend in friends:
-        # Get the actual friend object, excluding the user themselves
-        friend_obj = friend.friend if friend.user_id == user_id else friend.user
+        # Get the other user's ID (not the current user)
+        other_id = friend.friend_id if friend.user_id == user_id else friend.user_id
+        friend_ids.add(other_id)
 
-        if friend_obj.id != user_id and friend_obj.id not in friend_ids:
-            friend_ids.add(friend_obj.id)  # Add ID to set to prevent duplicates
-            
-            latest_status = Status.objects.filter(
-                created_by=friend_obj, is_active=True
-            ).order_by('-created_at').first()
+    # Filter only friends with at least one active status
+    friends_with_active_status = User.objects.filter(
+        id__in=friend_ids,
+        fk_user_status_create_users_id__is_active=True
+    ).distinct()
 
-            friend_data.append({
-                'id': friend_obj.id,
-                'name': f"{friend_obj.first_name} {friend_obj.last_name}",  # Space added between names
-                'email': friend_obj.email,  # Assuming Friend model has an `email` field
-                'status_media': latest_status.status_media if latest_status else None,
-                'created_at': latest_status.created_at if latest_status else None,
-            })
+    friend_data = []
+    for friend_obj in friends_with_active_status:
+        # Get the latest active status of the friend
+        latest_status = Status.objects.filter(
+            created_by=friend_obj, is_active=True
+        ).order_by('-created_at').first()
+
+        friend_data.append({
+            'id': friend_obj.id,
+            'name': f"{friend_obj.first_name} {friend_obj.last_name}".strip(),
+            'email': friend_obj.email,
+            'status_media': latest_status.status_media if latest_status else None,
+            'created_at': latest_status.created_at if latest_status else None,
+        })
 
     return friend_data
+
 
 def get_user_status(user_id):
     

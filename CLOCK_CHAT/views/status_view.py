@@ -1,14 +1,17 @@
 from django.views import View
 from django.http import JsonResponse
 from CLOCK_CHAT.services import status_service,user_service
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from CLOCK_CHAT.decorator import auth_required, role_required
 from CLOCK_CHAT.constants.default_values import Role
 from CLOCK_CHAT.packages.file_management import save_uploaded_file
-from django.contrib import messages
 from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
 from CLOCK_CHAT.models import Status,StatusViewer
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import uuid
+import base64
 
 
 
@@ -33,28 +36,44 @@ class StatusListView(View):  # Use LoginRequiredMixin
 
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
-
 class StatusCreateView(View):
-    def get(self, request):
-        return render(request, "status/status_create.html")
-
     def post(self, request):
         try:
-            image = request.FILES.get('image')  # File object
-            status_type = request.POST.get('type')
+            image_base64 = request.POST.get("image_base64")
+            status_type = request.POST.get("type")
             user_id = request.user.id
-            image_path = save_uploaded_file(image, 'Status')
-            if not image:
+
+            if not image_base64:
                 return JsonResponse({'error': 'No image uploaded'}, status=400)
 
-            # Save the image to media storage
-            status = status_service.create_status(image_path, user_id, status_type)
-            return JsonResponse({'message': 'Status posted successfully!', 'id': status.id})
+            format, imgstr = image_base64.split(';base64,')
+            ext = format.split('/')[-1]
+            filename = f"status_{uuid.uuid4().hex}.{ext}"
+            file = ContentFile(base64.b64decode(imgstr), name=filename)
 
+            # Save the status
+            image_path = save_uploaded_file(file, 'Status')
+            status = status_service.create_status(image_path, user_id, status_type)
+
+            return redirect('status_list')
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
         
 
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+class StatusPreviewView(View):
+    def get(self, request):
+        try:
+            user_id = request.user.id
+            user = user_service.get_user_object(user_id)
+
+            return render(request, "status/preview.html", {
+                'user_profile': user.profile_photo_url,
+                'user_name': f"{user.first_name} {user.middle_name} {user.last_name}"
+            })
+        except Exception as e:
+            return render(request, "status/preview.html", {"error": str(e)})
 
 
 @auth_required
