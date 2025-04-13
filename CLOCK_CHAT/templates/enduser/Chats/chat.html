@@ -1,39 +1,12 @@
-
+{% extends "enduser/toolbar.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Chats{% endblock %}</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-        
-        {% block extra_css %}
-            <link rel="stylesheet" href="/static/css/clock.css">
-            <link rel="stylesheet" href="/static/css/chat.css">
-            <link rel="stylesheet" href="/static/css/message.css">
-        {% endblock %}
-    
-        <script src="/static/js/chat_js.js"></script>
-        <script src="/static/js/message.js"></script>
-        <meta name="csrf-token" content="{{ csrf_token }}">
+{% block title %} Chats {% endblock%}
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/chat.css">
+<link rel="stylesheet" href="/static/css/message.css">
+{% endblock %}
 
-    </head>
-    
-
-
-<body data-user-id="{{ request.user.id }}">
-
-    <div class="toolbar">
-        <div class="toolbar-icons">
-            <span class="toolbar-icon active" data-tooltip="Chats"><i class="fas fa-comment-alt"></i></span>
-            <span class="toolbar-icon" data-tooltip="Status" onclick="window.location.href='/status/'"> <i class="fas fa-circle-notch"></i></span>
-            <span class="toolbar-icon" data-tooltip="Out"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
-            <span class="toolbar-icon" data-tooltip="Settings"><i class="fas fa-cog"></i></span>
-        </div>
-    </div>
-
+{% block content %}
     <div class="main-container">
         <div class="sidebar">
             <div class="sidebar-header">
@@ -54,8 +27,8 @@
                 <h3 class="chat-title">{{ chat.title }}</h3>
                 </div>
                 <div style="max-width: 100px;gap: 10px;flex-direction: column;display: flex;">
-                <div style="justify-content: flex-end;align-items: center;display: flex;">2+</div>
-                <div style="justify-content: flex-end;align-items: center;display: flex;">{{chat.created_at}}</div>
+                <div style="justify-content: flex-end;align-items: center;display: flex;font-size: 12px;">2+</div>
+                <div style="justify-content: flex-end;align-items: center;display: flex;font-size: 12px;">{{chat.created_at}}</div>
                 </div>
             </div>
             {% endfor %}
@@ -138,5 +111,4 @@
           }
           
     </style>
-</body>
-</html>
+{% endblock %}

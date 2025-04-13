@@ -9,7 +9,7 @@ from .constants.success_message import SuccessMessage
 from .packages.response import success_response,error_response
 
 
-def auth_required(view_or_func=None, *, login_url='/api/verify-otp-login/'):
+def auth_required(view_or_func=None, *, login_url='/'):
     """
     Decorator to enforce that the user is authenticated.
     """

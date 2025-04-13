@@ -10,11 +10,11 @@ def global_timestamp(timestamp):
     diff = now - timestamp
 
     if diff < timedelta(days=1) and now.date() == timestamp.date():
-        return f"Today at {timestamp.strftime('%I:%M %p')}"
+        return f"{timestamp.strftime('%I:%M %p')}"
     elif diff < timedelta(days=2) and (now.date() - timestamp.date()).days == 1:
-        return f"Yesterday at {timestamp.strftime('%I:%M %p')}"
+        return "Yesterday"
     elif diff < timedelta(days=7):
-        return f"{timestamp.strftime('%A')} at {timestamp.strftime('%I:%M %p')}"
+        return f"{timestamp.strftime('%A')}"
     else:
         return timestamp.strftime('%d-%m-%Y')
 
@@ -82,7 +82,7 @@ def create_group_chat_with_friend(current_user_id, user_ids, chat_name="New Grou
 
     # Check if an exact group already exists with same members and same type
     existing_chats = Chat.objects.filter(
-        type=Chat_Type.Group.value,
+        type=Chat_Type.GROUP.value,
         fk_chat_cmember_chats_id__member__in=all_member_ids
     ).annotate(member_count=Count('fk_chat_cmember_chats_id')).filter(
         member_count=len(all_member_ids)

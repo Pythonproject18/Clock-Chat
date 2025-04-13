@@ -67,28 +67,30 @@ function renderMessages(chatId, chatTitle, messages) {
                 </div>
                 <div class="message-actions-menu">
                     <div class="message-action-edit">Edit</div>
-                    <div class="message-action-delete" onclick="open_deletemodal">Delete</div>
+                    <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">Delete</div>
                 </div>
-
-                <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title">Are you wnat to delete it?</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                      <div class="button1">Delete for me</div>
-                      <div class="button2">Delete for everyone</div>
-                      <div class="button3" onclick="close_deletemodal('${msg.id}')">Cancel</div>
-                    </div>
-                    
-                  </div>
-                </div>
-              </div>
-
             </div>` : '<div class="message-emoji-container"><i class="far fa-smile message-emoji"></i></div>'}
         </div>
+        
+
+
+
+            <div class="message-action-delete" id="deletemodal-${msg.id}" style="display: none;">
+                <div class="modal-dialog">
+                    <div class="modal-content" id="modalcontent">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Are you want to delete it?</h5>
+                            <i class="fas fa-times" onclick="close_deletemodal('${msg.id}')" style="position: absolute; right: 4%; top: 4%; cursor: pointer;"></i> 
+                        </div>
+                        <div class="modal-body" style="gap: 10px; flex-direction: column; display: flex;">
+                            <div class="button" style="background:rgba(0, 0, 0, 0.2);" onclick="delete_for_me('${msg.id}')">Delete for me</div>
+                            <div class="button" style="background:rgba(0, 0, 0, 0.2);" onclick="delete_for_everyone('${msg.id}')">Delete for everyone</div>
+                            <div class="button" style="background: #ff000000;" onclick="close_deletemodal('${msg.id}')">Cancel</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
     `;
     
         messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
@@ -222,9 +224,27 @@ window.sendMessage = function () {
                         </div>
                         <div class="message-actions-menu">
                             <div class="message-action-edit">Edit</div>
-                            <div class="message-action-delete">Delete</div>
+                            <div class="message-action-delete" onclick="open_deletemodal('${data.data.id}')">Delete</div>
                         </div>
                     </div>
+
+
+                    <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
+                        <div class="modal-dialog">
+                            <div class="modal-content" id="modalcontent" style="position:fixed !important;left:70%!important;">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Are you want to delete it?</h5>
+                                    <i class="fas fa-times" onclick="close_deletemodal('${data.data.id}')" style="position: absolute; right: 4%; top: 4%; cursor: pointer;"></i> 
+                                </div>
+                                <div class="modal-body" style="gap: 10px; flex-direction: column; display: flex;">
+                                    <div class="button" style="background:rgba(0, 0, 0, 0.2);" onclick="delete_for_me('${data.data.id}')">Delete for me</div>
+                                    <div class="button" style="background:rgba(0, 0, 0, 0.2);" onclick="delete_for_everyone('${data.data.id}')">Delete for everyone</div>
+                                    <div class="button" style="background: #ff000000;" onclick="close_deletemodal('${data.data.id}')">Cancel</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 `;
                 messagesContainer.appendChild(messageDiv);
                 resetInput();
@@ -277,45 +297,60 @@ document.addEventListener("click", function (e) {
         sendPlaneIcon.style.display = "none";
         sendCheckIcon.style.display = "inline";
     }
-
-    if (e.target.classList.contains("button1")) {
-        const messageElement = e.target.closest(".message");
-        const messageId = messageElement.dataset.messageId;
-        const csrfToken = getCookie("csrftoken");
-        
-        fetch(`/message/delete/${messageId}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "X-CSRFToken": csrfToken,
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "success") {
-                messageElement.remove();
-            }
-            // No error notification will be shown
-        })
-        .catch(error => console.error("Delete error:", error));
-    }
-
-
-
 });
 
 
-function open_deletemodal(id) {
-    const modal = document.getElementById(`deletemodal-${id}`);
+  function open_deletemodal(msgId) {
+    const modal = document.getElementById(`deletemodal-${msgId}`);
     if (modal) {
-        modal.style.display = "block";
+      modal.style.display = "block";
     }
-}
+  }
 
-
-function close_deletemodal(id) {
-    const modal = document.getElementById(`deletemodal-${id}`);
+  function close_deletemodal(msgId) {
+    const modal = document.getElementById(`deletemodal-${msgId}`);
     if (modal) {
-        modal.style.display = "none";
+      modal.style.display = "none";
     }
+  }
+
+  function delete_for_me(msgId) {
+    console.log(`Deleting message ${msgId} for me...`);
+    let purpose = "delete for me";
+    delete_msg(msgId,purpose);
+    close_deletemodal(msgId);
+  }
+
+  function delete_for_everyone(msgId) {
+    let purpose = "delete for everyone";
+    delete_msg(msgId,purpose);
+    console.log(`Deleting message ${msgId} for everyone...`);
+    close_deletemodal(msgId);
+  }
+
+  function delete_msg(msgId, purpose) {
+    fetch(`/message/delete/${msgId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),  // Using getCookie here instead
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ purpose: purpose })
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log(`Message ${msgId} deleted (${purpose})`);
+            // Select the element by data-message-id and remove it
+            const msgElement = document.querySelector(`.message[data-message-id="${msgId}"]`);
+            if (msgElement) {
+                msgElement.remove();
+            }
+            close_deletemodal(msgId);
+        } else {
+            response.json().then(data => console.error(data));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
