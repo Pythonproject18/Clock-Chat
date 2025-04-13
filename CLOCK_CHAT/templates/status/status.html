@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status</title>
-   <link rel="stylesheet" href="/static/css/status.css">
-</head>
-<body>
+{% extends "enduser/toolbar.html" %}
+{% load static %}
+{% block title %} Status {% endblock%}
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/status.css">
+{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="status-list">
             <div class="my-status">
@@ -57,6 +56,6 @@
             <div onclick="window.location.href='{% url 'status_create' %}'" class="floating-button">📷</div>
 
         </div>
-</body>
-</html> 
+    </div>
+{% endblock %}
 

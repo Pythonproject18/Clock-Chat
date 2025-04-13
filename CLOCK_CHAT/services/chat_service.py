@@ -14,9 +14,9 @@ def global_timestamp(timestamp):
     if diff < timedelta(days=1) and now.date() == timestamp.date():
         return f"{timestamp.strftime('%I:%M %p')}"
     elif diff < timedelta(days=2) and (now.date() - timestamp.date()).days == 1:
-        return f"Yesterday at {timestamp.strftime('%I:%M %p')}"
+        return "Yesterday"
     elif diff < timedelta(days=7):
-        return f"{timestamp.strftime('%A')} at {timestamp.strftime('%I:%M %p')}"
+        return f"{timestamp.strftime('%A')}"
     else:
         return timestamp.strftime('%d-%m-%Y')
 
