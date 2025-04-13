@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 from datetime import datetime, timedelta
 import pytz
 from CLOCK_CHAT.models import Chat,ChatMember,Friend,User
@@ -122,4 +120,4 @@ def create_group_chat_with_friend(current_user_id, user_ids, chat_name="New Grou
         )
 
     return chat
->>>>>>> 8620c48bb0c63c9b535cce97d2dde7d5ddfcb31b
+
