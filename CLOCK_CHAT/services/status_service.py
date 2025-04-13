@@ -67,6 +67,17 @@ def get_all_status_by_user_id(user_id):
 
 
 
+def soft_delete_status(status_id, user):
+    try:
+        status = Status.objects.get(id=status_id, created_by=user, is_active=True)
+        status.is_active = False
+        status.save()
+        return True
+    except Status.DoesNotExist:
+        return False
+
+
+
 
         
 

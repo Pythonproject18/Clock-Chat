@@ -122,3 +122,5 @@ EMAIL_USE_SSL = False  # Use True only if using port 465
 EMAIL_HOST_USER = env('EMAIL_ID')  # Replace with your email
 EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')  # Use App Password, NOT your actual password
 DEFAULT_FROM_EMAIL = env('EMAIL_ID')
+
+
