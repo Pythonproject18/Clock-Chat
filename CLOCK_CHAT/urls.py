@@ -41,6 +41,7 @@ urlpatterns = [
     path('status/', views.StatusListView.as_view(), name='status_list'),
     path('status/create/', views.StatusCreateView.as_view(), name='status_create'),
     path('status/<int:user_id>/',views.StatusDetailView.as_view(), name='status_detail'),
+    path("status/preview/", views.StatusPreviewView.as_view(), name="status_preview"),
     
 
     #message

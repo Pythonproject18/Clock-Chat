@@ -27,7 +27,7 @@ body {
     width: 40%;
     padding: 20px;
     overflow-y: auto;
-    background-color: #191e3a;
+    background: linear-gradient(to bottom, #1a1a2e, #16213e);
 }
 
 .status-list h2 {
@@ -94,12 +94,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #166d36;
-    color: rgb(255, 255, 255);
+    background: #16213e;;
+    color: #a29bfe;
     font-size: 24px;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-.edit-button {
-    background: #3E3E3E;
-}
+

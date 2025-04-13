@@ -52,9 +52,31 @@
             {% endif %}
 
         <div class="floating-icons">
-            <div class="floating-button edit-button">✎</div>
-            <div onclick="window.location.href='{% url 'status_create' %}'" class="floating-button">📷</div>
+            <div class="floating-button">✎</div>
+            <input type="file" id="statusImage" accept="image/*,video/*" style="display: none;" onchange="previewStatus(event)">
 
+            <div class="floating-button" onclick="document.getElementById('statusImage').click();">
+              <i class="fa-solid fa-camera" style="color: #a29bfe;"></i>
+            </div>
+            
+            <script>
+              function previewStatus(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+            
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                  // Store in sessionStorage as Base64 string
+                  sessionStorage.setItem("statusPreview", e.target.result);
+                  sessionStorage.setItem("statusName", file.name);
+            
+                  // Redirect to preview page
+                  window.location.href = "/status/preview/";
+                };
+                reader.readAsDataURL(file);
+              }
+            </script>
+            
         </div>
     </div>
 {% endblock %}

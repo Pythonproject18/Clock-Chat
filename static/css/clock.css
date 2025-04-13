@@ -105,6 +105,7 @@ body {
 }
 
 .main-container {
+    background: linear-gradient(to bottom, #121212, #1a1a2e);
     display: flex;
     flex: 1;
     overflow: hidden;
