@@ -12,6 +12,32 @@
     animation: fadeIn 0.3s ease;
 }
 
+
+#modalcontent{
+    max-width: 310px;
+    width: 50%!important;
+    height: 30%!important;
+    gap: 30px;
+    flex-direction: column;
+    display: flex
+;
+}
+.modal-title{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-size: larger;
+
+}
+.button{
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 5px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
 .modal-content {
     position: absolute;
     top: 50%;

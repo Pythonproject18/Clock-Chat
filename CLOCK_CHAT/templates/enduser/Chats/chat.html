@@ -1,37 +1,12 @@
-
+{% extends "enduser/toolbar.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Chats{% endblock %}</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-        
-        {% block extra_css %}
-            <link rel="stylesheet" href="/static/css/clock.css">
-            <link rel="stylesheet" href="/static/css/chat.css">
-            <link rel="stylesheet" href="/static/css/message.css">
-        {% endblock %}
-    
-        <script src="/static/js/chat_js.js"></script>
-        <script src="/static/js/message.js"></script>
-    </head>
-    
+{% block title %} Chats {% endblock%}
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/chat.css">
+<link rel="stylesheet" href="/static/css/message.css">
+{% endblock %}
 
-</head>
-<body data-user-id="{{ request.user.id }}">
-
-    <div class="toolbar">
-        <div class="toolbar-icons">
-            <span class="toolbar-icon active" data-tooltip="Chats"><i class="fas fa-comment-alt"></i></span>
-            <span class="toolbar-icon" data-tooltip="Status" onclick="window.location.href='/status/'"> <i class="fas fa-circle-notch"></i></span>
-            <span class="toolbar-icon" data-tooltip="Out"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
-            <span class="toolbar-icon" data-tooltip="Settings"><i class="fas fa-cog"></i></span>
-        </div>
-    </div>
-
+{% block content %}
     <div class="main-container">
         <div class="sidebar">
             <div class="sidebar-header">
@@ -51,6 +26,10 @@
                 <div class="chat-header-info">
                 <h3 class="chat-title">{{ chat.title }}</h3>
                 </div>
+                <div style="max-width: 100px;gap: 10px;flex-direction: column;display: flex;">
+                <div style="justify-content: flex-end;align-items: center;display: flex;font-size: 12px;">2+</div>
+                <div style="justify-content: flex-end;align-items: center;display: flex;font-size: 12px;">{{chat.created_at}}</div>
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -63,31 +42,73 @@
             </div>
         </div>
     </div>
-    <div class="chat-section" id="chatSection">
+    <div class="chat-section hidden" id="chatSection" data-user-id="{{ request.user.id }}">
+        <div class="chat-header" id="chatHeader"></div>
+        <div class="chat-messages" id="messagesContainer">
 
- 
-        <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
 
+            <div class="modal" tabindex="-1" style="display: block;">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Are you wnat to delete it?</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="button1">Delete for me</div>
+                      <div class="button2">Delete for everyone</div>
+                      <div class="button3">Cancel</div>
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+  
+
+
+        </div>
+        <div class="chat-input" id="chatInput"></div>
     </div>
+    
 
     <div id="openmodal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="close_modal()">&times;</span>
             <h3>Create New Chat</h3>
             <input type="search" id="userSearch" placeholder="Search users...">
-
+            
+            <!-- Selected users display -->
+            <button id="createGroupChatBtn" style="display: none;" onclick="createGroupChat()"><div>Create Group Chat</div></button>
+    
             <div class="modal-options" id="userList">
             {% for user in users %}
-                <div class="modal-option">
-                <div class="option-icon">
-                    <img src="{{ user.profile_pic }}" style="height:100%; border-radius:50%;">
-                </div>
-                <p class="user-name">{{ user.full_name }}</p>
+                <div class="modal-option" data-user-id="{{ user.id }}">
+                    <div class="option-icon">
+                        <img src="{{ user.profile_pic }}" style="height:100%; border-radius:50%;">
+                    </div>
+                    <p class="user-name">{{ user.full_name }}</p>
                 </div>
             {% endfor %}
             </div>
         </div>
     </div>
 
-</body>
-</html>
+
+
+    <style>
+        #createGroupChatBtn{
+            right: 5%;
+            bottom: 10%;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            position: absolute;
+            background: #2a9dff;
+        }
+        .modal-option.selected {
+            background-color: #d0ebff;
+            border: 2px solid #339af0;
+          }
+          
+    </style>
+{% endblock %}
