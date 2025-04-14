@@ -19,7 +19,7 @@ def get_chat_details(user_id):
             other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user)
             if other_members.exists():
                 member = User.objects.get(id=other_members[0].member_id)
-                title = f"{member.first_name} {member.last_name}"
+                title = f"{member.first_name} {member.middle_name} {member.last_name}"
             else:
                 title = "Unknown"
             chat_type = Chat_Type(chat.type).name
@@ -31,13 +31,13 @@ def get_chat_details(user_id):
                 member_names = []
                 for m in members:
                     user = User.objects.get(id=m.member_id)
-                    member_names.append(f"{user.first_name} {user.last_name}")
+                    member_names.append(f"{user.first_name} {user.middle_name} {user.last_name}")
                 title = ", ".join(member_names) 
             chat_type = Chat_Type(chat.type).name
 
         member_count = ChatMember.objects.filter(chat=chat, is_active=True).count()
         creator = User.objects.get(id=chat.created_by_id)
-        creator_name = f"{creator.first_name} {creator.last_name}"
+        creator_name = f"{creator.first_name} {creator.middle_name} {creator.last_name}"
 
         members = ChatMember.objects.filter(chat=chat, is_active=True)
         member_details = []
@@ -45,7 +45,7 @@ def get_chat_details(user_id):
             user = User.objects.get(id=member.member_id)
             member_details.append({
                 "user_id": user.id,
-                "name": f"{user.first_name} {user.last_name}",
+                "name": f"{user.first_name} {user.middle_name} {user.last_name}",
                 "email": user.email,
             })
         
@@ -65,5 +65,5 @@ def get_chat_details(user_id):
 def get_user_object(user_id):
     return User.objects.filter(id=user_id,is_active=True).first()    
 
-def get_all_users():
-    return list(User.objects.filter(is_active=True))
+def get_all_users(user_id):
+    return list(User.objects.filter(is_active=True).exclude(id=user_id))

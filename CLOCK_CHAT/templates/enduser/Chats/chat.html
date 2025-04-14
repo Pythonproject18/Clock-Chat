@@ -5,6 +5,10 @@
 <link rel="stylesheet" href="/static/css/chat.css">
 <link rel="stylesheet" href="/static/css/message.css">
 {% endblock %}
+{% block extra_js %}
+<script src="/static/js/chat_js.js"></script>
+<script src="/static/js/message.js"></script>
+{% endblock %}
 
 {% block content %}
     <div class="main-container">
@@ -78,7 +82,7 @@
             <input type="search" id="userSearch" placeholder="Search users...">
             
             <!-- Selected users display -->
-            <button id="createGroupChatBtn" style="display: none;" onclick="createGroupChat()"><div>Create Group Chat</div></button>
+            <button id="createGroupChatBtn" style="display: none;" ><div>Create Group Chat</div></button>
     
             <div class="modal-options" id="userList">
             {% for user in users %}

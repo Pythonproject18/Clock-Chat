@@ -14,7 +14,7 @@ import json
 class ChatListView(View):
     def get(self, request):
         user_id = request.user.id
-        users = user_service.get_all_users()
+        users = user_service.get_all_users(user_id)
         user_details = []
 
         if users:
@@ -22,7 +22,7 @@ class ChatListView(View):
                 {
                     'id': user.id,
                     'profile_pic': user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png',
-                    'full_name':f"{user.first_name}{user.last_name}",
+                    'full_name':f"{user.first_name} {user.middle_name} {user.last_name}",
                 }
                 for user in users
             ]
@@ -36,7 +36,6 @@ class ChatCreateView(View):
     def post(self, request):
         data = json.loads(request.body)
         user_ids = data.get("user_ids", [])
-        chat_name = data.get("chat_name", "")
         print(data)
         current_user_id = request.user.id
 
@@ -44,7 +43,7 @@ class ChatCreateView(View):
             chat = chat_service.create_friend_and_personal_chat(current_user_id, user_ids)
             print("chat",chat)
         else:
-            chat = chat_service.create_group_chat_with_friend(current_user_id, user_ids, chat_name)
+            chat = chat_service.create_group_chat_with_friend(current_user_id, user_ids)
 
         if chat:
             return JsonResponse({"status": "success", "chat_id": chat.id})

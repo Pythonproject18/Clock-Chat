@@ -93,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify({
         user_ids: selectedUserIds,
-        chat_name: "New Group Chat"
       })
     })
     .then(res => res.json())
