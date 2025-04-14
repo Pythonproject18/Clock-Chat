@@ -108,15 +108,10 @@ class StatusDetailView(View):
 
         status_list = []
         for status in statuses:
-            viewers = StatusViewer.objects.filter(status=status).select_related('viewed_by')
-            viewer_list = [
-                {
-                    'id': viewer.id,
-                    'viewed_by': viewer.viewed_by.username, 
-                    'viewed_at': viewer.created_at
-                }
-                for viewer in viewers
-            ]
+            if request.user.id != user.id:  # don't count view for own status
+                exists = StatusViewer.objects.filter(status=status, viewed_by=request.user).exists()
+                if not exists:
+                    status_service.status_viewer_create(status,request.user,user)
 
             status_list.append({
                 'id': status.id,
@@ -124,8 +119,30 @@ class StatusDetailView(View):
                 'caption':status.caption,
                 'created_at': status.created_at,
                 'type': status.status_type,
-                'viewers': viewer_list  # Sending viewer list as JSON
+                'viewers_count': status_service.get_status_viewers_count(status.id,user_id)  # Sending viewer list as JSON
             })
             print(status_list)
 
         return render(request, "status/status_view.html", {'status_details': status_list,'user_details':user_details})
+
+
+
+
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+class GetStatusViewersView(View):
+    def get(self, request, status_id):
+        try:
+            viewers = status_service.get_status_viewer(status_id)
+            data = []
+            for viewer in viewers:
+                user = user_service.get_user_object(viewer['viewed_by'])  # corrected
+                data.append({
+                    'id': user.id,
+                    'full_name': f"{user.first_name} {user.middle_name} {user.last_name}".strip(),
+                    'profile_pic': user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png'
+                })
+            return JsonResponse({'viewers': data}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+

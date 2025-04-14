@@ -31,10 +31,12 @@
       {% if status.caption %}
       <div style="display: flex;align-items: center;justify-content: center;font-size: larger;">{{status.caption}}</div>
       {% endif %}
-      <div class="view-count" onclick="open_viewer_modal()">
+      {% if user_details.id == request.user.id%}
+      <div class="view-count" onclick="open_viewer_modal({{status.id}})">
         <div class="eye-icon"></div>
-        <span> 0</span>
+        <span> {{status.viewers_count}}</span>
       </div>
+      {% endif %}
       {% endfor %}
     
       {% else %}
@@ -50,7 +52,7 @@
               <h2 style="text-align: start;">Seen by</h2>
             </div>
             <div class="viewer-modal-content">
-              <p style="text-align:center;">No viewers yet.</p>
+              <p style="text-align:center;color: black;">No viewers yet.</p>
             </div>
           </div>
         </div>
@@ -88,9 +90,10 @@
   }
   
   .viewer-modal-content {
-    padding: 20px;
-    height: 100%;
-    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 10px 20px;
+    height: 60vh;
+    overflow-y: scroll;
   }
   
   .close-btn {
@@ -103,9 +106,10 @@
 </style>
 
 <script>
-  function open_viewer_modal() {
+  function open_viewer_modal(statusId) {
     const modal = document.getElementById('viewerModal');
     modal.classList.add('show');
+    statusViewerFatch(statusId);
 
     // Add click listener to close modal when clicking outside
     setTimeout(() => {
@@ -128,6 +132,42 @@
       close_viewer_modal();
     }
   }
+
+
+
+  function statusViewerFatch(statusId) {
+    fetch(`/status/viewers/${statusId}/`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        const viewerContainer = document.querySelector('.viewer-modal-content');
+        viewerContainer.innerHTML = ''; // Clear existing content
+  
+        if (data.viewers && data.viewers.length > 0) {
+          data.viewers.forEach(viewer => {
+            const viewerElement = document.createElement('div');
+            viewerElement.classList.add('viewer-item');
+            viewerElement.innerHTML = `
+              <div style="display:flex; align-items:center; gap:10px; margin:10px 0;color: black;">
+                <img src="${viewer.profile_pic}" alt="Profile" style="height:20px; width:20px; border-radius:50%;">
+                <span>${viewer.full_name}</span>
+              </div>
+            `;
+            viewerContainer.appendChild(viewerElement);
+          });
+        } else {
+          viewerContainer.innerHTML = `<p style="text-align:center;">No viewers yet.</p>`;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching viewer data:', error);
+      });
+  }
+  
 
   function back() {
     window.history.back();
