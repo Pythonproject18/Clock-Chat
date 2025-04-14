@@ -119,7 +119,7 @@ class StatusDetailView(View):
                 'caption':status.caption,
                 'created_at': status.created_at,
                 'type': status.status_type,
-                'viewers_count': status_service.get_status_viewers_count(status.id,user_id)  # Sending viewer list as JSON
+                'viewers_count': status_service.get_status_viewers_count(status.id,user_id),  # Sending viewer list as JSON
             })
             print(status_list)
 

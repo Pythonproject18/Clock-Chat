@@ -38,8 +38,10 @@ def get_friends_by_user(user_id):
             'email': friend_obj.email,
             'status_media': latest_status.status_media if latest_status else None,
             'created_at': latest_status.created_at if latest_status else None,
-            'caption':latest_status.caption
+            'is_seen':check_status_seen_or_not(friend_obj.id,user_id),
+
         })
+    print(friend_data)
 
     return friend_data
 
@@ -89,18 +91,27 @@ def status_viewer_create(status, current_user, created_by):
 def get_status_viewers_count(status_id,user):
     return StatusViewer.objects.filter(status = status_id,is_active=True).exclude(viewed_by = user).count()
 
-def soft_delete_status(status_id, user):
-    try:
-        status = Status.objects.get(id=status_id, created_by=user, is_active=True)
-        status.is_active = False
-        status.save()
+def check_status_seen_or_not(user_id, current_user):
+    # Get all active statuses created by the friend
+    statuses = Status.objects.filter(created_by=user_id, is_active=True)
+
+    # Get all status IDs
+    status_ids = statuses.values_list('id', flat=True)
+
+    # Get all status IDs that the current user has viewed
+    seen_status_ids = StatusViewer.objects.filter(
+        status_id__in=status_ids,
+        viewed_by=current_user,
+        is_active=True
+    ).values_list('status_id', flat=True)
+
+    # Return True only if all statuses have been seen, else False
+    if set(status_ids) == set(seen_status_ids):
         return True
-    except Status.DoesNotExist:
+    else:
         return False
 
-
-
-
+        
         
 
     
