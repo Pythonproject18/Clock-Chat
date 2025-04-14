@@ -30,29 +30,107 @@
       {% if status.caption %}
       <div style="display: flex;align-items: center;justify-content: center;font-size: larger;">{{status.caption}}</div>
       {% endif %}
-      <div class="view-count">
+      <div class="view-count" onclick="open_viewer_modal()">
         <div class="eye-icon"></div>
         <span> 0</span>
       </div>
       {% endfor %}
-
-
+    
       {% else %}
         <p style="padding: 20px; text-align: center;">Media not found</p>
       {% endif %}
 
-      <div class="status-controls">
-        <button onclick="prevStatus()">‹ Prev</button>
-        <button onclick="nextStatus()">Next ›</button>
-      </div>
-    </div>
-  </div>
 
-  <script>  
-    
+        <!-- Viewer Modal -->
+        <div id="viewerModal" class="viewer-modal">
+          <div class="viewer-modal-box">
+            <div id="header">
+              <span class="close-btn" onclick="close_viewer_modal()">&times;</span>
+              <h2 style="text-align: start;">Seen by</h2>
+            </div>
+            <div class="viewer-modal-content">
+              <p style="text-align:center;">No viewers yet.</p>
+            </div>
+          </div>
+        </div>
+
+
+
+      </div>
+</div>
+
+
+<style>
+  #header{
+    font-size: small;
+    background: rgb(4 152 86);
+    border-bottom: 1px solid;
+    padding: 10px;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+  }
+  .viewer-modal {
+    position: absolute;
+    bottom: -100%;
+    width:100%;
+    height: 70%;
+    background-color: #ffffff;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+    transition: bottom 0.4s ease;
+    z-index: 9999;
+  }
+  
+  .viewer-modal.show {
+    bottom: 0;
+  }
+  
+  .viewer-modal-content {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .close-btn {
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+  }
+  
+</style>
+
+<script>
+  function open_viewer_modal() {
+    const modal = document.getElementById('viewerModal');
+    modal.classList.add('show');
+
+    // Add click listener to close modal when clicking outside
+    setTimeout(() => {
+      document.addEventListener('click', outsideClick);
+    }, 0);
+  }
+
+  function close_viewer_modal() {
+    const modal = document.getElementById('viewerModal');
+    modal.classList.remove('show');
+    document.removeEventListener('click', outsideClick);
+  }
+
+  function outsideClick(event) {
+    const modal = document.getElementById('viewerModal');
+    const modalBox = document.querySelector('.viewer-modal-box');
+
+    // If clicked outside modal-box but inside modal
+    if (!modalBox.contains(event.target) && modal.classList.contains('show')) {
+      close_viewer_modal();
+    }
+  }
+
   function back() {
     window.history.back();
   }
-
 </script>
+
 {% endblock %}
