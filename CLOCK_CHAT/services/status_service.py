@@ -38,6 +38,7 @@ def get_friends_by_user(user_id):
             'email': friend_obj.email,
             'status_media': latest_status.status_media if latest_status else None,
             'created_at': latest_status.created_at if latest_status else None,
+            'caption':latest_status.caption
         })
 
     return friend_data
@@ -58,13 +59,14 @@ def get_user_status(user_id):
             }
    
 
-def create_status(image, user_id, status_type):
+def create_status(image, user_id, status_type,caption):
     user=User.objects.filter(id=user_id,is_active=True).first()
     type= Status_Type(int(status_type)).value
     status = Status.objects.create(
         status_media=image,  # Fixed field name
         status_type=type,
         created_by=user,  # Ensure it matches the User model's ID
+        caption = caption
     )
     return status
 

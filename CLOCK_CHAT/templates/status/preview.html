@@ -7,7 +7,16 @@
 
 {% block content %}
 <div class="wrapper">
+  <i style="position:absolute;left: 7%; top:4%;font-size: 22px;"class="fa fa-arrow-left" onclick="back()"></i>
   <div class="status-screen">
+    <div class="status-header">
+      <div class="profile-pic">
+        <img src="{{user_profile}}" style="border-radius: 50%;height: 100%">
+      </div>
+      <div class="user-info">
+        <div class="number">{{user_name}}</div>
+      </div>
+    </div>
     <div class="status-body">
       <img id="statusPreviewImg" style="width: 100%;" />
     </div>
@@ -15,9 +24,9 @@
       {% csrf_token %}
       <input type="hidden" name="type" value="1">
       <input type="hidden" name="image_base64" id="imageBase64">
-      <div style="gap: 10px;align-items: center;display: flex;">
+      <div style="gap: 10px;align-items: center;display: flex;padding: 0px 10px 0px 15px;">
       <input type="text" name="caption" id="caption">
-      <button type="submit" class="send-icon-btn" style="border: none; font-size: 23px;background: black;color: white;">
+      <button type="submit" class="send-icon-btn" style="border: none;justify-content: space-between;padding: 10px; font-size: 23px;background:transparent;color: white;">
         <i class="fa-solid fa-paper-plane"></i>
       </button>
     </div>
@@ -26,6 +35,14 @@
 </div>
 
 <script>
+
+  function back() {
+    window.history.back();
+  }
+  
+
+
+
   // Get data from sessionStorage
   const base64Image = sessionStorage.getItem("statusPreview");
   const fileName = sessionStorage.getItem("statusName");

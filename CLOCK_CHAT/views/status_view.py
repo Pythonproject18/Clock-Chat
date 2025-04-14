@@ -23,14 +23,20 @@ class StatusListView(View):  # Use LoginRequiredMixin
     def get(self, request):
         user = request.user.id  # Get logged-in user
         print(user)
+        user_obj = user_service.get_user_object(user)
 
         # Fetch friends (assuming a Friend model with a many-to-many relation)
         friends = status_service.get_friends_by_user(user)
         user_status = status_service.get_user_status(user)
         # Fetch statuses of friends (logic needed)
         print(user_status)
-        print("status",friends)
-        return render(request,'status/status.html', {"friends": friends,'user_status':user_status})  # Use appropriate template
+        return render(request,'status/status.html',
+            {
+            'friends': friends,
+            'user_status':user_status,
+            'user_profile':user_obj.profile_photo_url if user_obj.profile_photo_url else '/static/images/default_avatar.png',
+            }
+        )  # Use appropriate template
     
 
 
@@ -41,6 +47,7 @@ class StatusCreateView(View):
         try:
             image_base64 = request.POST.get("image_base64")
             status_type = request.POST.get("type")
+            caption = request.POST.get("caption")  # Get the caption here
             user_id = request.user.id
 
             if not image_base64:
@@ -53,7 +60,7 @@ class StatusCreateView(View):
 
             # Save the status
             image_path = save_uploaded_file(file, 'Status')
-            status = status_service.create_status(image_path, user_id, status_type)
+            status = status_service.create_status(image_path, user_id, status_type,caption)
 
             return redirect('status_list')
         except Exception as e:
@@ -69,7 +76,7 @@ class StatusPreviewView(View):
             user = user_service.get_user_object(user_id)
 
             return render(request, "status/preview.html", {
-                'user_profile': user.profile_photo_url,
+                'user_profile': user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png',
                 'user_name': f"{user.first_name} {user.middle_name} {user.last_name}"
             })
         except Exception as e:
@@ -114,6 +121,7 @@ class StatusDetailView(View):
             status_list.append({
                 'id': status.id,
                 'media_url': status.status_media if status.status_media else None,
+                'caption':status.caption,
                 'created_at': status.created_at,
                 'type': status.status_type,
                 'viewers': viewer_list  # Sending viewer list as JSON

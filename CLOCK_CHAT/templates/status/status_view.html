@@ -8,6 +8,8 @@
 {% block content %}
 
   <div class="wrapper">
+    <i style="position:absolute;left: 7%; top:4%;font-size: 22px;"class="fa fa-arrow-left" onclick="back()"></i>
+
     <div class="status-screen">
       <div class="progress-bar">
         <div class="progress-fill"></div>
@@ -26,7 +28,9 @@
       <div class="status-body">
         <img src="{{status.media_url}}" style="width:100%;">
       </div>
-
+      {% if status.caption %}
+      <div style="display: flex;align-items: center;justify-content: center;font-size: larger;">{{status.caption}}</div>
+      {% endif %}
       <div class="view-count">
         <div class="eye-icon"></div>
         <span> 0</span>
@@ -39,4 +43,12 @@
       {% endif %}
     </div>
   </div>
+
+  <script>  
+    
+  function back() {
+    window.history.back();
+  }
+
+</script>
 {% endblock %}
