@@ -1,5 +1,5 @@
 from django.views import View
-from ..services import auth_service,user_service
+from ..services import auth_service
 from django.shortcuts import render, redirect
 from CLOCK_CHAT.constants.default_values import Role
 from CLOCK_CHAT.decorator import role_required, auth_required
