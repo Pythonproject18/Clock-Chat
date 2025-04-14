@@ -8,38 +8,35 @@
 {% block content %}
 
   <div class="wrapper">
+    <i style="position:absolute;left: 7%; top:4%;font-size: 22px;"class="fa fa-arrow-left" onclick="back()"></i>
+
     <div class="status-screen">
       <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 
       {% if status_details %}
-        {% for status in status_details %}
-        <div class="status-slide" style="{% if not forloop.first %}display:none{% endif %}" data-status-id="{{ status.id }}">
-          <div class="status-header">
-            <div class="profile-pic"><img src="{{ user_details.user_profile }}" alt="profile" /></div>
-            <div class="user-info">
-              <div class="number">{{ user_details.full_name }}</div>
-              <div class="time timeago" data-time="{{ status.created_at|date:'c' }}">Loading...</div>
-            </div>
-
-            <div class="menu-container">
-              <button class="dot-menu" onclick="toggleDropdown(this)">⋮</button>
-              <div class="dropdown-menu">
-                <button onclick="editStatus('{{ status.id }}')">Edit</button>
-                <button onclick="deleteStatus('{{ status.id }}')">Delete</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="status-body">
-            <img src="{{ status.media_url }}" alt="Status Image" />
-          </div>
-
-          <div class="view-count">
-            <div class="eye-icon"></div>
-            <span>{{ status.viewers.count }} views</span>
-          </div>
+      {% for status in status_details %}
+      <div class="status-header">
+        <div class="profile-pic">
+          <img src="{{user_details.user_profile}}" style="border-radius: 50%;height: 100%">
         </div>
-        {% endfor %}
+        <div class="user-info">
+          <div class="number">{{user_details.full_name}}</div>
+          <div class="time">{{status.created_at}}</div>
+        </div>
+      </div>
+      <div class="status-body">
+        <img src="{{status.media_url}}" style="width:100%;">
+      </div>
+      {% if status.caption %}
+      <div style="display: flex;align-items: center;justify-content: center;font-size: larger;">{{status.caption}}</div>
+      {% endif %}
+      <div class="view-count">
+        <div class="eye-icon"></div>
+        <span> 0</span>
+      </div>
+      {% endfor %}
+
+
       {% else %}
         <p style="padding: 20px; text-align: center;">Media not found</p>
       {% endif %}
@@ -50,4 +47,12 @@
       </div>
     </div>
   </div>
+
+  <script>  
+    
+  function back() {
+    window.history.back();
+  }
+
+</script>
 {% endblock %}
