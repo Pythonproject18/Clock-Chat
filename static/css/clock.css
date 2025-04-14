@@ -112,7 +112,7 @@ body {
 }
 
 .sidebar {
-    width: 40%;
+    width: 30%;
     background: linear-gradient(to bottom, #1a1a2e, #16213e);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
@@ -180,7 +180,7 @@ body {
 .chat-item {
     display: flex;
     align-items: center;
-    padding: 15px 25px;
+    padding: 15px 0px;
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -198,8 +198,8 @@ body {
 }
 
 .chat-avatar {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     background: linear-gradient(135deg, #6c5ce7, #a29bfe);
     border-radius: 50%;
     margin-right: 20px;
