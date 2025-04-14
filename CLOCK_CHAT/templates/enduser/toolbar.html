@@ -31,9 +31,10 @@
     <div class="toolbar-icons">
         <span class="toolbar-icon" data-tooltip="Logout" onclick="window.location.href='/logout/'"><i class="fa-solid fa-power-off"></i></span>
         <span class="toolbar-icon" data-tooltip="Settings"><i class="fas fa-cog"></i></span>
-        <span class="toolbar-icon" data-tooltip="Profile"><i class="fa-regular fa-user"></i></span>
+        <span class="toolbar-icon" data-tooltip="Profile" onclick="profile_modal()"><i class="fa-regular fa-user"></i></span>
     </div>
 </div>
+
 
 <script>
     window.addEventListener("pageshow", function (event) {
@@ -42,8 +43,82 @@
             location.reload();
         }
     });
-    </script>
 
+
+    function profile_modal() {
+        const modal = document.getElementById('profileModal');
+        modal.classList.add('show');
+        loadProfileData();
+        // Add click listener to close modal when clicking outside
+        setTimeout(() => {
+          document.addEventListener('click', outsideClick);
+        }, 0);
+      }
+    
+      function close_profile_modal() {
+        const modal = document.getElementById('profileModal');
+        modal.classList.remove('show');
+        document.removeEventListener('click', outsideClick);
+      }
+    
+      function outsideClick(event) {
+        const modal = document.getElementById('profileModal');
+        const modalBox = document.querySelector('.profile-modal-box');
+    
+        // If clicked outside modal-box but inside modal
+        if (!modalBox.contains(event.target) && modal.classList.contains('show')) {
+          close_profile_modal();
+        }
+      }
+    function loadProfileData(){
+        fetch(`/user_profile/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+        .then(data =>)
+      }
+    </script>
+    <style>
+          .profile-modal {
+            position: absolute;
+            bottom: 0%;
+            width: 33%;
+            height: 70%;
+            left: -100%;
+            background-color: #383838;
+            border-top-right-radius: 5px;
+            border-top-left-radius: 5px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+            transition: left 0.4s ease;
+            z-index: 9999;
+          }
+          
+          .profile-modal.show {
+            left: 0;
+          }
+          
+          .profile-modal-content {
+            scrollbar-width: none;
+            padding: 10px 20px;
+            height: 60vh;
+            overflow-y: scroll;
+          }
+          
+          .close-btn {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            float: right;
+          }
+    </style>
+<!-- Viewer Modal -->
+<div id="profileModal" class="profile-modal">
+    <div class="profile-modal-box">
+    </div>
+  </div>
 {% block content %}
 
 {% endblock %}

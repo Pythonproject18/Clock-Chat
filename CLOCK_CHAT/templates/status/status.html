@@ -40,7 +40,7 @@
             <div class="status_list">
                 {% for friend in friends %}
                 <div class = "status" onclick="window.location.href='{% url 'status_detail' user_id=friend.id %}'">
-                    <div style="height:50px;width:50px;object-fit:cover;">
+                    <div style="height:40px;width:40px;object-fit:cover;">
                         {% if friend.is_seen == True %}
                             <img src ="{{friend.status_media}}" alt="media" style="height:100%;width:100%;border-radius:50%; ">
                         {% else %}
