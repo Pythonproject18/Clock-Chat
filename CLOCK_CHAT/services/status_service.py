@@ -1,4 +1,4 @@
-from CLOCK_CHAT.models import Friend,Status,User
+from CLOCK_CHAT.models import Friend,Status,User,StatusViewer
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from CLOCK_CHAT.constants.default_values import Status_Type
@@ -74,6 +74,20 @@ def get_all_status_by_user_id(user_id):
     return Status.objects.filter(created_by=user_id).order_by('-created_at')
 
 
+def get_status_viewer(status_id):
+    return list(StatusViewer.objects.filter(status_id=status_id,is_active=True).values('viewed_by'))
+
+
+def status_viewer_create(status, current_user, created_by):
+    if not StatusViewer.objects.filter(status=status.id, viewed_by=current_user).exists():
+        StatusViewer.objects.create(
+            status=status,
+            viewed_by=current_user,
+            created_by=created_by
+        )
+
+def get_status_viewers_count(status_id,user):
+    return StatusViewer.objects.filter(status = status_id,is_active=True).exclude(viewed_by = user).count()
 
 def soft_delete_status(status_id, user):
     try:
