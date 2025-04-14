@@ -67,3 +67,17 @@ def get_user_object(user_id):
 
 def get_all_users(user_id):
     return list(User.objects.filter(is_active=True).exclude(id=user_id))
+
+
+def get_user_details(user_id):
+    user = User.objects.filter(id=user_id,is_active=True).first()
+    user_data = {
+        'id':user.id,
+        'full_name':user.get_full_name(),
+        'email':user.email,
+        'dob':user.dob,
+        'gender':user.gender,
+        'date_joined':user.date_joined,
+        'profile_photo':user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png',
+    }
+    return
