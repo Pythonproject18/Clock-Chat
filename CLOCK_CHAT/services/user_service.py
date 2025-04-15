@@ -76,8 +76,21 @@ def get_user_details(user_id):
         'full_name':user.get_full_name(),
         'email':user.email,
         'dob':user.dob,
+        'bio':user.bio,
         'gender':user.gender,
         'date_joined':user.date_joined.strftime('%d-%m-%Y'),
         'profile_photo':user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png',
     }
     return user_data
+
+def update_profile_data(field, value, user):
+    if field == "about":
+        user.bio = value
+    elif field == "phone":
+        user.phone = value
+    elif field == "dob":
+        user.dob = value
+    elif field == "gender":
+        user.gender = value
+    user.save()
+    return True

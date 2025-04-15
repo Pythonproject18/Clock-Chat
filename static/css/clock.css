@@ -588,6 +588,20 @@ body {
 }
 
 /* profile css */
+.edit-icon{
+    font-size: 10px;
+    margin-left: 10px;
+}
+input:focus {
+    border: none;
+    outline: none; /* Optional: removes the blue glow border in some browsers */
+    border-bottom: 1px solid grey;
+  }
+input{
+    color: #ffffff;
+    border: none;
+    background: #383838;
+}
 .profile-modal {
   position: absolute;
   bottom: 0;

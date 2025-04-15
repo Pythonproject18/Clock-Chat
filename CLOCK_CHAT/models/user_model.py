@@ -8,6 +8,7 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=10)
     email = models.EmailField(unique=True)
     dob = models.DateField(null=True, blank=True)
+    bio = models.CharField(max_length=100,blank=True,null = True)
     profile_photo_url = models.URLField(max_length=255, blank=True, null=True)
     
     gender = models.IntegerField(
