@@ -586,3 +586,84 @@ body {
         width: 250px;
     }
 }
+
+/* profile css */
+.profile-modal {
+  position: absolute;
+  bottom: 0;
+  width: 25%;
+  height: 70%;
+  left: -100%;
+  background-color: #383838;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+  transition: left 0.4s ease;
+  z-index: 9999;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.profile-modal.show {
+  left: 0;
+}
+
+.profile-modal-content {
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  display: flex;
+  scrollbar-width: none;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#profilePhoto {
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 2px solid #fff;
+}
+
+.profile-info h4 {
+  margin: 15px 0 5px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #cfcfcf;
+}
+
+.profile-info p {
+  font-size: 15px;
+  margin: 0;
+  color: #f1f1f1;
+}
+
+.logout-btn {
+  margin-top: 30px;
+  padding: 10px 30px;
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.logout-btn:hover {
+  background-color: #c9302c;
+}
+
+.logout-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #b0b0b0;
+  text-align: center;
+}

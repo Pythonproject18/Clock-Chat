@@ -10,6 +10,7 @@
         <link rel="icon" type="image/png" href="{% static 'images/admin-lock.jpeg' %}">
 
         <link rel="stylesheet" href="/static/css/clock.css">
+        <script src="/static/js/toolbar.js"></script>
 
         {% block extra_css %}
         {% endblock %}
@@ -29,96 +30,49 @@
         <span class="toolbar-icon" data-tooltip="Status" onclick="window.location.href='/status/'"> <i class="fas fa-circle-notch"></i></span>
     </div>
     <div class="toolbar-icons">
-        <span class="toolbar-icon" data-tooltip="Logout" onclick="window.location.href='/logout/'"><i class="fa-solid fa-power-off"></i></span>
         <span class="toolbar-icon" data-tooltip="Settings"><i class="fas fa-cog"></i></span>
         <span class="toolbar-icon" data-tooltip="Profile" onclick="profile_modal()"><i class="fa-regular fa-user"></i></span>
     </div>
 </div>
 
 
-<script>
-    window.addEventListener("pageshow", function (event) {
-        if (event.persisted || (window.performance && performance.getEntriesByType("navigation")[0].type === "back_forward")) {
-            // If the page was loaded from bfcache (back-forward cache), reload it
-            location.reload();
-        }
-    });
 
 
-    function profile_modal() {
-        const modal = document.getElementById('profileModal');
-        modal.classList.add('show');
-        loadProfileData();
-        // Add click listener to close modal when clicking outside
-        setTimeout(() => {
-          document.addEventListener('click', outsideClick);
-        }, 0);
-      }
-    
-      function close_profile_modal() {
-        const modal = document.getElementById('profileModal');
-        modal.classList.remove('show');
-        document.removeEventListener('click', outsideClick);
-      }
-    
-      function outsideClick(event) {
-        const modal = document.getElementById('profileModal');
-        const modalBox = document.querySelector('.profile-modal-box');
-    
-        // If clicked outside modal-box but inside modal
-        if (!modalBox.contains(event.target) && modal.classList.contains('show')) {
-          close_profile_modal();
-        }
-      }
-    function loadProfileData(){
-        fetch(`/user_profile/`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-        .then(data =>)
-      }
-    </script>
-    <style>
-          .profile-modal {
-            position: absolute;
-            bottom: 0%;
-            width: 33%;
-            height: 70%;
-            left: -100%;
-            background-color: #383838;
-            border-top-right-radius: 5px;
-            border-top-left-radius: 5px;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-            transition: left 0.4s ease;
-            z-index: 9999;
-          }
-          
-          .profile-modal.show {
-            left: 0;
-          }
-          
-          .profile-modal-content {
-            scrollbar-width: none;
-            padding: 10px 20px;
-            height: 60vh;
-            overflow-y: scroll;
-          }
-          
-          .close-btn {
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-            float: right;
-          }
-    </style>
 <!-- Viewer Modal -->
-<div id="profileModal" class="profile-modal">
-    <div class="profile-modal-box">
+<div id="profileModal" class="profile-modal" style="display: none;">
+  <div class="profile-modal-box profile-modal-content">
+    
+    <div class="profile-header text-center">
+      <img id="profilePhoto" src="/static/images/default_avatar.png" alt="Profile Photo">
+      <h2 id="fullName"></h2>
     </div>
+
+    <div class="profile-info" style="width: 80%;">
+      <h4>Bio</h4>
+      <p id="about"></p>
+
+      <h4>Phone number</h4>
+      <p id="phone"></p>
+
+      <h4>Email</h4>
+      <p id="email"></p>
+
+      <h4>Date of Birth</h4>
+      <p id="dob"></p>
+
+      <h4>Gender</h4>
+      <p id="gender"></p>
+
+      <h4>Joined</h4>
+      <p id="dateJoined"></p>
+    </div>
+
+    <button class="logout-btn" onclick="window.location.href='/logout/'">Log out</button>
+    <p class="logout-note">Chat history on this computer will be cleared when you log out.</p>
   </div>
+</div>
+
+
 {% block content %}
 
 {% endblock %}
