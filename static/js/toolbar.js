@@ -20,6 +20,17 @@
         const modal = document.getElementById('profileModal');
         modal.classList.remove('show');
         document.removeEventListener('click', outsideClick);
+          // Revert any unsaved changes
+        for (let fieldId in originalValues) {
+            const input = document.getElementById(fieldId);
+            if (input) {
+            input.value = originalValues[fieldId];
+            input.setAttribute("readonly", true);
+            }
+        }
+
+        // Clear saved originals
+        Object.keys(originalValues).forEach(key => delete originalValues[key]);
       }
     
       function outsideClick(event) {
@@ -41,20 +52,99 @@
             })
             .then(data => {
                 console.log(data);
-                document.getElementById('profilePhoto').src = data.profile_photo;
-                document.getElementById('about').src = data.bio;
-                document.getElementById('fullName').innerText = data.full_name || "";
-                document.getElementById('email').innerText = ` ${data.email || ""}`;
-                document.getElementById('dob').innerText = ` ${data.dob || ""}`;
-                document.getElementById('gender').innerText = `${data.gender || ""}`;
-                document.getElementById('dateJoined').innerText = `Joined: ${data.date_joined || ""}`;
     
-                // Show the modal
+                const setVal = (id, value) => {
+                  const el = document.getElementById(id);
+                  if (el) el.value = value || "";
+                }
+    
+                const setText = (id, value) => {
+                  const el = document.getElementById(id);
+                  if (el) el.innerText = value || "";
+                }
+    
+                const setSrc = (id, value, fallback) => {
+                  const el = document.getElementById(id);
+                  if (el) el.src = value || fallback;
+                }
+    
+                setSrc("profilePhoto", data.profile_photo, "/static/images/default_avatar.png");
+                setText("fullName", data.full_name);
+                setVal("about", data.bio);
+                setVal("email", data.email);
+                setVal("dob", data.dob);
+                setVal("gender", data.gender);
+                setVal("dateJoined", data.date_joined);
+    
                 document.getElementById('profileModal').style.display = 'flex';
             })
             .catch(error => {
                 console.error('Error loading profile data:', error);
             });
+    }
+    
+    
+
+    const originalValues = {};
+
+    function editField(fieldId) {
+        console.log(fieldId);
+      const input = document.getElementById(fieldId);
+    
+      // Store original value
+      originalValues[fieldId] = input.value;
+      console.log("hellooo");
+    
+      // Make editable and focus
+      input.removeAttribute("readonly");
+      input.focus();
+    
+      // Listen for Enter key
+      const onEnter = (e) => {
+        if (e.key === "Enter") {
+        console.log("pressed");
+            
+          e.preventDefault();
+    
+          const newValue = input.value;
+    
+          fetch("/profile/update/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCSRFToken(),
+            },
+            body: JSON.stringify({
+              field: fieldId,
+              value: newValue,
+            }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (!data.success) {
+                alert("Update failed: " + data.message);
+                input.value = originalValues[fieldId];
+              }
+              input.setAttribute("readonly", true);
+            })
+            .catch((error) => {
+              alert("Error: " + error.message);
+              input.value = originalValues[fieldId];
+              input.setAttribute("readonly", true);
+            });
+    
+          input.removeEventListener("keypress", onEnter);
+        }
+      };
+    
+      input.addEventListener("keypress", onEnter);
+    }
+    
+    function getCSRFToken() {
+      return document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken="))
+        ?.split("=")[1];
     }
     
     
