@@ -77,7 +77,7 @@ def get_user_details(user_id):
         'email':user.email,
         'dob':user.dob,
         'gender':user.gender,
-        'date_joined':user.date_joined,
+        'date_joined':user.date_joined.strftime('%d-%m-%Y'),
         'profile_photo':user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png',
     }
-    return
+    return user_data
