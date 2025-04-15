@@ -617,6 +617,16 @@ input{
   color: white;
   font-family: 'Segoe UI', sans-serif;
 }
+.dropdown-icon {
+    font-size: 20px;
+    pointer-events: none;
+}
+#gender{
+    padding: 3px 10px;
+    color: #ffffff;
+    border: none;
+    background: #312f2f;
+}
 
 .profile-modal.show {
   left: 0;

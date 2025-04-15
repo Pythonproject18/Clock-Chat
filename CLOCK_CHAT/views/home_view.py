@@ -28,7 +28,7 @@ class UserProfileUpdateView(View):
             user = request.user
             if not user.is_authenticated:
                 return JsonResponse({'success': False, 'message': 'Not authenticated'}, status=403)
-            print("gfhdsvgfsdfdsfdf")
+            print(value)
             update = user_service.update_profile_data(field,value,user)
             return JsonResponse({'success': True})
         except Exception as e:
