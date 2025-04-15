@@ -1,5 +1,6 @@
 from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type
 from CLOCK_CHAT.services import chat_service
+from CLOCK_CHAT.constants.default_values import Gender
 
 def get_user_chats(user_id):
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
@@ -91,6 +92,6 @@ def update_profile_data(field, value, user):
     elif field == "dob":
         user.dob = value
     elif field == "gender":
-        user.gender = value
+        user.gender = int(value)
     user.save()
     return True

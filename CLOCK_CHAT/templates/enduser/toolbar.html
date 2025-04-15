@@ -57,81 +57,19 @@
       </h4>
       <input id="dob" type="date" readonly onclick="editField('dob')">
     
-      <h4>
-        Gender
-      </h4>
-      <input id="gender" type="text" readonly onclick="editField('gender')">
+      <h4>Gender</h4>
+      <select id="gender" class="gender-select" onchange="updateGender(this)">
+          <option value="1">Male</option>
+          <option value="2">Female</option>
+          <option value="3">Other</option>
+      </select>
+      
+
     
       <h4>Joined</h4>
       <input id="dateJoined" type="text" readonly onclick="editField('dateJoined')">
     </div>
     
-    <script>
-      const originalValues = {};
-    
-      function editField(fieldId) {
-        console.log(fieldId);
-        const input = document.getElementById(fieldId);
-    
-        // Store original value
-        originalValues[fieldId] = input.value;
-        console.log("Editing " + fieldId);
-    
-        // Make editable and focus
-        input.removeAttribute("readonly");
-        input.focus();
-    
-        // Listen for Enter key to submit data
-        const onEnter = (e) => {
-          if (e.key === "Enter") {
-            console.log("Enter pressed");
-    
-            e.preventDefault();
-    
-            const newValue = input.value;
-    
-            // Perform the fetch request to update the backend
-            fetch("/profile/update/", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCSRFToken(),
-              },
-              body: JSON.stringify({
-                field: fieldId,
-                value: newValue,
-              }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (!data.success) {
-                  alert("Update failed: " + data.message);
-                  input.value = originalValues[fieldId]; // Revert to the original value
-                }
-                input.setAttribute("readonly", true); // Set input back to readonly
-              })
-              .catch((error) => {
-                alert("Error: " + error.message);
-                input.value = originalValues[fieldId]; // Revert to the original value
-                input.setAttribute("readonly", true); // Set input back to readonly
-              });
-    
-            input.removeEventListener("keypress", onEnter);
-          }
-        };
-    
-        input.addEventListener("keypress", onEnter);
-      }
-    
-      function getCSRFToken() {
-        return document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("csrftoken="))
-          ?.split("=")[1];
-      }
-    </script>
-    
-
     <button class="logout-btn" onclick="window.location.href='/logout/'">Log out</button>
     <p class="logout-note">Chat history on this computer will be cleared when you log out.</p>
   </div>
