@@ -105,13 +105,14 @@ body {
 }
 
 .main-container {
+    background: linear-gradient(to bottom, #121212, #1a1a2e);
     display: flex;
     flex: 1;
     overflow: hidden;
 }
 
 .sidebar {
-    width: 40%;
+    width: 30%;
     background: linear-gradient(to bottom, #1a1a2e, #16213e);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
@@ -179,7 +180,7 @@ body {
 .chat-item {
     display: flex;
     align-items: center;
-    padding: 15px 25px;
+    padding: 15px 0px;
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -197,8 +198,8 @@ body {
 }
 
 .chat-avatar {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     background: linear-gradient(135deg, #6c5ce7, #a29bfe);
     border-radius: 50%;
     margin-right: 20px;
@@ -586,4 +587,109 @@ body {
     .sidebar {
         width: 250px;
     }
+}
+
+/* profile css */
+.edit-icon{
+    font-size: 10px;
+    margin-left: 10px;
+}
+input:focus {
+    border: none;
+    outline: none; /* Optional: removes the blue glow border in some browsers */
+    border-bottom: 1px solid grey;
+  }
+input{
+    color: #ffffff;
+    border: none;
+    background: #383838;
+}
+.profile-modal {
+  position: absolute;
+  bottom: 0;
+  width: 25%;
+  height: 70%;
+  left: -100%;
+  background-color: #383838;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+  transition: left 0.4s ease;
+  z-index: 9999;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+}
+.dropdown-icon {
+    font-size: 20px;
+    pointer-events: none;
+}
+#gender{
+    padding: 3px 10px;
+    color: #ffffff;
+    border: none;
+    background: #312f2f;
+}
+
+.profile-modal.show {
+  left: 0;
+}
+
+.profile-modal-content {
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  display: flex;
+  scrollbar-width: none;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#profilePhoto {
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 2px solid #fff;
+}
+
+.profile-info h4 {
+  margin: 15px 0 5px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #cfcfcf;
+}
+
+.profile-info p {
+  font-size: 15px;
+  margin: 0;
+  color: #f1f1f1;
+}
+
+.logout-btn {
+  margin-top: 30px;
+  padding: 10px 30px;
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.logout-btn:hover {
+  background-color: #c9302c;
+}
+
+.logout-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #b0b0b0;
+  text-align: center;
 }

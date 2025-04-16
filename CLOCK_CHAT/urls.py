@@ -34,6 +34,8 @@ urlpatterns = [
     # Chats
     path('chat/create/', views.ChatCreateView.as_view(), name='create'),
     path('chat/', views.ChatListView.as_view(), name='chat_list'),
+    path('userprofile/', views.UserProfileView.as_view(), name='user_profile'),
+    path('profile/update/', views.UserProfileUpdateView.as_view(), name='user_profile_update'),
 
     
 
@@ -41,6 +43,9 @@ urlpatterns = [
     path('status/', views.StatusListView.as_view(), name='status_list'),
     path('status/create/', views.StatusCreateView.as_view(), name='status_create'),
     path('status/<int:user_id>/',views.StatusDetailView.as_view(), name='status_detail'),
+    path("status/preview/", views.StatusPreviewView.as_view(), name="status_preview"),
+    path('status/viewers/<int:status_id>/', views.GetStatusViewersView.as_view(), name='status-viewers'),
+
     
 
     #message

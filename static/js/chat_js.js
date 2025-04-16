@@ -1,12 +1,29 @@
-function openmodal() {
-  let modal = document.getElementById("openmodal");
-  modal.style.display = "block";
-}
+  function openmodal() {
+    const modal = document.getElementById("openmodal");
+    modal.style.display = "block";
 
-function close_modal() {
-  let modal = document.getElementById("openmodal");
-  modal.style.display = "none";
-}
+    // Add outside click listener
+    setTimeout(() => {
+      document.addEventListener("click", outsideClickHandler);
+    }, 0);
+  }
+
+  function close_modal() {
+    const modal = document.getElementById("openmodal");
+    modal.style.display = "none";
+
+    // Remove listener when closed
+    document.removeEventListener("click", outsideClickHandler);
+  }
+
+  function outsideClickHandler(event) {
+    const modal = document.getElementById("openmodal");
+    const content = document.querySelector(".modal-content");
+
+    if (modal.style.display === "block" && !content.contains(event.target)) {
+      close_modal();
+    }
+  }
 
 
 
@@ -93,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify({
         user_ids: selectedUserIds,
-        chat_name: "New Group Chat"
       })
     })
     .then(res => res.json())

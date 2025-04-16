@@ -10,19 +10,19 @@
         <link rel="icon" type="image/png" href="{% static 'images/admin-lock.jpeg' %}">
 
         <link rel="stylesheet" href="/static/css/clock.css">
+        <script src="/static/js/toolbar.js"></script>
 
         {% block extra_css %}
         {% endblock %}
-    
-        <script src="/static/js/chat_js.js"></script>
-        <script src="/static/js/message.js"></script>
+        {% block extra_js %}
+        {% endblock %}
         <meta name="csrf-token" content="{{ csrf_token }}">
 
     </head>
     
 
 
-<body data-user-id="{{ request.user.id }}">
+<body data-user-id="{{ request.user.id }}" style="overflow-y:hidden;">
 
 <div class="toolbar">
     <div class="toolbar-icons">
@@ -30,11 +30,54 @@
         <span class="toolbar-icon" data-tooltip="Status" onclick="window.location.href='/status/'"> <i class="fas fa-circle-notch"></i></span>
     </div>
     <div class="toolbar-icons">
-        <span class="toolbar-icon" data-tooltip="Logout" onclick="window.location.href='/logout/'"><i class="fa-solid fa-power-off"></i></span>
         <span class="toolbar-icon" data-tooltip="Settings"><i class="fas fa-cog"></i></span>
-        <span class="toolbar-icon" data-tooltip="Profile"><i class="fa-regular fa-user"></i></span>
+        <span class="toolbar-icon" data-tooltip="Profile" onclick="profile_modal()"><i class="fa-regular fa-user"></i></span>
     </div>
 </div>
+
+
+
+
+<!-- Viewer Modal -->
+<div id="profileModal" class="profile-modal" style="display: none;">
+  <div class="profile-modal-box profile-modal-content">
+    
+    <div class="profile-header text-center">
+      <img id="profilePhoto" src="/static/images/default_avatar.png" alt="Profile Photo">
+      <h2 id="fullName"></h2> <!-- Read-only name display -->
+    </div>
+    <div class="profile-info">
+      <h4>
+        Bio
+      </h4>
+      <input id="about" type="text" readonly onclick="editField('about')">
+    
+      <h4>
+        Date of Birth
+      </h4>
+      <input id="dob" type="date" readonly onclick="editField('dob')">
+    
+      <h4>Gender</h4>
+      <select id="gender" class="gender-select" onchange="updateGender(this)">
+          <option value="1">Male</option>
+          <option value="2">Female</option>
+          <option value="3">Other</option>
+      </select>
+      
+
+    
+      <h4>Joined</h4>
+      <input id="dateJoined" type="text" readonly onclick="editField('dateJoined')">
+    </div>
+    
+    <button class="logout-btn" onclick="window.location.href='/logout/'">Log out</button>
+    <p class="logout-note">Chat history on this computer will be cleared when you log out.</p>
+  </div>
+</div>
+
+</div>
+
+
 {% block content %}
 
 {% endblock %}

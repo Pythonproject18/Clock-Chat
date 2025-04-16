@@ -14,15 +14,18 @@
             <h2>Status</h2>
             {% if user_status %}
             <div class="my-status" onclick="window.location.href='{% url 'status_detail' user_id=user_status.user_id %}'">
-                <img src="{{user_status.status_media}}" alt="My Status">
+                <img src="{{user_status.status_media}}" alt="My Status" style=" border: 3px solid #00ffc6;">
                 <div class = "text"> </div>
                     <div class="status-info">
                     <h4>My status</h4>                
                 </div>
             </div>
             {% else %}
-            <div class="my-status" onclick="window.location.href='{% url 'status_create' %}'">
-                <img src="{{user_status.status_media}}" alt="My Status">
+            <div class="my-status">
+                <input type="file" id="statusImage" accept="image/*,video/*" style="display: none;" onchange="previewStatus(event)">
+                <img src="{{user_profile}}" alt="profile">
+                <i style="color: black;font-size: 50px;font-weight:500;position: relative;right:50px;"onclick="document.getElementById('statusImage').click();" class="fa fa-plus"></i>
+
                 <div class = "text"> </div>
                     <div class="status-info">
                     <h4>My status</h4>  
@@ -37,8 +40,12 @@
             <div class="status_list">
                 {% for friend in friends %}
                 <div class = "status" onclick="window.location.href='{% url 'status_detail' user_id=friend.id %}'">
-                    <div style="height:50px;width:50px;object-fit:cover;">
-                    <img src ="{{friend.status_media}}" alt="media" style="height:100%;width:100%;border-radius:50%;">
+                    <div style="height:40px;width:40px;object-fit:cover;">
+                        {% if friend.is_seen == True %}
+                            <img src ="{{friend.status_media}}" alt="media" style="height:100%;width:100%;border-radius:50%; ">
+                        {% else %}
+                            <img src ="{{friend.status_media}}" alt="media" style="height:100%;width:100%;border-radius:50%;border: 3px solid #00ffc6;">
+                        {% endif %}
                     </div>
                     <div class="info">
                         <h4 style="font-size: larger;"> {{friend.name}}</h4>
@@ -52,9 +59,31 @@
             {% endif %}
 
         <div class="floating-icons">
-            <div class="floating-button edit-button">✎</div>
-            <div onclick="window.location.href='{% url 'status_create' %}'" class="floating-button">📷</div>
+            <div class="floating-button">✎</div>
+            <input type="file" id="statusImage" accept="image/*,video/*" style="display: none;" onchange="previewStatus(event)">
 
+            <div class="floating-button" onclick="document.getElementById('statusImage').click();">
+              <i class="fa-solid fa-camera" style="color: #a29bfe;"></i>
+            </div>
+            
+            <script>
+              function previewStatus(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+            
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                  // Store in sessionStorage as Base64 string
+                  sessionStorage.setItem("statusPreview", e.target.result);
+                  sessionStorage.setItem("statusName", file.name);
+            
+                  // Redirect to preview page
+                  window.location.href = "/status/preview/";
+                };
+                reader.readAsDataURL(file);
+              }
+            </script>
+            
         </div>
     </div>
 {% endblock %}
