@@ -12,22 +12,28 @@
         font-family: Arial, sans-serif;
         background-color: #e6f2f9; /* Light blue background */
         display: flex;
-        justify-content: center;
+        justify-content: 100px;
         align-items: center;
-        min-height: 100vh;
+        min-height: 120vh;
         margin: 0;
-        padding: 10px;
+        padding: 100px;
+                
+    }
+    .container{
+        position: relative;
+        top: 50px;
     }
 
     .form-container {
+        left: -55px;
         background-color: #ffffff;
-        padding: 30px 79px;
+        padding: 30px 39px;
         border-radius: 12px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         width: 350px;
-        left: -350px;
+        left: -155px;
         text-align: center;
-        position: relative;
+        position: flex;
     }
 
     .profile-card {
@@ -113,7 +119,7 @@
 
     @media (max-width: 400px) {
         .form-container {
-            width: 90%;
+            width: 100%;
             padding: 20px;
         }
 
@@ -135,7 +141,7 @@
     <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="updateAvatar(event)">
 </div>
 
-<form id="chatForm" action="chats_list.html" method="GET" onsubmit="return validateForm()">
+<form id="chatForm" action="{% url 'admin_chats_list' %} " method="GET" onsubmit="return validateForm()">
     <div class="form-group">
         <label for="chatTitle">Chat Title:</label>
         <input type="text" id="chatTitle" name="chat_title" value="abcd....." required>

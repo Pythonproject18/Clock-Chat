@@ -85,7 +85,7 @@ class SignUpView(View):
 
         auth_service.create_user(first_name, middle_name, last_name, email)
         cache.delete(f"verified_{email}")
-        return JsonResponse(success_response(SuccessMessage.S00004.value, redirect="/sign-in/"), status=200)
+        return JsonResponse(success_response(SuccessMessage.S00004.value, redirect="/sign_in/"), status=200)
         
 
 class VerifyOTPLoginView(View):
