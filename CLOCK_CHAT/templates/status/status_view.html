@@ -21,7 +21,7 @@
       {% for status in status_details %}
       <div class="status-header">
         <div class="profile-pic">
-          <img src="{{user_details.user_profile}}" style="border-radius: 50%;height: 100%">
+          <img src="{{user_details.user_profile}}" style="border-radius: 50%;height: 100% ;width: 100%;">
         </div>
         <div class="user-info">
           <div class="number">{{user_details.full_name}}</div>
@@ -36,7 +36,7 @@
       {% endif %}
       {% if user_details.id == request.user.id%}
       <div class="view-count" onclick="open_viewer_modal({{status.id}})">
-        <div class="eye-icon"></div>
+        <i class="fa fa-eye"></i>
         <span> {{status.viewers_count}}</span>
       </div>
       {% endif %}
