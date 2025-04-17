@@ -56,7 +56,7 @@ function renderMessages(chatId, chatTitle, messages) {
             bubbleContent = `<div class="message-bubble">${msg.text}</div>`;
         } else if (msg.audio_msg) {
             bubbleContent = `
-                    <audio controls>
+                    <audio controls controlsList="nodownload noplaybackrate nofullscreen"  style="max-height: 40px;">
                         <source src="${msg.audio_msg}" type="audio/webm">
                         Your browser does not support the audio element.
                     </audio>
@@ -105,28 +105,31 @@ function renderMessages(chatId, chatTitle, messages) {
     });
     
     document.getElementById('chatInput').innerHTML = `
+        <span class="icon" id="deleteBtn" style="display:none;font-size:16px;color: red;position: absolute;left: 30px;" onclick="deleteRecording()">
+            <i class="fas fa-trash"></i>
+        </span>
+
         <input type="text" id="messageInput" placeholder="Type a message..." />
         <input type="hidden" id="chatId" value="${chatId}" />
         <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
 
        <span class="icon mic-icon" id="micIcon" onclick="startRecording()">
-    <i class="fas fa-microphone"></i>
-</span>
+            <i class="fas fa-microphone"></i>
+        </span>
 
-<span class="icon" id="micStop" style="display:none;" onclick="stopRecording()">
-    <i class="fas fa-pause"></i>
-</span>
+        <span class="icon" id="micStop" style="display:none;font-size: 16px;right: 8%;position: absolute;" onclick="stopRecording()">
+            <i class="fas fa-pause"></i>
+        </span>
 
-<span class="icon" id="resumeBtn" style="display:none;" onclick="resumeRecording()">
-    <i class="fas fa-play"></i>
-</span>
+        <span class="icon" id="resumeBtn" style=display:none;font-size: 16px;right: 8%;position: absolute;" onclick="resumeRecording()">
+            <i class="fas fa-play"></i>
+        </span>
 
-<span class="icon" id="sendBtn" style="display:none;" onclick="sendRecording()">
-    <i class="fas fa-paper-plane"></i>
-</span>
+        <span class="icon" id="sendBtn" style="display:none;font-size:16px;" onclick="sendRecording()">
+            <i class="fas fa-paper-plane"></i>
+        </span>
 
-
-        <span class="icon plus-icon" id="plusIcon"><i class="fas fa-plus"></i></span>
+        <span class="icon plus-icon" id="plusIcon" style="display:block;"><i class="fas fa-plus"></i></span>
         <span class="icon send-icon" onclick="sendMessage()" id="sendIcon" style="display:none;">
             <i class="fas fa-paper-plane" id="sendPlaneIcon"></i>
             <i class="fas fa-check" id="sendCheckIcon" style="display:none;"></i>
@@ -185,6 +188,7 @@ let audioBlob;
 let stream;
 
 function startRecording() {
+    document.getElementById('plusIcon').style.display = "none";
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(s => {
             stream = s;
@@ -204,6 +208,8 @@ function startRecording() {
             // UI changes
             document.getElementById("micIcon").style.display = "none";
             document.getElementById("micStop").style.display = "inline-block";
+            document.getElementById("sendBtn").style.display = "inline-block";
+            document.getElementById("deleteBtn").style.display = "inline";
         })
         .catch(error => {
             alert("Microphone access denied: " + error);
@@ -212,6 +218,7 @@ function startRecording() {
 }
 
 function stopRecording() {
+    document.getElementById('plusIcon').style.display = "none";
     if (mediaRecorder && mediaRecorder.state === "recording") {
         mediaRecorder.pause();
 
@@ -223,6 +230,7 @@ function stopRecording() {
 }
 
 function resumeRecording() {
+    document.getElementById('plusIcon').style.display = "none";
     if (mediaRecorder && mediaRecorder.state === "paused") {
         mediaRecorder.resume();
 
@@ -259,7 +267,7 @@ function sendRecording() {
                 messageDiv.className = "message sent";
                 messageDiv.innerHTML = `
                     <div class="message-content">
-                        <audio controls src="${data.audio_url}"></audio>
+                        <audio controls controlsList="nodownload noplaybackrate nofullscreen"  src="${data.audio_url}" style="max-height: 40px;"></audio>
                         <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                 `;
@@ -272,11 +280,15 @@ function sendRecording() {
         .catch(error => {
             console.error("Error sending audio:", error);
         });
+        stopMicStream();
 
         // UI reset
+        document.getElementById('plusIcon').style.display = "block";
+        document.getElementById("micIcon").style.display = "inline-block";
+        document.getElementById("micStop").style.display = "none";
         document.getElementById("resumeBtn").style.display = "none";
         document.getElementById("sendBtn").style.display = "none";
-        document.getElementById("micIcon").style.display = "inline-block";
+        document.getElementById("deleteBtn").style.display = "none";
     };
 
     if (mediaRecorder.state !== "inactive") {
@@ -301,7 +313,30 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function deleteRecording() {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+    }
+    
+    // Clear chunks
+    audioChunks = [];
+    stopMicStream();
+    // UI reset
+    document.getElementById('plusIcon').style.display = "block";
+    document.getElementById("micIcon").style.display = "inline-block";
+    document.getElementById("micStop").style.display = "none";
+    document.getElementById("resumeBtn").style.display = "none";
+    document.getElementById("sendBtn").style.display = "none";
+    document.getElementById("deleteBtn").style.display = "none";
+}
 
+
+function stopMicStream() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+}
 
 
 
@@ -323,11 +358,7 @@ window.sendMessage = function () {
     const messageInput = document.getElementById("messageInput");
     const chatId = document.getElementById("chatId")?.value;
     const messagesContainer = document.getElementById("messagesContainer");
-    const micIcon = document.getElementById("micIcon");
-    const plusIcon = document.getElementById("plusIcon");
-    const sendIcon = document.getElementById("sendIcon");
-    const sendPlaneIcon = document.getElementById("sendPlaneIcon");
-    const sendCheckIcon = document.getElementById("sendCheckIcon");
+    
 
     const messageText = messageInput.value.trim();
     if (!messageText) return;
