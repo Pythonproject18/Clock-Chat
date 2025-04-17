@@ -563,6 +563,108 @@ body {
     display: none;
 }
 
+
+
+
+
+
+
+
+
+
+
+/* Edit Preview Styles */
+.edit-preview {
+    position: absolute;
+    bottom: 80px;
+    left: 20px;
+    right: 20px;
+    background: rgba(40, 40, 60, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px 16px;
+    border-radius: 25px;
+    border-left: 3px solid var(--primary-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    font-size: 14px;
+    color: var(--text-white);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transform: translateY(10px);
+    opacity: 0;
+    animation: slideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    z-index: 100;
+    border: 1px solid rgba(108, 92, 231, 0.2);
+}
+
+@keyframes slideIn {
+    0% {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.edit-preview-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.edit-preview-close {
+    color: var(--text-light);
+    margin-left: 10px;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.edit-preview-close:hover {
+    color: var(--text-white);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.edit-preview-close i {
+    font-size: 14px;
+}
+
+/* Editing mode styles */
+.editing-mode #messageInput {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
+}
+
+.editing-mode .send-icon {
+    color: var(--primary-color);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ::-webkit-scrollbar {
     width: 8px;
 }

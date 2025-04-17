@@ -1,3 +1,4 @@
+// Scroll to bottom of messages container
 function scrollToBottom() {
     const messagesContainer = document.getElementById('messagesContainer');
     if (messagesContainer) {
@@ -7,6 +8,39 @@ function scrollToBottom() {
 
 let editingMessageId = null;
 
+// Edit Preview Functions
+function showEditPreview(text) {
+    removeEditPreview();
+    const chatInput = document.querySelector('.chat-input');
+    const previewHtml = `
+        <div class="edit-preview" id="editPreview">
+            <div class="edit-preview-text">
+                <i class="fas fa-edit" style="margin-right: 8px; color: var(--secondary-color);"></i>
+                Editing: ${text}
+            </div>
+            <div class="edit-preview-close" onclick="cancelEdit()">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    `;
+    chatInput.insertAdjacentHTML('beforebegin', previewHtml);
+    document.getElementById('chatInput').classList.add('editing-mode');
+}
+
+function removeEditPreview() {
+    const existingPreview = document.getElementById('editPreview');
+    if (existingPreview) {
+        existingPreview.remove();
+    }
+    document.getElementById('chatInput').classList.remove('editing-mode');
+}
+
+function cancelEdit() {
+    removeEditPreview();
+    resetInput();
+}
+
+// Load chat messages for a specific chat
 function loadChatMessages(chatId, chatTitle) {
     fetch(`/message/${chatId}`, {
         headers: {
@@ -24,6 +58,7 @@ function loadChatMessages(chatId, chatTitle) {
     .catch(err => console.error(err));
 }
 
+// Render messages in the chat section
 function renderMessages(chatId, chatTitle, messages) {
     const chatSection = document.getElementById('chatSection');
     const userId = document.body.dataset.userId;
@@ -56,7 +91,7 @@ function renderMessages(chatId, chatTitle, messages) {
             bubbleContent = `<div class="message-bubble">${msg.text}</div>`;
         } else if (msg.audio_msg) {
             bubbleContent = `
-                    <audio controls controlsList="nodownload noplaybackrate nofullscreen"  style="max-height: 40px;">
+                    <audio controls controlsList="nodownload noplaybackrate nofullscreen" style="max-height: 40px;">
                         <source src="${msg.audio_msg}" type="audio/webm">
                         Your browser does not support the audio element.
                     </audio>
@@ -162,6 +197,7 @@ function renderMessages(chatId, chatTitle, messages) {
     });
 }
 
+// Cookie helper function
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -177,11 +213,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-
-
-
-
-
+// Audio recording functionality
 let mediaRecorder;
 let audioChunks = [];
 let audioBlob;
@@ -267,7 +299,7 @@ function sendRecording() {
                 messageDiv.className = "message sent";
                 messageDiv.innerHTML = `
                     <div class="message-content">
-                        <audio controls controlsList="nodownload noplaybackrate nofullscreen"  src="${data.audio_url}" style="max-height: 40px;"></audio>
+                        <audio controls controlsList="nodownload noplaybackrate nofullscreen" src="${data.audio_url}" style="max-height: 40px;"></audio>
                         <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                 `;
@@ -296,23 +328,6 @@ function sendRecording() {
     }
 }
 
-
-// Helper for CSRF
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
 function deleteRecording() {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
         mediaRecorder.stop();
@@ -330,7 +345,6 @@ function deleteRecording() {
     document.getElementById("deleteBtn").style.display = "none";
 }
 
-
 function stopMicStream() {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -338,28 +352,12 @@ function stopMicStream() {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Send message function
 window.sendMessage = function () {
     const messageInput = document.getElementById("messageInput");
     const chatId = document.getElementById("chatId")?.value;
     const messagesContainer = document.getElementById("messagesContainer");
     
-
     const messageText = messageInput.value.trim();
     if (!messageText) return;
 
@@ -385,6 +383,7 @@ window.sendMessage = function () {
                     messageElement.querySelector(".message-bubble").innerText = data.data.text;
                 }
                 resetInput();
+                removeEditPreview();
             } else {
                 console.error(data.message);
             }
@@ -428,7 +427,6 @@ window.sendMessage = function () {
                         </div>
                     </div>
 
-
                     <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
                         <div class="modal-dialog">
                             <div class="modal-content" id="modalcontent" style="position:fixed !important;left:70%!important;">
@@ -444,10 +442,10 @@ window.sendMessage = function () {
                             </div>
                         </div>
                     </div>
-
                 `;
                 messagesContainer.appendChild(messageDiv);
                 resetInput();
+                removeEditPreview();
                 scrollToBottom();
             }
         })
@@ -455,6 +453,7 @@ window.sendMessage = function () {
     }
 };
 
+// Reset input field
 function resetInput() {
     const messageInput = document.getElementById("messageInput");
     const micIcon = document.getElementById("micIcon");
@@ -473,6 +472,7 @@ function resetInput() {
     plusIcon.style.display = "inline-block";
 }
 
+// Event listener for edit message
 document.addEventListener("click", function (e) {
     if (e.target.classList.contains("message-action-edit")) {
         const messageElement = e.target.closest(".message");
@@ -484,6 +484,9 @@ document.addEventListener("click", function (e) {
         const messageInput = document.getElementById("messageInput");
         messageInput.value = messageBubble.innerText;
         messageInput.focus();
+
+        // Show edit preview
+        showEditPreview(messageBubble.innerText);
 
         const sendIcon = document.getElementById("sendIcon");
         const micIcon = document.getElementById("micIcon");
@@ -499,40 +502,40 @@ document.addEventListener("click", function (e) {
     }
 });
 
-
-  function open_deletemodal(msgId) {
+// Message deletion functions
+function open_deletemodal(msgId) {
     const modal = document.getElementById(`deletemodal-${msgId}`);
     if (modal) {
       modal.style.display = "block";
     }
-  }
+}
 
-  function close_deletemodal(msgId) {
+function close_deletemodal(msgId) {
     const modal = document.getElementById(`deletemodal-${msgId}`);
     if (modal) {
       modal.style.display = "none";
     }
-  }
+}
 
-  function delete_for_me(msgId) {
+function delete_for_me(msgId) {
     console.log(`Deleting message ${msgId} for me...`);
     let purpose = "delete for me";
     delete_msg(msgId,purpose);
     close_deletemodal(msgId);
-  }
+}
 
-  function delete_for_everyone(msgId) {
+function delete_for_everyone(msgId) {
     let purpose = "delete for everyone";
     delete_msg(msgId,purpose);
     console.log(`Deleting message ${msgId} for everyone...`);
     close_deletemodal(msgId);
-  }
+}
 
-  function delete_msg(msgId, purpose) {
+function delete_msg(msgId, purpose) {
     fetch(`/message/delete/${msgId}`, {
         method: 'POST',
         headers: {
-            'X-CSRFToken': getCookie('csrftoken'),  // Using getCookie here instead
+            'X-CSRFToken': getCookie('csrftoken'),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ purpose: purpose })
@@ -540,7 +543,6 @@ document.addEventListener("click", function (e) {
     .then(response => {
         if (response.ok) {
             console.log(`Message ${msgId} deleted (${purpose})`);
-            // Select the element by data-message-id and remove it
             const msgElement = document.querySelector(`.message[data-message-id="${msgId}"]`);
             if (msgElement) {
                 msgElement.remove();
