@@ -50,12 +50,24 @@ function renderMessages(chatId, chatTitle, messages) {
         const isSender = String(msg.sender_id) === String(userId);
         const messageClass = isSender ? 'sent' : 'received';
         const avatar = isSender ? '' : `<div class="message-avatar">${msg.sender_name[0]}</div>`;
-
+    
+        let bubbleContent = "";
+        if (msg.text) {
+            bubbleContent = `<div class="message-bubble">${msg.text}</div>`;
+        } else if (msg.audio_msg) {
+            bubbleContent = `
+                    <audio controls>
+                        <source src="${msg.audio_msg}" type="audio/webm">
+                        Your browser does not support the audio element.
+                    </audio>
+            `;
+        }
+    
         const messageHtml = `
         <div class="message ${messageClass}" data-message-id="${msg.id}">
             ${avatar}
             <div class="message-content">
-                <div class="message-bubble">${msg.text}</div>
+                ${bubbleContent}
                 <div class="message-time">${msg.created_at}</div>
             </div>
             ${isSender ? `
@@ -71,37 +83,49 @@ function renderMessages(chatId, chatTitle, messages) {
                 </div>
             </div>` : '<div class="message-emoji-container"><i class="far fa-smile message-emoji"></i></div>'}
         </div>
-        
-
-
-
-            <div class="message-action-delete" id="deletemodal-${msg.id}" style="display: none;">
-                <div class="modal-dialog">
-                    <div class="modal-content" id="modalcontent">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Are you want to delete it?</h5>
-                            <i class="fas fa-times" onclick="close_deletemodal('${msg.id}')" style="position: absolute; right: 4%; top: 4%; cursor: pointer;"></i> 
-                        </div>
-                        <div class="modal-body" style="gap: 10px; flex-direction: column; display: flex;">
-                            <div class="button" style="background:rgba(0, 0, 0, 0.2);" onclick="delete_for_me('${msg.id}')">Delete for me</div>
-                            <div class="button" style="background:rgba(0, 0, 0, 0.2);" onclick="delete_for_everyone('${msg.id}')">Delete for everyone</div>
-                            <div class="button" style="background: #ff000000;" onclick="close_deletemodal('${msg.id}')">Cancel</div>
-                        </div>
+    
+        <div class="message-action-delete" id="deletemodal-${msg.id}" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content" id="modalcontent">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Are you want to delete it?</h5>
+                        <i class="fas fa-times" onclick="close_deletemodal('${msg.id}')" style="position: absolute; right: 4%; top: 4%; cursor: pointer;"></i> 
+                    </div>
+                    <div class="modal-body" style="gap: 10px; flex-direction: column; display: flex;">
+                        <div class="button" style="background:rgba(0, 0, 0, 0.2);" onclick="delete_for_me('${msg.id}')">Delete for me</div>
+                        <div class="button" style="background:rgba(0, 0, 0, 0.2);" onclick="delete_for_everyone('${msg.id}')">Delete for everyone</div>
+                        <div class="button" style="background: #ff000000;" onclick="close_deletemodal('${msg.id}')">Cancel</div>
                     </div>
                 </div>
             </div>
-
-    `;
+        </div>
+        `;
     
-        messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
+        document.getElementById("messagesContainer").insertAdjacentHTML("beforeend", messageHtml);
     });
-
+    
     document.getElementById('chatInput').innerHTML = `
         <input type="text" id="messageInput" placeholder="Type a message..." />
         <input type="hidden" id="chatId" value="${chatId}" />
         <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
 
-        <span class="icon mic-icon" id="micIcon"><i class="fas fa-microphone"></i></span>
+       <span class="icon mic-icon" id="micIcon" onclick="startRecording()">
+    <i class="fas fa-microphone"></i>
+</span>
+
+<span class="icon" id="micStop" style="display:none;" onclick="stopRecording()">
+    <i class="fas fa-pause"></i>
+</span>
+
+<span class="icon" id="resumeBtn" style="display:none;" onclick="resumeRecording()">
+    <i class="fas fa-play"></i>
+</span>
+
+<span class="icon" id="sendBtn" style="display:none;" onclick="sendRecording()">
+    <i class="fas fa-paper-plane"></i>
+</span>
+
+
         <span class="icon plus-icon" id="plusIcon"><i class="fas fa-plus"></i></span>
         <span class="icon send-icon" onclick="sendMessage()" id="sendIcon" style="display:none;">
             <i class="fas fa-paper-plane" id="sendPlaneIcon"></i>
@@ -149,6 +173,151 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+
+
+
+
+
+let mediaRecorder;
+let audioChunks = [];
+let audioBlob;
+let stream;
+
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(s => {
+            stream = s;
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            };
+
+            mediaRecorder.start();
+
+            // UI changes
+            document.getElementById("micIcon").style.display = "none";
+            document.getElementById("micStop").style.display = "inline-block";
+        })
+        .catch(error => {
+            alert("Microphone access denied: " + error);
+            console.error(error);
+        });
+}
+
+function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.pause();
+
+        // UI changes
+        document.getElementById("micStop").style.display = "none";
+        document.getElementById("resumeBtn").style.display = "inline-block";
+        document.getElementById("sendBtn").style.display = "inline-block";
+    }
+}
+
+function resumeRecording() {
+    if (mediaRecorder && mediaRecorder.state === "paused") {
+        mediaRecorder.resume();
+
+        // UI changes
+        document.getElementById("resumeBtn").style.display = "none";
+        document.getElementById("sendBtn").style.display = "none";
+        document.getElementById("micStop").style.display = "inline-block";
+    }
+}
+
+function sendRecording() {
+    if (!mediaRecorder) return;
+
+    mediaRecorder.onstop = () => {
+        audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "recording.webm");
+        formData.append("chat_id", document.getElementById("chatId").value);
+
+        fetch("/send-audio-message/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const messagesContainer = document.getElementById("messagesContainer");
+
+                const messageDiv = document.createElement("div");
+                messageDiv.className = "message sent";
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <audio controls src="${data.audio_url}"></audio>
+                        <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+                scrollToBottom();
+            } else {
+                alert("Failed to send audio: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Error sending audio:", error);
+        });
+
+        // UI reset
+        document.getElementById("resumeBtn").style.display = "none";
+        document.getElementById("sendBtn").style.display = "none";
+        document.getElementById("micIcon").style.display = "inline-block";
+    };
+
+    if (mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+    }
+}
+
+
+// Helper for CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 window.sendMessage = function () {
     const messageInput = document.getElementById("messageInput");

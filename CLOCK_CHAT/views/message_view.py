@@ -25,6 +25,7 @@ class MessageListView(View):
                 {
                     'id': msg.id,
                     'text': msg.text,
+                    'audio_msg':msg.audio_url,
                     'created_at': msg.created_at.strftime("%I:%M %p"),
                     'sender_id': msg.sender_id.id,
                     'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}"
@@ -155,3 +156,16 @@ class MessageDeleteView(View):
                 'status': 'error',
                 'message': str(e)
             }, status=500)
+        
+
+class SendAudioMessageView(View):
+    def post(self,request):
+        audio_file = request.FILES.get("audio")
+        chat_id = request.POST.get("chat_id")
+        sender = request.user
+
+        if not audio_file or not chat_id:
+            return JsonResponse({"success": False, "error": "Missing audio or chat_id"})
+
+        message = message_service.voice_message_create(audio_file,chat_id ,sender)
+        return JsonResponse({"success": True, "audio_url": message.audio_url, "message_id": message.id})

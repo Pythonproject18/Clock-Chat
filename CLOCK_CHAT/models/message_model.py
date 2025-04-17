@@ -6,6 +6,7 @@ from django.contrib.postgres.fields import ArrayField
 class Message(models.Model):
     text = models.CharField(max_length=300, blank=True, null=True)
     message_media = models.URLField(max_length=255,blank=True, null=True)
+    audio_url = models.URLField(max_length=255,blank=True, null=True)
     mentions = ArrayField(
         models.IntegerField(),
         blank=True,

@@ -102,3 +102,8 @@ def create_group_chat_with_friend(current_user_id, user_ids):
         )
 
     return chat
+
+
+
+def get_chat_object(chat_id):
+    return Chat.objects.filter(id=chat_id,is_active = True).first()

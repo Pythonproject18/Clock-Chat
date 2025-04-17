@@ -1,5 +1,10 @@
 from CLOCK_CHAT.models import Message, User, Chat
 from CLOCK_CHAT.constants.default_values import Delete_Type
+from CLOCK_CHAT.services import chat_service
+import os
+import uuid
+from django.conf import settings
+
 
 def get_messages(chat_id, user_id):
     messages = Message.objects.filter(chat_id=chat_id, is_active=True)
@@ -84,3 +89,33 @@ def delete_message(message_id, purpose, user):
     
 def get_message_object(message_id,user_id):
     return Message.objects.filter(id = message_id,sender_id=user_id,is_active=True).first()
+
+
+
+def voice_message_create(audio_file, chat_id, sender):
+    # Generate unique filename
+    filename = f"{uuid.uuid4().hex}.webm"
+    relative_path = os.path.join('static', 'audio', filename)
+    full_path = os.path.join(settings.BASE_DIR, relative_path)
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+
+    # Save file manually
+    with open(full_path, 'wb') as f:
+        for chunk in audio_file.chunks():
+            f.write(chunk)
+
+    # Audio URL to be served statically
+    audio_url = f"/static/audio/{filename}"
+
+    # Get chat object and save message
+    chat = chat_service.get_chat_object(chat_id)
+    return Message.objects.create(
+        chat=chat,
+        sender_id=sender,
+        created_by=sender,
+        updated_by=sender,
+        audio_url=audio_url
+    )
+
