@@ -96,45 +96,17 @@ function profile_modal() {
 const originalValues = {};
 
 function editField(fieldId) {
-    const buttondropdown = document.getElementById('dropdownbtn');
     const input = document.getElementById(fieldId);
     originalValues[fieldId] = input.value;
 
-    if (fieldId === "gender") {
-        const genderOptions = [
-            { label: "Male", value: 1 },
-            { label: "Female", value: 2 },
-            { label: "Other", value: 3 },
-        ];
+    // Enable editing for normal text input fields
+    input.removeAttribute("readonly");
+    input.focus();
 
-        const select = document.createElement("select");
-        select.style.width = "100%";
-        select.style.color = "#ffffff";
-        select.style.border = "none";
-        select.style.background = "#323232";
-        select.style.padding = "5px";
-        select.id = fieldId;
-
-        genderOptions.forEach(option => {
-            buttondropdown.style.display = "none";
-
-            const opt = document.createElement("option");
-            opt.value = option.value;
-            opt.text = option.label;
-
-            if (option.label.toLowerCase() === input.value.toLowerCase()) {
-                opt.selected = true;
-            }
-
-            select.appendChild(opt);
-        });
-
-        input.replaceWith(select);
-        select.focus();
-
-        // On change, send the update immediately
-        select.addEventListener("change", () => {
-            const newValue = select.value;
+    const onEnter = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            const newValue = input.value;
 
             fetch("/profile/update/", {
                 method: "POST",
@@ -142,80 +114,94 @@ function editField(fieldId) {
                     "Content-Type": "application/json",
                     "X-CSRFToken": getCSRFToken(),
                 },
-                body: JSON.stringify({
-                    field: fieldId,
-                    value: newValue, // Send number (1, 2, 3)
-                }),
+                body: JSON.stringify({ field: fieldId, value: newValue }),
             })
-                .then((res) => res.json())
-                .then((data) => {
-                    const selectedOption = genderOptions.find(opt => opt.value == newValue);
-                    const newInput = document.createElement("input");
-                    newInput.type = "text";
-                    newInput.id = fieldId;
-                    newInput.value = data.success ? selectedOption.label : originalValues[fieldId];
-                    newInput.setAttribute("readonly", true);
-                    newInput.setAttribute("onclick", `editField('${fieldId}')`);
-                    select.replaceWith(newInput);
-                })
-                .catch((error) => {
-                    alert("Error: " + error.message);
-                    const revertInput = document.createElement("input");
-                    revertInput.type = "text";
-                    revertInput.id = fieldId;
-                    revertInput.value = originalValues[fieldId];
-                    revertInput.setAttribute("readonly", true);
-                    revertInput.setAttribute("onclick", `editField('${fieldId}')`);
-                    select.replaceWith(revertInput);
-                });
-        });
-    } else {
-        // Editable text input fields
-        input.removeAttribute("readonly");
-        input.focus();
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    alert("Update failed: " + data.message);
+                    input.value = originalValues[fieldId];
+                }
+                input.setAttribute("readonly", true);
+            })
+            .catch(error => {
+                alert("Error: " + error.message);
+                input.value = originalValues[fieldId];
+                input.setAttribute("readonly", true);
+            });
 
-        const onEnter = (e) => {
-            if (e.key === "Enter") {
-                e.preventDefault();
+            input.removeEventListener("keypress", onEnter);
+        }
+    };
 
-                const newValue = input.value;
-
-                fetch("/profile/update/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCSRFToken(),
-                    },
-                    body: JSON.stringify({
-                        field: fieldId,
-                        value: newValue,
-                    }),
-                })
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (!data.success) {
-                            alert("Update failed: " + data.message);
-                            input.value = originalValues[fieldId];
-                        }
-                        input.setAttribute("readonly", true);
-                    })
-                    .catch((error) => {
-                        alert("Error: " + error.message);
-                        input.value = originalValues[fieldId];
-                        input.setAttribute("readonly", true);
-                    });
-
-                input.removeEventListener("keypress", onEnter);
-            }
-        };
-
-        input.addEventListener("keypress", onEnter);
-    }
+    input.addEventListener("keypress", onEnter);
 }
 
 function getCSRFToken() {
     return document.cookie
         .split("; ")
-        .find((row) => row.startsWith("csrftoken="))
+        .find(row => row.startsWith("csrftoken="))
         ?.split("=")[1];
+}
+
+
+
+function updateGender(select) {
+  const selectedValue = select.value;
+
+  fetch("/profile/update/", {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
+      },
+      body: JSON.stringify({
+          field: "gender",
+          value: selectedValue,
+      }),
+  })
+  .then(res => res.json())
+  .then(data => {
+      if (!data.success) {
+          alert("Update failed: " + data.message);
+      }
+  })
+  .catch(error => {
+      alert("Error: " + error.message);
+  });
+}
+
+
+
+
+function triggerPhotoUpload() {
+    document.getElementById("photoInput").click();
+}
+
+function uploadProfilePhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("photo", file);
+
+    fetch("/profile/upload_photo/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCSRFToken(),
+        },
+        body: formData,
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.photo_url) {
+            document.getElementById("profilePhoto").src = data.photo_url;
+        } else {
+            alert("Failed to upload photo.");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error uploading photo.");
+    });
 }

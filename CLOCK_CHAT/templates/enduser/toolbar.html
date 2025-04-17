@@ -43,8 +43,9 @@
   <div class="profile-modal-box profile-modal-content">
     
     <div class="profile-header text-center">
-      <img id="profilePhoto" src="/static/images/default_avatar.png" alt="Profile Photo">
-      <h2 id="fullName"></h2> <!-- Read-only name display -->
+      <img id="profilePhoto" src="/static/images/default_avatar.png" alt="Profile Photo" onclick="triggerPhotoUpload()" style="cursor: pointer;">
+      <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="uploadProfilePhoto(this)">
+      <h2 id="fullName"></h2>
     </div>
     <div class="profile-info">
       <h4>

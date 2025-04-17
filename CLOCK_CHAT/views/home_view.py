@@ -33,3 +33,19 @@ class UserProfileUpdateView(View):
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=400)
+        
+
+class UserProfilePhotoUpdateView(View):
+    def post(self, request):
+        photo = request.FILES.get("photo")
+        user = request.user
+        
+        if not photo:
+            return JsonResponse({"success": False, "message": "No photo uploaded."}, status=400)
+
+        relative_path = user_service.update_profile_photo(user,photo)
+
+        return JsonResponse({
+            "success": True,
+            "photo_url": f"/{relative_path}"
+        })

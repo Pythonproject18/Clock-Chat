@@ -36,6 +36,7 @@ urlpatterns = [
     path('chat/', views.ChatListView.as_view(), name='chat_list'),
     path('userprofile/', views.UserProfileView.as_view(), name='user_profile'),
     path('profile/update/', views.UserProfileUpdateView.as_view(), name='user_profile_update'),
+    path('profile/upload_photo/', views.UserProfilePhotoUpdateView.as_view(), name='user_profile_photo_update'),
 
     
 

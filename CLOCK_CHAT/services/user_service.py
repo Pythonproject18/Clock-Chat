@@ -1,6 +1,9 @@
 from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type
 from CLOCK_CHAT.services import chat_service
 from CLOCK_CHAT.constants.default_values import Gender
+import os
+import hashlib
+from django.conf import settings
 
 def get_user_chats(user_id):
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
@@ -95,3 +98,26 @@ def update_profile_data(field, value, user):
         user.gender = int(value)
     user.save()
     return True
+
+
+def update_profile_photo(user,photo):
+    filename_hash = hashlib.md5(photo.read()).hexdigest()
+    extension = os.path.splitext(photo.name)[1] or ".png"
+    photo.seek(0)  # Reset file pointer
+
+    # Desired custom path
+    relative_path = f"static/all-Pictures/Status/{filename_hash}{extension}"
+    full_path = os.path.join(settings.BASE_DIR, relative_path)
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+
+    # Save the file manually
+    with open(full_path, "wb") as f:
+        f.write(photo.read())
+    user_obj = get_user_object(user.id)
+    # Update user's profile photo path (relative to your static dir)
+    user_obj.profile_photo_url = f"/{relative_path}"  # Save as URL path for frontend
+    user_obj.save()
+
+    return relative_path
