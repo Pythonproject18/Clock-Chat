@@ -88,8 +88,28 @@ function renderMessages(chatId, chatTitle, messages) {
     
         let bubbleContent = "";
         if (msg.text) {
-            bubbleContent = `<div class="message-bubble">${msg.text}</div>`;
-        } else if (msg.audio_msg) {
+            
+
+            
+
+
+            let editedLabel = msg.is_edited ? 
+            (isSender 
+                ? '<span style="font-size: 11px; color: var(--text-light); margin-left: 6px;">edited</span>' 
+                : '<span style="font-size: 11px; color: var(--text-light); margin-right: 6px;">edited</span>'
+            ) 
+            : '';
+        
+        if (isSender) {
+            bubbleContent = `<div class="message-bubble">${msg.text}${editedLabel}</div>`;
+        } else {
+            bubbleContent = `<div class="message-bubble">${editedLabel}${msg.text}</div>`;
+        }
+
+
+
+        
+        }else if (msg.audio_msg) {
             bubbleContent = `
                     <audio controls controlsList="nodownload noplaybackrate nofullscreen" style="max-height: 40px;">
                         <source src="${msg.audio_msg}" type="audio/webm">
@@ -380,8 +400,13 @@ window.sendMessage = function () {
             if (data.status === "success") {
                 const messageElement = messagesContainer.querySelector(`.message[data-message-id='${editingMessageId}']`);
                 if (messageElement) {
-                    messageElement.querySelector(".message-bubble").innerText = data.data.text;
-                }
+                    let editedLabel = '';
+                    const isSender = true; // this is your message, since you're editing it
+                    if (data.data.is_edited) {
+                        editedLabel = '<span style="font-size:11px; color:var(--text-light); display:inline-block; margin-left:6px;">edited</span>';
+                    }
+                    messageElement.querySelector(".message-bubble").innerHTML = `${data.data.text}${editedLabel}`;                    
+                }                
                 resetInput();
                 removeEditPreview();
             } else {
@@ -473,6 +498,7 @@ function resetInput() {
 }
 
 // Event listener for edit message
+
 document.addEventListener("click", function (e) {
     if (e.target.classList.contains("message-action-edit")) {
         const messageElement = e.target.closest(".message");
@@ -481,12 +507,13 @@ document.addEventListener("click", function (e) {
 
         editingMessageId = messageId;
 
-        const messageInput = document.getElementById("messageInput");
-        messageInput.value = messageBubble.innerText;
+        const rawText = messageBubble.childNodes[0].nodeValue.trim();
+        messageInput.value = rawText;
         messageInput.focus();
-
+        
         // Show edit preview
-        showEditPreview(messageBubble.innerText);
+        showEditPreview(rawText);
+        
 
         const sendIcon = document.getElementById("sendIcon");
         const micIcon = document.getElementById("micIcon");
