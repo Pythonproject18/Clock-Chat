@@ -124,6 +124,42 @@ function renderMessages(chatId, chatTitle, messages) {
             <div class="message-content">
                 ${bubbleContent}
                 <div class="message-time">${msg.created_at}</div>
+
+
+                
+                <div class="emoji-reactions">
+                    ${(() => {
+                        const reactions = msg.emoji_reactions || {};
+                        const userId = parseInt(document.body.dataset.userId);
+                        const rendered = [];
+                        const allReactingUserIds = new Set();
+
+                        for (let icon in reactions) {
+                            const users = reactions[icon];
+                            users.forEach(u => allReactingUserIds.add(u));
+                            const reacted = users.includes(userId);
+                            const highlight = reacted ? 'reacted' : '';
+                            rendered.push(`<span class="emoji-reaction ${highlight}"><i class="fas ${icon}"></i></span>`);
+                        }
+
+                        // Only show count if more than one unique user reacted
+                        const totalReactors = allReactingUserIds.size;
+                        if (totalReactors > 1) {
+                            rendered.push(`<span class="emoji-reaction-count">(${totalReactors})</span>`);
+                        }
+
+                        return rendered.join('');
+                    })()}
+                </div>
+
+
+
+
+
+
+
+
+
             </div>
             ${isSender ? `
             <div class="message-actions">
@@ -136,7 +172,9 @@ function renderMessages(chatId, chatTitle, messages) {
                     <div class="message-action-edit">Edit</div>
                     <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">Delete</div>
                 </div>
-            </div>` : '<div class="message-emoji-container"><i class="far fa-smile message-emoji"></i></div>'}
+            </div>` : `<div class="message-emoji-container">
+            <i class="far fa-smile message-emoji" onclick="createEmojiPopup('${msg.id}', this)"></i>
+        </div>`}
         </div>
     
         <div class="message-action-delete" id="deletemodal-${msg.id}" style="display: none;">
@@ -583,3 +621,102 @@ function delete_msg(msgId, purpose) {
         console.error('Error:', error);
     });
 }
+
+
+
+
+
+function createEmojiPopup(messageId, targetElement) {
+    // Close any existing emoji popup
+    const existingPopup = document.querySelector('.emoji-popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+
+    fetch('/emojis/')
+        .then(res => res.json())
+        .then(data => {
+            const popup = document.createElement('div');
+            popup.className = 'emoji-popup';
+
+            data.emojis.forEach(icon => {
+                const emoji = document.createElement('i');
+                emoji.className = `fas ${icon}`;
+                emoji.style.margin = '8px';
+                emoji.style.cursor = 'pointer';
+                emoji.onclick = () => {
+                    // Send emoji to backend
+                    fetch(`/message/react/${messageId}/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken")
+                        },
+                        body: JSON.stringify({ icon })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status !== 'success') {
+                            console.error("Reaction failed:", data.message);
+                            return;
+                        }
+                
+                        // ✅ Refetch emoji reactions for that message only
+                        fetch(`/message/${document.getElementById("chatId").value}`, {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                        .then(res => res.json())
+                        .then(chatData => {
+                            const updatedMsg = chatData.messages.find(m => m.id == messageId);
+                            if (!updatedMsg) return;
+                
+                            const messageElem = document.querySelector(`.message[data-message-id="${messageId}"]`);
+                            const emojiContainer = messageElem.querySelector(".emoji-reactions");
+                
+                            const userId = parseInt(document.body.dataset.userId);
+                            const rendered = [];
+                            const allReactingUserIds = new Set();
+                
+                            for (let icon in updatedMsg.emoji_reactions) {
+                                const users = updatedMsg.emoji_reactions[icon];
+                                users.forEach(u => allReactingUserIds.add(u));
+                                const highlight = users.includes(userId) ? 'reacted' : '';
+                                rendered.push(`<span class="emoji-reaction ${highlight}"><i class="fas ${icon}"></i></span>`);
+                            }
+                
+                            if (allReactingUserIds.size > 1) {
+                                rendered.push(`<span class="emoji-reaction-count">(${allReactingUserIds.size})</span>`);
+                            }
+                
+                            emojiContainer.innerHTML = rendered.join('');
+                        });
+                    })
+                    .catch(err => console.error("Emoji react error:", err));
+                
+                    // Close the popup
+                    popup.remove();
+                };
+                
+                popup.appendChild(emoji);
+            });
+
+            document.body.appendChild(popup);
+            const rect = targetElement.getBoundingClientRect();
+            popup.style.position = 'absolute';
+            popup.style.left = `${rect.left}px`;
+            popup.style.top = `${rect.top - 50}px`;
+
+            // Close popup on outside click
+            setTimeout(() => {
+                document.addEventListener('click', handleOutsideClick);
+            }, 0);
+
+            function handleOutsideClick(e) {
+                if (!popup.contains(e.target) && e.target !== targetElement) {
+                    popup.remove();
+                    document.removeEventListener('click', handleOutsideClick);
+                }
+            }
+        });
+}
+

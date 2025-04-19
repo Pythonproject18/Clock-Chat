@@ -28,7 +28,9 @@ class MessageListView(View):
                     'audio_msg':msg.audio_url,
                     'created_at': msg.created_at.strftime("%I:%M %p"),
                     'sender_id': msg.sender_id.id,
-                    'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}"
+                    'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}",
+                    'is_edited': msg.is_edited,
+                    'emoji_reactions': msg.emoji_reactions
                 }
                 for msg in messages
             ]
@@ -108,7 +110,8 @@ class MessageUpdateView(View):
                     'data': {
                         'id': message.id,
                         'text': message.text,
-                        'updated_at': message.updated_at.strftime("%Y-%m-%d %H:%M:%S")
+                        'updated_at': message.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+                        'is_edited': message.is_edited
                     }
                 })
             return JsonResponse({
@@ -169,3 +172,31 @@ class SendAudioMessageView(View):
 
         message = message_service.voice_message_create(audio_file,chat_id ,sender)
         return JsonResponse({"success": True, "audio_url": message.audio_url, "message_id": message.id})
+
+
+    
+class EmojiListView(View):
+    def get(self, request):
+        emojis = ['fa-heart', 'fa-laugh', 'fa-sad-tear', 'fa-thumbs-up', 'fa-fire']
+        return JsonResponse({'emojis': emojis})
+    
+
+
+class MessageReactView(View):
+    def post(self, request, message_id):
+        try:
+            body = json.loads(request.body)
+            icon = body.get('icon')
+            if not icon:
+                return JsonResponse({'status': 'error', 'message': 'No emoji provided'}, status=400)
+            
+            updated = message_service.react_to_message(message_id, icon, request.user.id)
+            if updated:
+                return JsonResponse({'status': 'success', 'message': 'Reaction saved'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Message not found or permission denied'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+

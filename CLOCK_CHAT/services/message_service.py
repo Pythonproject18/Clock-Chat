@@ -48,6 +48,7 @@ def update_message(message_id, text, updated_by_id):
         
         message.text = text
         message.updated_by = updated_by
+        message.is_edited = True
         message.save()
         return message
     except Message.DoesNotExist:
@@ -118,4 +119,28 @@ def voice_message_create(audio_file, chat_id, sender):
         updated_by=sender,
         audio_url=audio_url
     )
+
+def react_to_message(message_id, emoji_class, user_id):
+    try:
+        message = Message.objects.get(id=message_id, is_active=True)
+        reactions = message.emoji_reactions or {}
+
+        # Remove user from all emojis first
+        for icon in list(reactions.keys()):
+            if user_id in reactions[icon]:
+                reactions[icon].remove(user_id)
+                # Clean up empty emoji lists
+                if not reactions[icon]:
+                    del reactions[icon]
+
+        # If user had already selected this emoji, we treated it as a toggle (removed)
+        # If not, now add it
+        if emoji_class not in reactions or user_id not in reactions.get(emoji_class, []):
+            reactions.setdefault(emoji_class, []).append(user_id)
+
+        message.emoji_reactions = reactions
+        message.save()
+        return True
+    except Message.DoesNotExist:
+        return False
 
