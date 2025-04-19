@@ -1,9 +1,11 @@
-from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type
+from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type, Message
+from django.db.models import Max, Q
 from CLOCK_CHAT.services import chat_service
 from CLOCK_CHAT.constants.default_values import Gender
 import os
 import hashlib
 from django.conf import settings
+from itertools import chain
 
 def get_user_chats(user_id):
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
@@ -12,58 +14,68 @@ def get_user_chats(user_id):
 
 def get_chat_details(user_id):
     user = User.objects.get(id=user_id)
-    print(user)
+
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
-    chats = Chat.objects.filter(id__in=chat_ids).order_by('-created_at')
+    chats = Chat.objects.filter(id__in=chat_ids).distinct()
 
     chat_list = []
+
     for chat in chats:
-        
+        latest_message = Message.objects.filter(chat=chat).order_by('-created_at').first()
+        latest_time = latest_message.created_at if latest_message else chat.created_at
+
         if chat.type == Chat_Type.PERSONAL.value:
             other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user)
             if other_members.exists():
                 member = User.objects.get(id=other_members[0].member_id)
-                title = f"{member.first_name} {member.middle_name} {member.last_name}"
+                title = f"{member.first_name} {member.middle_name} {member.last_name}".strip()
+                subtitle = latest_message.text if latest_message else (member.bio or "")
             else:
                 title = "Unknown"
-            chat_type = Chat_Type(chat.type).name
+                subtitle = latest_message.text if latest_message else ""
         else:
             if chat.chat_title:
                 title = chat.chat_title
             else:
                 members = ChatMember.objects.filter(chat=chat, is_active=True)
-                member_names = []
-                for m in members:
-                    user = User.objects.get(id=m.member_id)
-                    member_names.append(f"{user.first_name} {user.middle_name} {user.last_name}")
-                title = ", ".join(member_names) 
-            chat_type = Chat_Type(chat.type).name
+                member_names = [
+                    f"{User.objects.get(id=m.member_id).first_name} {User.objects.get(id=m.member_id).middle_name} {User.objects.get(id=m.member_id).last_name}".strip()
+                    for m in members
+                ]
+                title = ", ".join(member_names)
+            subtitle = latest_message.text if latest_message else ""
 
         member_count = ChatMember.objects.filter(chat=chat, is_active=True).count()
         creator = User.objects.get(id=chat.created_by_id)
-        creator_name = f"{creator.first_name} {creator.middle_name} {creator.last_name}"
+        creator_name = f"{creator.first_name} {creator.middle_name} {creator.last_name}".strip()
 
         members = ChatMember.objects.filter(chat=chat, is_active=True)
-        member_details = []
-        for member in members:
-            user = User.objects.get(id=member.member_id)
-            member_details.append({
-                "user_id": user.id,
-                "name": f"{user.first_name} {user.middle_name} {user.last_name}",
-                "email": user.email,
-            })
-        
+        member_details = [
+            {
+                "user_id": m.member_id,
+                "name": f"{User.objects.get(id=m.member_id).first_name} {User.objects.get(id=m.member_id).middle_name} {User.objects.get(id=m.member_id).last_name}".strip(),
+                "email": User.objects.get(id=m.member_id).email,
+            }
+            for m in members
+        ]
+
         chat_list.append({
             "id": chat.id,
             "title": title,
-            "type": chat_type,
+            "type": Chat_Type(chat.type).name,
             "member_count": member_count,
             "created_by": creator_name,
             "members": member_details,
-            'created_at':chat_service.global_timestamp(chat.created_at), 
+            "latest_time": latest_time,
+            "latest_text": subtitle,
+            "created_at": chat_service.global_timestamp(latest_time),
         })
-    
+
+    # Sort chats by latest_time descending
+    chat_list.sort(key=lambda c: c['latest_time'], reverse=True)
+
     return chat_list
+
 
 
 def get_user_object(user_id):
