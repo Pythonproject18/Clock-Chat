@@ -539,10 +539,8 @@ body {
 }
 
 .message-actions-menu {
-    display: none;
     position: absolute;
     right: 0;
-    top: 100%;
     background: var(--background-light);
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -558,14 +556,7 @@ body {
     font-size: 14px;
 }
 
-.message-actions-menu .message-action-edit:hover,
-.message-actions-menu .message-action-delete:hover {
-    background: rgba(108, 92, 231, 0.1);
-}
 
-.message-actions:hover .message-actions-menu {
-    display: block;
-}
 
 
 .chat-input {

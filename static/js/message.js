@@ -139,17 +139,17 @@ function renderMessages(chatId, chatTitle, messages) {
 
             </div>
             ${isSender ? `
-            <div class="message-actions">
+            <div class="message-actions" id="actions" onclick="open_action_popup('${msg.id}')">
                 <div class="message-actions-dots">
                     <div class="message-actions-dot"></div>
                     <div class="message-actions-dot"></div>
                     <div class="message-actions-dot"></div>
                 </div>
-                <div class="message-actions-menu">
+            </div>
+            <div class="message-actions-menu action-popup" id="actions_menu_${msg.id}" style="display:none;">
                     <div class="message-action-edit">Edit</div>
                     <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">Delete</div>
-                </div>
-            </div>` : `<div class="message-emoji-container">
+                </div>` : `<div class="message-emoji-container">
             <i class="far fa-smile message-emoji" onclick="createEmojiPopup('${msg.id}', this)"></i>
         </div>`}
         </div>
@@ -455,17 +455,14 @@ window.sendMessage = function () {
                         <div class="message-bubble">${data.data.text}</div>
                         <div class="message-time">${new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
-                    <div class="message-actions">
+                    <div class="message-actions" id="actions" onclick="open_action_popup('${msg.id}')">
                         <div class="message-actions-dots">
                             <div class="message-actions-dot"></div>
                             <div class="message-actions-dot"></div>
                             <div class="message-actions-dot"></div>
                         </div>
-                        <div class="message-actions-menu">
-                            <div class="message-action-edit">Edit</div>
-                            <div class="message-action-delete" onclick="open_deletemodal('${data.data.id}')">Delete</div>
-                        </div>
                     </div>
+            <div class="message-actions-menu action-popup" id="actions_menu_${msg.id}" style="display:none;">
 
                     <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
                         <div class="modal-dialog">
@@ -600,6 +597,27 @@ function delete_msg(msgId, purpose) {
 }
 
 
+function open_action_popup(messageId){
+    console.log("Opening action menu for message:", messageId);
+    let modal = document.getElementById(`actions_menu_${messageId}`);
+    if (modal) {
+        modal.style.display = "block";
+    } else {
+        console.error("Modal not found for message ID:", messageId);
+    }
+}
+
+
+
+document.addEventListener("click", function(event) {
+    // Check if the click is NOT on a message-actions or actions menu
+    if (!event.target.closest(".message-actions") && !event.target.closest(".message-actions-menu")) {
+        const openMenus = document.querySelectorAll(".message-actions-menu");
+        openMenus.forEach(menu => {
+            menu.style.display = "none";
+        });
+    }
+});
 
 
 
