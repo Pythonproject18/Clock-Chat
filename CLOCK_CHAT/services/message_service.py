@@ -145,22 +145,6 @@ def react_to_message(message_id, emoji_class, user_id):
         return False
     
 
-def get_message_reaction(message_id):
-    reactions = MessageReaction.objects.filter(message = message_id,is_active = True).values('id','reaction')
-    print(reactions)
-    reaction_values = []
-    if reaction_values:
-        reaction_values.append = [
-            {
-                'id':reaction['id'],
-                'value':get_reaction_value(reaction['id'])
-            }
-            for reaction in reactions
-        ]
 
 
-def get_reaction_value(reaction_id):
-    reaction =Reaction.objects.filter(id = reaction_id,is_active = True).first()
-    print(reaction)
-    return reaction.value
 

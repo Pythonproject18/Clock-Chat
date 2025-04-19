@@ -1,6 +1,6 @@
 from django.views import View
 from django.shortcuts import redirect,render
-from CLOCK_CHAT.services import message_service
+from CLOCK_CHAT.services import message_service, reactions_service
 import json
 from django.http.response import JsonResponse
 from CLOCK_CHAT.constants.default_values import Role
@@ -30,14 +30,15 @@ class MessageListView(View):
                     'sender_id': msg.sender_id.id,
                     'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}",
                     'is_edited': msg.is_edited,
-                    'reactions': message_service.get_message_reaction(msg.id)
+                    'reactions': reactions_service.get_message_reaction(msg.id)
                 }
                 for msg in messages
             ]
             return JsonResponse({
                 'status': 'success',
                 'chat_id': chat_id,
-                'messages': messages_data
+                'messages': messages_data, 
+                'emojies' : reactions_service.get_all_emojies()
             })
 class MessageCreateView(View):   
     def post(self, request, chat_id):
@@ -175,28 +176,3 @@ class SendAudioMessageView(View):
 
 
     
-class EmojiListView(View):
-    def get(self, request):
-        emojis = ['fa-heart', 'fa-laugh', 'fa-sad-tear', 'fa-thumbs-up', 'fa-fire']
-        return JsonResponse({'emojis': emojis})
-    
-
-
-class MessageReactView(View):
-    def post(self, request, message_id):
-        try:
-            body = json.loads(request.body)
-            icon = body.get('icon')
-            if not icon:
-                return JsonResponse({'status': 'error', 'message': 'No emoji provided'}, status=400)
-            
-            updated = message_service.react_to_message(message_id, icon, request.user.id)
-            if updated:
-                return JsonResponse({'status': 'success', 'message': 'Reaction saved'})
-            else:
-                return JsonResponse({'status': 'error', 'message': 'Message not found or permission denied'}, status=404)
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
-
-
