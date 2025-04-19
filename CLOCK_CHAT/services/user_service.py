@@ -12,47 +12,60 @@ def get_user_chats(user_id):
 
 def get_chat_details(user_id):
     user = User.objects.get(id=user_id)
-    print(user)
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
     chats = Chat.objects.filter(id__in=chat_ids).order_by('-created_at')
 
     chat_list = []
+    added_personal_users = set()  # Track users already added for personal chats
+
     for chat in chats:
-        
         if chat.type == Chat_Type.PERSONAL.value:
-            other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user)
+            # Get the other participant (not current user)
+            other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user.id)
             if other_members.exists():
-                member = User.objects.get(id=other_members[0].member_id)
-                title = f"{member.first_name} {member.middle_name} {member.last_name}"
+                other_member_id = other_members[0].member_id
+                if other_member_id in added_personal_users:
+                    continue  # Skip duplicate personal chat with the same user
+                added_personal_users.add(other_member_id)
+
+                member = User.objects.get(id=other_member_id)
+                name_parts = filter(None, [member.first_name, member.middle_name, member.last_name])
+                title = " ".join(name_parts)
             else:
                 title = "Unknown"
             chat_type = Chat_Type(chat.type).name
+
         else:
+            # For group or other types
             if chat.chat_title:
                 title = chat.chat_title
             else:
                 members = ChatMember.objects.filter(chat=chat, is_active=True)
                 member_names = []
                 for m in members:
-                    user = User.objects.get(id=m.member_id)
-                    member_names.append(f"{user.first_name} {user.middle_name} {user.last_name}")
-                title = ", ".join(member_names) 
+                    user_obj = User.objects.get(id=m.member_id)
+                    name_parts = filter(None, [user_obj.first_name, user_obj.middle_name, user_obj.last_name])
+                    member_names.append(" ".join(name_parts))
+                title = ", ".join(member_names)
             chat_type = Chat_Type(chat.type).name
 
+        # Common fields
         member_count = ChatMember.objects.filter(chat=chat, is_active=True).count()
         creator = User.objects.get(id=chat.created_by_id)
-        creator_name = f"{creator.first_name} {creator.middle_name} {creator.last_name}"
+        creator_name_parts = filter(None, [creator.first_name, creator.middle_name, creator.last_name])
+        creator_name = " ".join(creator_name_parts)
 
         members = ChatMember.objects.filter(chat=chat, is_active=True)
         member_details = []
         for member in members:
-            user = User.objects.get(id=member.member_id)
+            user_obj = User.objects.get(id=member.member_id)
+            name_parts = filter(None, [user_obj.first_name, user_obj.middle_name, user_obj.last_name])
             member_details.append({
-                "user_id": user.id,
-                "name": f"{user.first_name} {user.middle_name} {user.last_name}",
-                "email": user.email,
+                "user_id": user_obj.id,
+                "name": " ".join(name_parts),
+                "email": user_obj.email,
             })
-        
+
         chat_list.append({
             "id": chat.id,
             "title": title,
@@ -60,10 +73,11 @@ def get_chat_details(user_id):
             "member_count": member_count,
             "created_by": creator_name,
             "members": member_details,
-            'created_at':chat_service.global_timestamp(chat.created_at), 
+            "created_at": chat_service.global_timestamp(chat.created_at),
         })
-    
+
     return chat_list
+
 
 
 def get_user_object(user_id):
