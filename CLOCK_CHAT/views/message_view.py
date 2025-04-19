@@ -30,7 +30,7 @@ class MessageListView(View):
                     'sender_id': msg.sender_id.id,
                     'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}",
                     'is_edited': msg.is_edited,
-                    'emoji_reactions': msg.emoji_reactions
+                    'reactions': message_service.get_message_reaction(msg.id)
                 }
                 for msg in messages
             ]

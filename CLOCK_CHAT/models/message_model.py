@@ -31,8 +31,6 @@ class Message(models.Model):
         )
     is_edited = models.BooleanField(default=False)
 
-    emoji_reactions = JSONField(default=dict, blank=True)  # ✅ add this
-
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
