@@ -147,7 +147,7 @@ function renderMessages(chatId, chatTitle, messages) {
                 </div>
             </div>
             <div class="message-actions-menu action-popup" id="actions_menu_${msg.id}" style="display:none;">
-                    <div class="message-action-edit">Edit</div>
+                    ${msg.text ? `<div class="message-action-edit">Edit</div>` : ''}
                     <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">Delete</div>
                 </div>` : `<div class="message-emoji-container">
             <i class="far fa-smile message-emoji" onclick="createEmojiPopup('${msg.id}', this)"></i>
@@ -455,14 +455,17 @@ window.sendMessage = function () {
                         <div class="message-bubble">${data.data.text}</div>
                         <div class="message-time">${new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
-                    <div class="message-actions" id="actions" onclick="open_action_popup('${msg.id}')">
+                    <div class="message-actions" id="actions" onclick="open_action_popup('${data.data.id}')">
                         <div class="message-actions-dots">
                             <div class="message-actions-dot"></div>
                             <div class="message-actions-dot"></div>
                             <div class="message-actions-dot"></div>
                         </div>
                     </div>
-            <div class="message-actions-menu action-popup" id="actions_menu_${msg.id}" style="display:none;">
+                        <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
+                            <div class="message-action-edit">Edit</div>
+                            <div class="message-action-delete" onclick="open_deletemodal('${data.data.id}')">Delete</div>
+                        </div>
 
                     <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
                         <div class="modal-dialog">
