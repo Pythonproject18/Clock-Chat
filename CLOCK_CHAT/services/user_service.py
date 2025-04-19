@@ -25,7 +25,8 @@ def get_chat_details(user_id):
         latest_time = latest_message.created_at if latest_message else chat.created_at
 
         if chat.type == Chat_Type.PERSONAL.value:
-            other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user)
+            # Get the other participant (not current user)
+            other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user.id)
             if other_members.exists():
                 member = User.objects.get(id=other_members[0].member_id)
                 title = f"{member.first_name} {member.middle_name} {member.last_name}".strip()
@@ -34,6 +35,7 @@ def get_chat_details(user_id):
                 title = "Unknown"
                 subtitle = latest_message.text if latest_message else ""
         else:
+            # For group or other types
             if chat.chat_title:
                 title = chat.chat_title
             else:
@@ -45,6 +47,7 @@ def get_chat_details(user_id):
                 title = ", ".join(member_names)
             subtitle = latest_message.text if latest_message else ""
 
+        # Common fields
         member_count = ChatMember.objects.filter(chat=chat, is_active=True).count()
         creator = User.objects.get(id=chat.created_by_id)
         creator_name = f"{creator.first_name} {creator.middle_name} {creator.last_name}".strip()

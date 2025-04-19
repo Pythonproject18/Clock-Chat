@@ -1,3 +1,4 @@
+// Scroll to bottom of messages container
 function scrollToBottom() {
     const messagesContainer = document.getElementById('messagesContainer');
     if (messagesContainer) {
@@ -7,6 +8,39 @@ function scrollToBottom() {
 
 let editingMessageId = null;
 
+// Edit Preview Functions
+function showEditPreview(text) {
+    removeEditPreview();
+    const chatInput = document.querySelector('.chat-input');
+    const previewHtml = `
+        <div class="edit-preview" id="editPreview">
+            <div class="edit-preview-text">
+                <i class="fas fa-edit" style="margin-right: 8px; color: var(--secondary-color);"></i>
+                Editing: ${text}
+            </div>
+            <div class="edit-preview-close" onclick="cancelEdit()">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    `;
+    chatInput.insertAdjacentHTML('beforebegin', previewHtml);
+    document.getElementById('chatInput').classList.add('editing-mode');
+}
+
+function removeEditPreview() {
+    const existingPreview = document.getElementById('editPreview');
+    if (existingPreview) {
+        existingPreview.remove();
+    }
+    document.getElementById('chatInput').classList.remove('editing-mode');
+}
+
+function cancelEdit() {
+    removeEditPreview();
+    resetInput();
+}
+
+// Load chat messages for a specific chat
 function loadChatMessages(chatId, chatTitle) {
     fetch(`/message/${chatId}`, {
         headers: {
@@ -24,6 +58,7 @@ function loadChatMessages(chatId, chatTitle) {
     .catch(err => console.error(err));
 }
 
+// Render messages in the chat section
 function renderMessages(chatId, chatTitle, messages) {
     const chatSection = document.getElementById('chatSection');
     const userId = document.body.dataset.userId;
@@ -53,10 +88,30 @@ function renderMessages(chatId, chatTitle, messages) {
     
         let bubbleContent = "";
         if (msg.text) {
-            bubbleContent = `<div class="message-bubble">${msg.text}</div>`;
-        } else if (msg.audio_msg) {
+            
+
+            
+
+
+            let editedLabel = msg.is_edited ? 
+            (isSender 
+                ? '<span style="font-size: 11px; color: var(--text-light); margin-left: 6px;">edited</span>' 
+                : '<span style="font-size: 11px; color: var(--text-light); margin-right: 6px;">edited</span>'
+            ) 
+            : '';
+        
+        if (isSender) {
+            bubbleContent = `<div class="message-bubble">${msg.text}${editedLabel}</div>`;
+        } else {
+            bubbleContent = `<div class="message-bubble">${editedLabel}${msg.text}</div>`;
+        }
+
+
+
+        
+        }else if (msg.audio_msg) {
             bubbleContent = `
-                    <audio controls controlsList="nodownload noplaybackrate nofullscreen"  style="max-height: 40px;">
+                    <audio controls controlsList="nodownload noplaybackrate nofullscreen" style="max-height: 40px;">
                         <source src="${msg.audio_msg}" type="audio/webm">
                         Your browser does not support the audio element.
                     </audio>
@@ -69,6 +124,42 @@ function renderMessages(chatId, chatTitle, messages) {
             <div class="message-content">
                 ${bubbleContent}
                 <div class="message-time">${msg.created_at}</div>
+
+
+                
+                <div class="emoji-reactions">
+                    ${(() => {
+                        const reactions = msg.emoji_reactions || {};
+                        const userId = parseInt(document.body.dataset.userId);
+                        const rendered = [];
+                        const allReactingUserIds = new Set();
+
+                        for (let icon in reactions) {
+                            const users = reactions[icon];
+                            users.forEach(u => allReactingUserIds.add(u));
+                            const reacted = users.includes(userId);
+                            const highlight = reacted ? 'reacted' : '';
+                            rendered.push(`<span class="emoji-reaction ${highlight}"><i class="fas ${icon}"></i></span>`);
+                        }
+
+                        // Only show count if more than one unique user reacted
+                        const totalReactors = allReactingUserIds.size;
+                        if (totalReactors > 1) {
+                            rendered.push(`<span class="emoji-reaction-count">(${totalReactors})</span>`);
+                        }
+
+                        return rendered.join('');
+                    })()}
+                </div>
+
+
+
+
+
+
+
+
+
             </div>
             ${isSender ? `
             <div class="message-actions">
@@ -81,7 +172,9 @@ function renderMessages(chatId, chatTitle, messages) {
                     <div class="message-action-edit">Edit</div>
                     <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">Delete</div>
                 </div>
-            </div>` : '<div class="message-emoji-container"><i class="far fa-smile message-emoji"></i></div>'}
+            </div>` : `<div class="message-emoji-container">
+            <i class="far fa-smile message-emoji" onclick="createEmojiPopup('${msg.id}', this)"></i>
+        </div>`}
         </div>
     
         <div class="message-action-delete" id="deletemodal-${msg.id}" style="display: none;">
@@ -162,6 +255,7 @@ function renderMessages(chatId, chatTitle, messages) {
     });
 }
 
+// Cookie helper function
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -177,11 +271,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-
-
-
-
-
+// Audio recording functionality
 let mediaRecorder;
 let audioChunks = [];
 let audioBlob;
@@ -267,7 +357,7 @@ function sendRecording() {
                 messageDiv.className = "message sent";
                 messageDiv.innerHTML = `
                     <div class="message-content">
-                        <audio controls controlsList="nodownload noplaybackrate nofullscreen"  src="${data.audio_url}" style="max-height: 40px;"></audio>
+                        <audio controls controlsList="nodownload noplaybackrate nofullscreen" src="${data.audio_url}" style="max-height: 40px;"></audio>
                         <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                 `;
@@ -296,23 +386,6 @@ function sendRecording() {
     }
 }
 
-
-// Helper for CSRF
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
 function deleteRecording() {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
         mediaRecorder.stop();
@@ -330,7 +403,6 @@ function deleteRecording() {
     document.getElementById("deleteBtn").style.display = "none";
 }
 
-
 function stopMicStream() {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -338,28 +410,12 @@ function stopMicStream() {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Send message function
 window.sendMessage = function () {
     const messageInput = document.getElementById("messageInput");
     const chatId = document.getElementById("chatId")?.value;
     const messagesContainer = document.getElementById("messagesContainer");
     
-
     const messageText = messageInput.value.trim();
     if (!messageText) return;
 
@@ -382,9 +438,15 @@ window.sendMessage = function () {
             if (data.status === "success") {
                 const messageElement = messagesContainer.querySelector(`.message[data-message-id='${editingMessageId}']`);
                 if (messageElement) {
-                    messageElement.querySelector(".message-bubble").innerText = data.data.text;
-                }
+                    let editedLabel = '';
+                    const isSender = true; // this is your message, since you're editing it
+                    if (data.data.is_edited) {
+                        editedLabel = '<span style="font-size:11px; color:var(--text-light); display:inline-block; margin-left:6px;">edited</span>';
+                    }
+                    messageElement.querySelector(".message-bubble").innerHTML = `${data.data.text}${editedLabel}`;                    
+                }                
                 resetInput();
+                removeEditPreview();
             } else {
                 console.error(data.message);
             }
@@ -428,7 +490,6 @@ window.sendMessage = function () {
                         </div>
                     </div>
 
-
                     <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
                         <div class="modal-dialog">
                             <div class="modal-content" id="modalcontent" style="position:fixed !important;left:70%!important;">
@@ -444,10 +505,10 @@ window.sendMessage = function () {
                             </div>
                         </div>
                     </div>
-
                 `;
                 messagesContainer.appendChild(messageDiv);
                 resetInput();
+                removeEditPreview();
                 scrollToBottom();
             }
         })
@@ -455,6 +516,7 @@ window.sendMessage = function () {
     }
 };
 
+// Reset input field
 function resetInput() {
     const messageInput = document.getElementById("messageInput");
     const micIcon = document.getElementById("micIcon");
@@ -473,6 +535,8 @@ function resetInput() {
     plusIcon.style.display = "inline-block";
 }
 
+// Event listener for edit message
+
 document.addEventListener("click", function (e) {
     if (e.target.classList.contains("message-action-edit")) {
         const messageElement = e.target.closest(".message");
@@ -481,9 +545,13 @@ document.addEventListener("click", function (e) {
 
         editingMessageId = messageId;
 
-        const messageInput = document.getElementById("messageInput");
-        messageInput.value = messageBubble.innerText;
+        const rawText = messageBubble.childNodes[0].nodeValue.trim();
+        messageInput.value = rawText;
         messageInput.focus();
+        
+        // Show edit preview
+        showEditPreview(rawText);
+        
 
         const sendIcon = document.getElementById("sendIcon");
         const micIcon = document.getElementById("micIcon");
@@ -499,40 +567,40 @@ document.addEventListener("click", function (e) {
     }
 });
 
-
-  function open_deletemodal(msgId) {
+// Message deletion functions
+function open_deletemodal(msgId) {
     const modal = document.getElementById(`deletemodal-${msgId}`);
     if (modal) {
       modal.style.display = "block";
     }
-  }
+}
 
-  function close_deletemodal(msgId) {
+function close_deletemodal(msgId) {
     const modal = document.getElementById(`deletemodal-${msgId}`);
     if (modal) {
       modal.style.display = "none";
     }
-  }
+}
 
-  function delete_for_me(msgId) {
+function delete_for_me(msgId) {
     console.log(`Deleting message ${msgId} for me...`);
     let purpose = "delete for me";
     delete_msg(msgId,purpose);
     close_deletemodal(msgId);
-  }
+}
 
-  function delete_for_everyone(msgId) {
+function delete_for_everyone(msgId) {
     let purpose = "delete for everyone";
     delete_msg(msgId,purpose);
     console.log(`Deleting message ${msgId} for everyone...`);
     close_deletemodal(msgId);
-  }
+}
 
-  function delete_msg(msgId, purpose) {
+function delete_msg(msgId, purpose) {
     fetch(`/message/delete/${msgId}`, {
         method: 'POST',
         headers: {
-            'X-CSRFToken': getCookie('csrftoken'),  // Using getCookie here instead
+            'X-CSRFToken': getCookie('csrftoken'),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ purpose: purpose })
@@ -540,7 +608,6 @@ document.addEventListener("click", function (e) {
     .then(response => {
         if (response.ok) {
             console.log(`Message ${msgId} deleted (${purpose})`);
-            // Select the element by data-message-id and remove it
             const msgElement = document.querySelector(`.message[data-message-id="${msgId}"]`);
             if (msgElement) {
                 msgElement.remove();
@@ -554,3 +621,102 @@ document.addEventListener("click", function (e) {
         console.error('Error:', error);
     });
 }
+
+
+
+
+
+function createEmojiPopup(messageId, targetElement) {
+    // Close any existing emoji popup
+    const existingPopup = document.querySelector('.emoji-popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+
+    fetch('/emojis/')
+        .then(res => res.json())
+        .then(data => {
+            const popup = document.createElement('div');
+            popup.className = 'emoji-popup';
+
+            data.emojis.forEach(icon => {
+                const emoji = document.createElement('i');
+                emoji.className = `fas ${icon}`;
+                emoji.style.margin = '8px';
+                emoji.style.cursor = 'pointer';
+                emoji.onclick = () => {
+                    // Send emoji to backend
+                    fetch(`/message/react/${messageId}/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken")
+                        },
+                        body: JSON.stringify({ icon })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status !== 'success') {
+                            console.error("Reaction failed:", data.message);
+                            return;
+                        }
+                
+                        // ✅ Refetch emoji reactions for that message only
+                        fetch(`/message/${document.getElementById("chatId").value}`, {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                        .then(res => res.json())
+                        .then(chatData => {
+                            const updatedMsg = chatData.messages.find(m => m.id == messageId);
+                            if (!updatedMsg) return;
+                
+                            const messageElem = document.querySelector(`.message[data-message-id="${messageId}"]`);
+                            const emojiContainer = messageElem.querySelector(".emoji-reactions");
+                
+                            const userId = parseInt(document.body.dataset.userId);
+                            const rendered = [];
+                            const allReactingUserIds = new Set();
+                
+                            for (let icon in updatedMsg.emoji_reactions) {
+                                const users = updatedMsg.emoji_reactions[icon];
+                                users.forEach(u => allReactingUserIds.add(u));
+                                const highlight = users.includes(userId) ? 'reacted' : '';
+                                rendered.push(`<span class="emoji-reaction ${highlight}"><i class="fas ${icon}"></i></span>`);
+                            }
+                
+                            if (allReactingUserIds.size > 1) {
+                                rendered.push(`<span class="emoji-reaction-count">(${allReactingUserIds.size})</span>`);
+                            }
+                
+                            emojiContainer.innerHTML = rendered.join('');
+                        });
+                    })
+                    .catch(err => console.error("Emoji react error:", err));
+                
+                    // Close the popup
+                    popup.remove();
+                };
+                
+                popup.appendChild(emoji);
+            });
+
+            document.body.appendChild(popup);
+            const rect = targetElement.getBoundingClientRect();
+            popup.style.position = 'absolute';
+            popup.style.left = `${rect.left}px`;
+            popup.style.top = `${rect.top - 50}px`;
+
+            // Close popup on outside click
+            setTimeout(() => {
+                document.addEventListener('click', handleOutsideClick);
+            }, 0);
+
+            function handleOutsideClick(e) {
+                if (!popup.contains(e.target) && e.target !== targetElement) {
+                    popup.remove();
+                    document.removeEventListener('click', handleOutsideClick);
+                }
+            }
+        });
+}
+

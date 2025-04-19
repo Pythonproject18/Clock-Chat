@@ -1,7 +1,7 @@
 from django.db import models
 from ..constants import Delete_Type
 from django.contrib.postgres.fields import ArrayField
-
+from django.db.models import JSONField  # at the top
 
 class Message(models.Model):
     text = models.CharField(max_length=300, blank=True, null=True)
@@ -29,6 +29,9 @@ class Message(models.Model):
         blank=True,
         default=list
         )
+    is_edited = models.BooleanField(default=False)
+
+    emoji_reactions = JSONField(default=dict, blank=True)  # ✅ add this
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
