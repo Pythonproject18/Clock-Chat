@@ -187,6 +187,8 @@ function renderMessages(chatId, chatTitle, messages) {
             <i class="fas fa-microphone"></i>
         </span>
 
+        <span id="recordingTimer" style="display:none;font-size: 16px;right: 12%;position: absolute;">00:00</span>
+
         <span class="icon" id="micStop" style="display:none;font-size: 16px;right: 8%;position: absolute;" onclick="stopRecording()">
             <i class="fas fa-pause"></i>
         </span>
@@ -253,6 +255,9 @@ let mediaRecorder;
 let audioChunks = [];
 let audioBlob;
 let stream;
+let timerInterval;
+let recordingSeconds = 0;
+
 
 function startRecording() {
     document.getElementById('plusIcon').style.display = "none";
@@ -271,6 +276,7 @@ function startRecording() {
             };
 
             mediaRecorder.start();
+            startTimer(); // <-- Start the timer here
 
             // UI changes
             document.getElementById("micIcon").style.display = "none";
@@ -288,6 +294,7 @@ function stopRecording() {
     document.getElementById('plusIcon').style.display = "none";
     if (mediaRecorder && mediaRecorder.state === "recording") {
         mediaRecorder.pause();
+        pauseTimer(); // <-- Pause timer when recording is paused
 
         // UI changes
         document.getElementById("micStop").style.display = "none";
@@ -300,6 +307,7 @@ function resumeRecording() {
     document.getElementById('plusIcon').style.display = "none";
     if (mediaRecorder && mediaRecorder.state === "paused") {
         mediaRecorder.resume();
+        startTimer(); // <-- Resume timer
 
         // UI changes
         document.getElementById("resumeBtn").style.display = "none";
@@ -356,6 +364,7 @@ function sendRecording() {
         document.getElementById("resumeBtn").style.display = "none";
         document.getElementById("sendBtn").style.display = "none";
         document.getElementById("deleteBtn").style.display = "none";
+        document.getElementById("recordingTimer").style.display = "none";
     };
 
     if (mediaRecorder.state !== "inactive") {
@@ -371,6 +380,8 @@ function deleteRecording() {
     // Clear chunks
     audioChunks = [];
     stopMicStream();
+    resetTimer(); // <-- Stop and reset the timer
+
     // UI reset
     document.getElementById('plusIcon').style.display = "block";
     document.getElementById("micIcon").style.display = "inline-block";
@@ -378,6 +389,8 @@ function deleteRecording() {
     document.getElementById("resumeBtn").style.display = "none";
     document.getElementById("sendBtn").style.display = "none";
     document.getElementById("deleteBtn").style.display = "none";
+    document.getElementById("recordingTimer").style.display = "none";
+
 }
 
 function stopMicStream() {
@@ -386,6 +399,36 @@ function stopMicStream() {
         stream = null;
     }
 }
+
+
+function startTimer() {
+    document.getElementById("recordingTimer").style.display = "inline-block";
+    timerInterval = setInterval(() => {
+        recordingSeconds++;
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function pauseTimer() {
+    clearInterval(timerInterval);
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    recordingSeconds = 0;
+    updateTimerDisplay();
+    document.getElementById("recordingTimer").style.display = "none";
+}
+
+function updateTimerDisplay() {
+    const minutes = String(Math.floor(recordingSeconds / 60)).padStart(2, '0');
+    const seconds = String(recordingSeconds % 60).padStart(2, '0');
+    document.getElementById("recordingTimer").textContent = `${minutes}:${seconds}`;
+}
+
+
+
+
 
 // Send message function
 window.sendMessage = function () {
