@@ -20,7 +20,7 @@ def get_chat_details(user_id):
     chat_list = []
 
     for chat in chats:
-        latest_message = Message.objects.filter(chat=chat).order_by('-created_at').first()
+        latest_message = Message.objects.filter(chat=chat, is_active=True).order_by('-created_at').first()
         latest_time = latest_message.created_at if latest_message else chat.created_at
 
         # ✅ Determine subtitle content
@@ -36,7 +36,11 @@ def get_chat_details(user_id):
                 subtitle = subtitle if len(subtitle) <= 20 else subtitle[:20] + "..."
             else:
                 subtitle = "📎 Media"
-
+             # For group chats with sender name
+            if chat.type != Chat_Type.PERSONAL.value:
+                sender = latest_message.sender_id
+                sender_name = f"{sender.first_name} {sender.last_name}".strip()
+                subtitle = f"{sender_name}: {subtitle}"
            
         # If no message at all
         else:
