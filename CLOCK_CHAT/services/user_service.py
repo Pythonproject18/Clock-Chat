@@ -37,13 +37,7 @@ def get_chat_details(user_id):
             else:
                 subtitle = "📎 Media"
 
-            # ✅ Show sender name if group chat
-            '''if chat.type == Chat_Type.GROUP.value:
-                sender = latest_message.sender
-                if sender:
-                    sender_name = f"{sender.first_name} {sender.middle_name} {sender.last_name}".strip()
-                    subtitle = f"{sender_name}: {subtitle}" '''
-
+           
         # If no message at all
         else:
             subtitle = ""
