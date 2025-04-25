@@ -11,7 +11,6 @@ def get_friends_by_user(user_id):
     friends = Friend.objects.filter(
         Q(user_id=user_id) | Q(friend_id=user_id), is_active=True
     ).distinct()
-    print(friends)
 
     friend_data = []
     friend_ids = set()  # Track unique friend IDs

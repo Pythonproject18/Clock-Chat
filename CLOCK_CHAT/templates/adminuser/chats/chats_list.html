@@ -3,252 +3,224 @@
 
 {% block title %}Clock-Chat Admin-Chat List{% endblock %}
 {% block content %}
-<style>
-    /* General Body Styling */
-    body {
-        background-color: #f5f9fc; /* Light Gray-Blue */
-        font-family: Arial, sans-serif;
-        margin: 20px;
-        color: #333;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    /* Heading Style */
-    h2 {
-        color: #4a90e2; /* Light Blue */
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    /* Search Box Styling (Right Aligned) */
-    .search-container {
-        display: flex;
-        justify-content: flex-end;
-        width: 90%;
-        margin-bottom: 10px;
-    }
-
-    .search-box {
-        display: flex;
-        align-items: center;
-    }
-
-    .search-box input[type="text"] {
-        padding: 8px 10px;
-        border: 1px solid #4a90e2;
-        border-radius: 5px 0 0 5px;
-        font-size: 14px;
-        right: 0;
-        width: 211px;
-        outline: none;
-    }
-
-    .search-box button {
-        padding: 8px 12px;
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        border-radius: 0 5px 5px 0;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
-
-    .search-box button:hover {
-        background-color: #3b7fb2;
-    }
-
-    /* Table Styling */
-    table {
-        border-collapse: collapse;
-        margin: 20px auto;
-        font-size: 0.9em;
-        width: 90%;
-        min-width: 1050px;
-        background-color: white;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-    }
-
-    th, td {
-        padding: 15px;
-        text-align: center;
-    }
-
-    th {
-        background-color: #4a90e2; /* Light Blue */
-        color: white;
-    }
-
-    td {
-        background-color: #eaf4fb; /* Light Gray-Blue */
-    }
-
-    /* Avatar Styling */
-    img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    /* Toggle Switch Styling */
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 30px; /* Reduced Width */
-        height: 18px; /* Reduced Height */
-    }
-
-    .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .4s;
-        border-radius: 18px;
-    }
-
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 14px;
-        width: 14px;
-        left: 2px;
-        bottom: 2px;
-        background-color: white;
-        transition: .4s;
-        border-radius: 50%;
-    }
-
-    input:checked + .slider {
-        background-color: #4a90e2;
-    }
-
-    input:checked + .slider:before {
-        transform: translateX(12px);
-    }
-
-    /* Status Styling */
-    .status {
-        display: inline-block;
-        font-weight: bold;
-    
-
-       .active {
-          color: green;
+<head>
+    <style>
+        /* General Body Styling */
+        body {
+            background-color: #f5f9fc;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-        .deactive {
-           color: red;
+        h2 {
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 10px;
         }
-    }
-
-    /* Edit Button Styling */
-    .action-btn {
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        cursor: pointer;
-        border-radius: 5px;
-        transition: background 0.3s ease;
-    }
-
-    .action-btn:hover {
-        background-color: #3b7fb2;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        table {
-            font-size: 0.8em;
-            width: 95%;
+        .search-container {
+            display: flex;
+            justify-content: flex-end;
+            width: 90%;
+            margin-bottom: 10px;
         }
-
+        .search-box {
+            display: flex;
+            align-items: center;
+        }
         .search-box input[type="text"] {
-            width: 150px;
+            padding: 8px 10px;
+            border: 1px solid #4a90e2;
+            border-radius: 5px 0 0 5px;
+            font-size: 14px;
+            right: 0;
+            width: 211px;
+            outline: none;
         }
-    }
-</style>
+        .search-box button {
+            padding: 8px 12px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .search-box button:hover {
+            background-color: #3b7fb2;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+            font-size: 0.9em;
+            width: 90%;
+            min-width: 1050px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: center;
+        }
+        th {
+            background-color: #4a90e2;
+            color: white;
+        }
+        td {
+            background-color: #eaf4fb;
+        }
+        img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 30px;
+            height: 18px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 18px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #4a90e2;
+        }
+        input:checked + .slider:before {
+            transform: translateX(12px);
+        }
+        .status {
+            display: inline-block;
+            font-weight: bold;
+        }
+        .status.active {
+            color: green;
+        }
+        .status.deactive {
+            color: red;
+        }
+        .action-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+        .action-btn:hover {
+            background-color: #3b7fb2;
+        }
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.8em;
+                width: 95%;
+            }
+            .search-box input[type="text"] {
+                width: 150px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <h2>Chat List</h2>
 
-<h2>Chat List</h2>
-
-<!-- Search Box Right Aligned -->
-<div class="search-container">
-    <div class="search-box">
-        <input type="text" placeholder="Search...">
-        <button type="button">🔍</button>
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" value="Search...">
+            <button type="button">🔍</button>
+        </div>
     </div>
-</div>
 
-<p style="text-align:left; width: 90%;"><strong>Total Chat:</strong> 2</p>
+    <p style="text-align:left; width: 90%;"><strong>Total Chat:</strong> {{ chats|length }}</p>
 
-<!-- Chat List Table -->
-<table>
-    <thead>
-        <tr>
-            <th>Chartcover</th>
-            <th>Title</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><img src="bacground.jpg" alt="Avatar"></td>
-            <td>Chat 1</td>
-            <td>Private</td>
-            <td>
-                <label class="switch">
-                    <input type="checkbox" id="toggleSwitch1" onchange="toggleSwitch('status1', 'toggleSwitch1')">
-                    <span class="slider"></span>
-                </label>
-                <p id="status1" class="status deactive">Deactivated</p>
-            </td>
-            <td>
-                <a href="{% url 'admin_chat_update' 5 %}"><button class="action-btn">Edit</button></a>
-            </td>
-        </tr>
-        <tr>
-            <td><img src="bacground.jpg" alt="Avatar"></td>
-            <td>Chat 2</td>
-            <td>Group</td>
-            <td>
-                <label class="switch">
-                    <input type="checkbox" id="toggleSwitch2" onchange="toggleSwitch('status2', 'toggleSwitch2')">
-                    <span class="slider"></span>
-                </label>
-                <p id="status2" class="status deactive">Deactivated</p>
-            </td>
-            <td>
-                <a href="{% url 'admin_chat_update' 6 %}"><button class="action-btn">Edit</button></a>
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-<script>
-    function toggleSwitch(statusId, switchId) {
-        let switchElement = document.getElementById(switchId);
-        let status = document.getElementById(statusId);
-        status.innerText = switchElement.checked ? "Activated" : "Deactivated";
-        status.className = switchElement.checked ? "status active" : "status deactive";
-    }
-</script>
+    <table>
+        <thead>
+            <tr>
+                <th>Chartcover</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for chat in chats %}
+            <tr>
+                <td>
+                    {% if chat.chat_cover_photo %}
+                        <img src="{{ chat.chat_cover_photo }}" alt="Cover" width="50">
+                    {% else %}
+                        <img src="/static/default.jpg" alt="Default" width="50">
+                    {% endif %}
+                </td>
+                <td>{{ chat.chat_title }}</td>
+                <td>{{ chat.type }}</td>
+                <td>
+                    <div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleSwitch{{ chat.id }}" {% if chat.is_active %}checked{% endif %}
+                                onchange="toggleSwitch('{{ chat.id }}')">
+                            <span class="slider"></span>
+                        </label>
+                        <p id="status{{ chat.id }}" class="status {% if chat.is_active %}.status.active{% else %}.status.deactive{% endif %}">
+                            {% if chat.is_active %} Activated {% else %} Deactivated {% endif %}
+                        </p>
+                    </div>
+                </td>
+                <td>
+                    <a href="{% url 'admin_chat_update' chat.id %}">
+                        <button class="action-btn">Edit</button>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        function toggleSwitch(chatId) {
+            let switchElement = document.getElementById('toggleSwitch' + chatId);
+            let statusElement = document.getElementById('status' + chatId);
+            let newStatus = switchElement.checked;
+        
+            if (newStatus) {
+                statusElement.innerText = "Activated";
+                statusElement.className = "status active";
+            } else {
+                statusElement.innerText = "Deactivated";
+                statusElement.className = "status deactive";
+            }
+        }
+        
+    </script>
 
 </body>
 {% endblock %}
