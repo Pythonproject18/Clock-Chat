@@ -8,6 +8,8 @@ function scrollToBottom() {
 
 let editingMessageId = null;
 
+let allEmojis = [];
+
 // Edit Preview Functions
 function showEditPreview(text) {
     removeEditPreview();
@@ -51,6 +53,7 @@ function loadChatMessages(chatId, chatTitle) {
     .then(data => {
         if (data.status === 'success') {
             renderMessages(chatId, chatTitle, data.messages);
+            allEmojis = data.emojies || [];  // Store emojis for popup
         } else {
             console.error('Failed to load messages:', data.message);
         }
@@ -626,3 +629,39 @@ document.addEventListener("click", function(event) {
 
 
 
+// Create Emoji Popup
+function createEmojiPopup(messageId, triggerElement) {
+    const existingPopup = document.getElementById('emojiPopup');
+    if (existingPopup) existingPopup.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'emojiPopup';
+    popup.className = 'emoji-popup';
+
+    allEmojis.forEach(emoji => {
+        const emojiButton = document.createElement('button');
+        emojiButton.innerHTML = emoji.value;
+        emojiButton.title = emoji.name;
+        emojiButton.addEventListener('click', () => {
+            console.log(`React with emoji ${emoji.value} on message ${messageId}`);
+            popup.remove();
+        });
+        popup.appendChild(emojiButton);
+    });
+
+    document.body.appendChild(popup);
+
+    const rect = triggerElement.getBoundingClientRect();
+    popup.style.left = `${rect.left + window.scrollX}px`;
+    popup.style.top = `${rect.top + window.scrollY - popup.offsetHeight - 10}px`;    
+
+    // Click outside to close
+    setTimeout(() => {
+        document.addEventListener('click', function closePopup(e) {
+            if (!popup.contains(e.target) && e.target !== triggerElement) {
+                popup.remove();
+                document.removeEventListener('click', closePopup);
+            }
+        });
+    }, 0);
+}
