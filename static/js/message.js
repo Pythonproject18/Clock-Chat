@@ -121,25 +121,19 @@ function renderMessages(chatId, chatTitle, messages) {
             `;
         }
     
+        // In the renderMessages function, update the messageHtml template to include reactions
         const messageHtml = `
         <div class="message ${messageClass}" data-message-id="${msg.id}">
             ${avatar}
             <div class="message-content">
                 ${bubbleContent}
+                ${msg.reactions && msg.reactions.length > 0 ? `
+                <div class="emoji-reactions">
+                    ${msg.reactions.map(reaction => 
+                        `<span class="message-reaction ${reaction.is_current_user ? 'user-reaction' : ''}">${reaction.value}</span>`
+                    ).join('')}
+                </div>` : ''}
                 <div class="message-time">${msg.created_at}</div>
-
-
-                
-                
-
-
-
-
-
-
-
-
-
             </div>
             ${isSender ? `
             <div class="message-actions" id="actions" onclick="open_action_popup('${msg.id}')">
@@ -156,7 +150,7 @@ function renderMessages(chatId, chatTitle, messages) {
             <i class="far fa-smile message-emoji" onclick="createEmojiPopup('${msg.id}', this)"></i>
         </div>`}
         </div>
-    
+
         <div class="message-action-delete" id="deletemodal-${msg.id}" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content" id="modalcontent">
@@ -629,7 +623,6 @@ document.addEventListener("click", function(event) {
 
 
 
-// Create Emoji Popup
 function createEmojiPopup(messageId, triggerElement) {
     const existingPopup = document.getElementById('emojiPopup');
     if (existingPopup) existingPopup.remove();
@@ -643,7 +636,7 @@ function createEmojiPopup(messageId, triggerElement) {
         emojiButton.innerHTML = emoji.value;
         emojiButton.title = emoji.name;
         emojiButton.addEventListener('click', () => {
-            console.log(`React with emoji ${emoji.value} on message ${messageId}`);
+            reactToMessage(messageId, emoji.id);
             popup.remove();
         });
         popup.appendChild(emojiButton);
@@ -664,4 +657,58 @@ function createEmojiPopup(messageId, triggerElement) {
             }
         });
     }, 0);
+}
+
+
+
+// Function to send reaction to server
+function reactToMessage(messageId, emojiId) {
+    fetch('/message/react/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            message_id: messageId,
+            emoji_id: emojiId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            updateMessageReactionsUI(messageId, data.reactions);
+        } else {
+            console.error('Failed to react:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error reacting to message:', error);
+    });
+}
+
+function updateMessageReactionsUI(messageId, reactions) {
+    const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
+    if (!messageElement) return;
+
+    let reactionsContainer = messageElement.querySelector('.emoji-reactions');
+    if (!reactionsContainer) {
+        reactionsContainer = document.createElement('div');
+        reactionsContainer.className = 'emoji-reactions';
+        messageElement.querySelector('.message-content').appendChild(reactionsContainer);
+    }
+
+    // Clear existing reactions
+    reactionsContainer.innerHTML = '';
+
+    // Add all reactions
+    reactions.forEach(reaction => {
+        const emojiSpan = document.createElement('span');
+        emojiSpan.innerHTML = reaction.value;
+        emojiSpan.className = 'message-reaction';
+        if (reaction.is_current_user) {
+            emojiSpan.classList.add('user-reaction');
+        }
+        reactionsContainer.appendChild(emojiSpan);
+    });
 }

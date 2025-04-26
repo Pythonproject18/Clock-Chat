@@ -7,7 +7,7 @@ from CLOCK_CHAT.constants.default_values import Role
 from CLOCK_CHAT.decorator import role_required,auth_required
 from CLOCK_CHAT.constants.error_message import ErrorMessage
 from CLOCK_CHAT.constants.success_message import SuccessMessage
-
+from CLOCK_CHAT.models import MessageReaction
 
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
@@ -31,6 +31,7 @@ class MessageListView(View):
                     'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}",
                     'is_edited': msg.is_edited,
                     'reactions': reactions_service.get_message_reaction(msg.id)
+                    
                 }
                 for msg in messages
             ]
@@ -175,4 +176,69 @@ class SendAudioMessageView(View):
         return JsonResponse({"success": True, "audio_url": message.audio_url, "message_id": message.id})
 
 
-    
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+class MessageReactView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            message_id = data.get('message_id')
+            emoji_id = data.get('emoji_id')
+            user_id = request.user.id
+
+            if not message_id or not emoji_id:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Message ID and Emoji ID are required'
+                }, status=400)
+
+            # Check if user already has a reaction on this message
+            existing_reaction = MessageReaction.objects.filter(
+                message=message_id,
+                reacted_by=user_id,
+                is_active=True
+            ).first()
+
+            if existing_reaction:
+                if existing_reaction.reaction_id == emoji_id:
+                    # Same emoji clicked - remove reaction
+                    existing_reaction.is_active = False
+                    existing_reaction.save()
+                else:
+                    # Different emoji clicked - update existing reaction
+                    existing_reaction.reaction_id = emoji_id
+                    existing_reaction.save()
+            else:
+                # Add new reaction
+                MessageReaction.objects.create(
+                    message_id=message_id,
+                    reacted_by_id=user_id,
+                    reaction_id=emoji_id,
+                    created_by_id=user_id,
+                    updated_by_id=user_id
+                )
+
+            # Get all active reactions for this message to return
+            reactions = MessageReaction.objects.filter(
+                message=message_id,
+                is_active=True
+            ).select_related('reaction')
+
+            reactions_data = []
+            for reaction in reactions:
+                reactions_data.append({
+                    'id': reaction.id,
+                    'value': reaction.reaction.value,
+                    'is_current_user': reaction.reacted_by_id == user_id
+                })
+
+            return JsonResponse({
+                'status': 'success',
+                'reactions': reactions_data
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
