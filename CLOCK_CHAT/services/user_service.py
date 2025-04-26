@@ -45,6 +45,16 @@ def get_chat_details(user_id):
         # If no message at all
         else:
             subtitle = ""
+        
+        # ✅ Unread messages from other users
+        unread_count = Message.objects.filter(
+            chat=chat,
+            is_active=True
+        ).exclude(
+            seen_by__contains=[user.id]
+        ).exclude(
+            sender_id=user.id
+        ).count()
 
         # Determine title
         if chat.type == Chat_Type.PERSONAL.value:
@@ -90,6 +100,7 @@ def get_chat_details(user_id):
             "members": member_details,
             "latest_time": latest_time,
             "latest_text": subtitle,
+            "unread_count": unread_count,
             "created_at": chat_service.global_timestamp(latest_time),
         })
 
