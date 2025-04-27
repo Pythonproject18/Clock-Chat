@@ -127,30 +127,34 @@ function renderMessages(chatId, chatTitle, messages) {
             ${avatar}
             <div class="message-content">
                 ${bubbleContent}
-                ${msg.reactions && msg.reactions.length > 0 ? `
-                <div class="emoji-reactions">
-                    ${msg.reactions.map(reaction => 
-                        `<span class="message-reaction ${reaction.is_current_user ? 'user-reaction' : ''}">${reaction.value}</span>`
-                    ).join('')}
-                </div>` : ''}
                 <div class="message-time">${msg.created_at}</div>
+                ${msg.reactions && msg.reactions.length > 0 ? `
+                    <div class="emoji-reactions">
+                        ${msg.reactions.map(reaction => 
+                            `<span class="message-reaction ${reaction.is_current_user ? 'user-reaction' : ''}">${reaction.value}</span>`
+                        ).join('')}
+                    </div>` 
+                : ''}
             </div>
             ${isSender ? `
-            <div class="message-actions" id="actions" onclick="open_action_popup('${msg.id}')">
-                <div class="message-actions-dots">
-                    <div class="message-actions-dot"></div>
-                    <div class="message-actions-dot"></div>
-                    <div class="message-actions-dot"></div>
+                <div class="message-actions" id="actions" onclick="open_action_popup('${msg.id}')">
+                    <div class="message-actions-dots">
+                        <div class="message-actions-dot"></div>
+                        <div class="message-actions-dot"></div>
+                        <div class="message-actions-dot"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="message-actions-menu action-popup" id="actions_menu_${msg.id}" style="display:none;">
+                <div class="message-actions-menu action-popup" id="actions_menu_${msg.id}" style="display:none;">
                     ${msg.text ? `<div class="message-action-edit">Edit</div>` : ''}
                     <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">Delete</div>
-                </div>` : `<div class="message-emoji-container">
-            <i class="far fa-smile message-emoji" onclick="createEmojiPopup('${msg.id}', this)"></i>
-        </div>`}
+                </div>`
+            : `
+                <div class="message-emoji-container">
+                    <i class="far fa-smile message-emoji" onclick="createEmojiPopup('${msg.id}', this)"></i>
+                </div>
+            `}
         </div>
-
+        
         <div class="message-action-delete" id="deletemodal-${msg.id}" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content" id="modalcontent">
@@ -167,6 +171,7 @@ function renderMessages(chatId, chatTitle, messages) {
             </div>
         </div>
         `;
+        
     
         document.getElementById("messagesContainer").insertAdjacentHTML("beforeend", messageHtml);
     });
@@ -695,7 +700,14 @@ function updateMessageReactionsUI(messageId, reactions) {
     if (!reactionsContainer) {
         reactionsContainer = document.createElement('div');
         reactionsContainer.className = 'emoji-reactions';
-        messageElement.querySelector('.message-content').appendChild(reactionsContainer);
+        
+        // Insert after the time element
+        const timeElement = messageElement.querySelector('.message-time');
+        if (timeElement) {
+            timeElement.insertAdjacentElement('afterend', reactionsContainer);
+        } else {
+            messageElement.querySelector('.message-content').appendChild(reactionsContainer);
+        }        
     }
 
     // Clear existing reactions
