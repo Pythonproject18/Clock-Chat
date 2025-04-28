@@ -128,6 +128,8 @@ function renderMessages(chatId, chatTitle, messages) {
             <div class="message-content">
                 ${bubbleContent}
                 <div class="message-time">${msg.created_at}</div>
+                
+                <div class="tick--mark"><i class="fa-solid fa-check"></i></div>
                 ${msg.reactions && msg.reactions.length > 0 ? `
                     <div class="emoji-reactions">
                         ${msg.reactions.map(reaction => 
@@ -625,9 +627,6 @@ document.addEventListener("click", function(event) {
 });
 
 
-
-
-
 function createEmojiPopup(messageId, triggerElement) {
     const existingPopup = document.getElementById('emojiPopup');
     if (existingPopup) existingPopup.remove();
@@ -663,7 +662,6 @@ function createEmojiPopup(messageId, triggerElement) {
         });
     }, 0);
 }
-
 
 
 // Function to send reaction to server

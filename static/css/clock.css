@@ -388,6 +388,14 @@ body {
   position: relative;
 }
 
+
+.tick-mark{
+  margin-top: 6px;
+  color:gray;
+}
+
+
+
 .message {
   position: relative;
 }
@@ -403,6 +411,9 @@ body {
   align-items: center;
   justify-content: center;
 }
+
+
+
 
 .message-emoji {
   opacity: 0;
