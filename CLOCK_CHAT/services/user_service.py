@@ -14,28 +14,59 @@ def get_user_chats(user_id):
 
 def get_chat_details(user_id):
     user = User.objects.get(id=user_id)
-
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
-    chats = Chat.objects.filter(id__in=chat_ids).distinct()
+    chats = Chat.objects.filter(id__in=chat_ids, is_active=True).distinct()
 
     chat_list = []
 
     for chat in chats:
-        latest_message = Message.objects.filter(chat=chat).order_by('-created_at').first()
+        latest_message = Message.objects.filter(chat=chat, is_active=True).order_by('-created_at').first()
         latest_time = latest_message.created_at if latest_message else chat.created_at
 
+        # ✅ Determine subtitle content
+        if latest_message:
+            if latest_message.audio_url:
+                duration = len(latest_message.audio_url)
+                minutes = duration // 60
+                seconds = duration % 60
+                formatted_duration = f"{minutes}:{seconds:02d}"
+                subtitle = f"🎤 Voice message - {formatted_duration}"
+            elif latest_message.text:
+                subtitle = latest_message.text
+                subtitle = subtitle if len(subtitle) <= 20 else subtitle[:20] + "..."
+            else:
+                subtitle = "📎 Media"
+             # For group chats with sender name
+            if chat.type != Chat_Type.PERSONAL.value:
+                sender = latest_message.sender_id
+                sender_name = f"{sender.first_name} {sender.last_name}".strip()
+                subtitle = f"{sender_name}: {subtitle}"
+           
+        # If no message at all
+        else:
+            subtitle = ""
+        
+        # ✅ Unread messages from other users
+        unread_count = Message.objects.filter(
+            chat=chat,
+            is_active=True
+        ).exclude(
+            seen_by__contains=[user.id]
+        ).exclude(
+            sender_id=user.id
+        ).count()
+
+        # Determine title
         if chat.type == Chat_Type.PERSONAL.value:
-            # Get the other participant (not current user)
             other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user.id)
             if other_members.exists():
                 member = User.objects.get(id=other_members[0].member_id)
                 title = f"{member.first_name} {member.middle_name} {member.last_name}".strip()
-                subtitle = latest_message.text if latest_message else (member.bio or "")
+                if not subtitle:
+                    subtitle = member.bio or ""
             else:
                 title = "Unknown"
-                subtitle = latest_message.text if latest_message else ""
         else:
-            # For group or other types
             if chat.chat_title:
                 title = chat.chat_title
             else:
@@ -45,9 +76,7 @@ def get_chat_details(user_id):
                     for m in members
                 ]
                 title = ", ".join(member_names)
-            subtitle = latest_message.text if latest_message else ""
 
-        # Common fields
         member_count = ChatMember.objects.filter(chat=chat, is_active=True).count()
         creator = User.objects.get(id=chat.created_by_id)
         creator_name = f"{creator.first_name} {creator.middle_name} {creator.last_name}".strip()
@@ -71,13 +100,13 @@ def get_chat_details(user_id):
             "members": member_details,
             "latest_time": latest_time,
             "latest_text": subtitle,
+            "unread_count": unread_count,
             "created_at": chat_service.global_timestamp(latest_time),
         })
 
-    # Sort chats by latest_time descending
     chat_list.sort(key=lambda c: c['latest_time'], reverse=True)
-
     return chat_list
+
 
 
 
