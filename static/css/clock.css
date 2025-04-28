@@ -377,7 +377,7 @@ body {
   background: linear-gradient(135deg, #6c5ce7, #8a7cff);
   color: var(--text-white);
   border-bottom-right-radius: 4px;
-  margin-right: 10px; 
+  margin-right: 10px;
 }
 
 .message.received .message-bubble {
@@ -387,14 +387,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
 }
-
-
-.tick-mark{
-  margin-top: 6px;
-  color:gray;
-}
-
-
 
 .message {
   position: relative;
@@ -411,9 +403,6 @@ body {
   align-items: center;
   justify-content: center;
 }
-
-
-
 
 .message-emoji {
   opacity: 0;
@@ -434,7 +423,7 @@ body {
   backdrop-filter: blur(5px);
   max-width: fit-content;
   font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 
@@ -463,12 +452,11 @@ body {
   padding: 2px 8px;
 }
 
-
 .emoji-popup {
   position: absolute;
-  background: rgba(40, 40, 60, 0.95); 
+  background: rgba(40, 40, 60, 0.95);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(108, 92, 231, 0.2); 
+  border: 1px solid rgba(108, 92, 231, 0.2);
   border-radius: 16px;
   padding: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -508,7 +496,6 @@ body {
   color: var(--primary-color);
 }
 
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -519,12 +506,6 @@ body {
     transform: translateY(0);
   }
 }
-
-
-
-
-
-
 
 .message.received:hover .message-emoji {
   opacity: 1;
@@ -581,7 +562,7 @@ body {
 
 .message-actions:hover {
   background: transparent;
-  color: var(--text-white); 
+  color: var(--text-white);
 }
 
 .message-actions-dot {

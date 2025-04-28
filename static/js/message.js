@@ -128,8 +128,6 @@ function renderMessages(chatId, chatTitle, messages) {
             <div class="message-content">
                 ${bubbleContent}
                 <div class="message-time">${msg.created_at}</div>
-                
-                <div class="tick--mark"><i class="fa-solid fa-check"></i></div>
                 ${msg.reactions && msg.reactions.length > 0 ? `
                     <div class="emoji-reactions">
                         ${msg.reactions.map(reaction => 
