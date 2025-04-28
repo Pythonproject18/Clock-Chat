@@ -127,7 +127,16 @@ function renderMessages(chatId, chatTitle, messages) {
             ${avatar}
             <div class="message-content">
                 ${bubbleContent}
-                <div class="message-time">${msg.created_at}</div>
+                <div class="message-time">
+                ${msg.created_at}
+                ${
+                    isSender 
+                    ? (msg.seen_by && msg.seen_by.length > 0 
+                        ? '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--secondary-color);"></i>' 
+                        : '<i class="fas fa-check" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>')
+                    : ''
+                }
+                </div>
                 ${msg.reactions && msg.reactions.length > 0 ? `
                     <div class="emoji-reactions">
                         ${msg.reactions.map(reaction => 
@@ -455,7 +464,10 @@ window.sendMessage = function () {
                 messageDiv.innerHTML = `
                     <div class="message-content">
                         <div class="message-bubble">${data.data.text}</div>
-                        <div class="message-time">${new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div class="message-time">
+                            ${new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}
+                            <i class="fas fa-check" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>
+                        </div>
                     </div>
                     <div class="message-actions" id="actions" onclick="open_action_popup('${data.data.id}')">
                         <div class="message-actions-dots">
@@ -719,4 +731,25 @@ function updateMessageReactionsUI(messageId, reactions) {
         }
         reactionsContainer.appendChild(emojiSpan);
     });
+}
+
+
+function markMessagesAsSeen(messageIds) {
+    fetch('/message/seen/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ message_ids: messageIds })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            console.log('Messages marked as seen.');
+        } else {
+            console.error('Failed to mark messages as seen');
+        }
+    })
+    .catch(err => console.error(err));
 }

@@ -21,6 +21,11 @@ class MessageListView(View):
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             # Return messages as JSON for AJAX
+            for msg in messages:
+                if msg.sender_id.id != user_id and user_id not in msg.seen_by:
+                    msg.seen_by.append(user_id)
+                    msg.save()
+                    
             messages_data = [
                 {
                     'id': msg.id,
@@ -30,7 +35,8 @@ class MessageListView(View):
                     'sender_id': msg.sender_id.id,
                     'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}",
                     'is_edited': msg.is_edited,
-                    'reactions': reactions_service.get_message_reaction(msg.id)
+                    'reactions': reactions_service.get_message_reaction(msg.id),
+                    'seen_by': msg.seen_by
                     
                 }
                 for msg in messages
