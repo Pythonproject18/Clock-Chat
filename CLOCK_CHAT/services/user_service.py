@@ -1,4 +1,4 @@
-from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type, Message
+from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type, Message, MessageReaction
 from django.db.models import Max, Q
 from CLOCK_CHAT.services import chat_service
 from CLOCK_CHAT.constants.default_values import Gender
@@ -12,6 +12,7 @@ def get_user_chats(user_id):
     chats = Chat.objects.filter(id__in=chat_ids, is_active=True).order_by('id')  # Ensures order 1-4
     return chats
 
+
 def get_chat_details(user_id):
     user = User.objects.get(id=user_id)
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
@@ -23,40 +24,40 @@ def get_chat_details(user_id):
         latest_message = Message.objects.filter(chat=chat, is_active=True).order_by('-created_at').first()
         latest_time = latest_message.created_at if latest_message else chat.created_at
 
-        # ✅ Determine subtitle content
+        subtitle = ""
         if latest_message:
-            if latest_message.audio_url:
-                duration = len(latest_message.audio_url)
-                minutes = duration // 60
-                seconds = duration % 60
-                formatted_duration = f"{minutes}:{seconds:02d}"
-                subtitle = f"🎤 Voice message - {formatted_duration}"
+            # ✳️ Get latest reaction
+            latest_reaction = MessageReaction.objects.filter(
+                message=latest_message,
+                is_active=True
+            ).select_related('reacted_by', 'reaction').order_by('-updated_at').first()
+
+            if latest_reaction:
+                reacted_by_name = f"{latest_reaction.reacted_by.first_name} {latest_reaction.reacted_by.last_name}".strip()
+                reaction_icon = latest_reaction.reaction.value
+                original_text = latest_message.text or "a media message"
+                display_text = original_text if len(original_text) <= 20 else original_text[:20] + "..."
+                subtitle = f"{reaction_icon} Reacted by {reacted_by_name} to: \"{display_text}\""
+            elif latest_message.audio_url:
+                subtitle = f"🎤 Voice message"
             elif latest_message.text:
-                subtitle = latest_message.text
-                subtitle = subtitle if len(subtitle) <= 20 else subtitle[:20] + "..."
+                display_text = latest_message.text if len(latest_message.text) <= 20 else latest_message.text[:20] + "..."
+                subtitle = display_text
             else:
                 subtitle = "📎 Media"
-             # For group chats with sender name
+
             if chat.type != Chat_Type.PERSONAL.value:
                 sender = latest_message.sender_id
                 sender_name = f"{sender.first_name} {sender.last_name}".strip()
-                subtitle = f"{sender_name}: {subtitle}"
-           
-        # If no message at all
+                if not latest_reaction:
+                    subtitle = f"{sender_name}: {subtitle}"
         else:
             subtitle = ""
-        
-        # ✅ Unread messages from other users
-        unread_count = Message.objects.filter(
-            chat=chat,
-            is_active=True
-        ).exclude(
-            seen_by__contains=[user.id]
-        ).exclude(
-            sender_id=user.id
-        ).count()
 
-        # Determine title
+        unread_count = Message.objects.filter(
+            chat=chat, is_active=True
+        ).exclude(seen_by__contains=[user.id]).exclude(sender_id=user.id).count()
+
         if chat.type == Chat_Type.PERSONAL.value:
             other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user.id)
             if other_members.exists():
@@ -67,37 +68,25 @@ def get_chat_details(user_id):
             else:
                 title = "Unknown"
         else:
-            if chat.chat_title:
-                title = chat.chat_title
-            else:
-                members = ChatMember.objects.filter(chat=chat, is_active=True)
-                member_names = [
-                    f"{User.objects.get(id=m.member_id).first_name} {User.objects.get(id=m.member_id).middle_name} {User.objects.get(id=m.member_id).last_name}".strip()
-                    for m in members
-                ]
-                title = ", ".join(member_names)
-
-        member_count = ChatMember.objects.filter(chat=chat, is_active=True).count()
-        creator = User.objects.get(id=chat.created_by_id)
-        creator_name = f"{creator.first_name} {creator.middle_name} {creator.last_name}".strip()
-
-        members = ChatMember.objects.filter(chat=chat, is_active=True)
-        member_details = [
-            {
-                "user_id": m.member_id,
-                "name": f"{User.objects.get(id=m.member_id).first_name} {User.objects.get(id=m.member_id).middle_name} {User.objects.get(id=m.member_id).last_name}".strip(),
-                "email": User.objects.get(id=m.member_id).email,
-            }
-            for m in members
-        ]
+            title = chat.chat_title or ", ".join([
+                f"{User.objects.get(id=m.member_id).first_name} {User.objects.get(id=m.member_id).middle_name} {User.objects.get(id=m.member_id).last_name}".strip()
+                for m in ChatMember.objects.filter(chat=chat, is_active=True)
+            ])
 
         chat_list.append({
             "id": chat.id,
             "title": title,
             "type": Chat_Type(chat.type).name,
-            "member_count": member_count,
-            "created_by": creator_name,
-            "members": member_details,
+            "member_count": ChatMember.objects.filter(chat=chat, is_active=True).count(),
+            "created_by": f"{User.objects.get(id=chat.created_by_id).first_name} {User.objects.get(id=chat.created_by_id).middle_name} {User.objects.get(id=chat.created_by_id).last_name}".strip(),
+            "members": [
+                {
+                    "user_id": m.member_id,
+                    "name": f"{User.objects.get(id=m.member_id).first_name} {User.objects.get(id=m.member_id).middle_name} {User.objects.get(id=m.member_id).last_name}".strip(),
+                    "email": User.objects.get(id=m.member_id).email,
+                }
+                for m in ChatMember.objects.filter(chat=chat, is_active=True)
+            ],
             "latest_time": latest_time,
             "latest_text": subtitle,
             "unread_count": unread_count,
@@ -106,7 +95,6 @@ def get_chat_details(user_id):
 
     chat_list.sort(key=lambda c: c['latest_time'], reverse=True)
     return chat_list
-
 
 
 
