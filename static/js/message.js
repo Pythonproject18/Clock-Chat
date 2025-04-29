@@ -131,9 +131,19 @@ function renderMessages(chatId, chatTitle, messages) {
                 ${msg.created_at}
                 ${
                     isSender 
-                    ? (msg.seen_by && msg.seen_by.length > 0 
-                        ? '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--secondary-color);"></i>' 
-                        : '<i class="fas fa-check" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>')
+                    ? (
+                        (msg.member_count > 2) 
+                            ? (
+                                (msg.seen_by.length === msg.member_count - 1)
+                                ? '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--secondary-color);"></i>'
+                                : '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>'
+                            )
+                            : (
+                                (msg.seen_by.length > 0)
+                                ? '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--secondary-color);"></i>'
+                                : '<i class="fas fa-check" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>'
+                            )
+                        )
                     : ''
                 }
                 </div>

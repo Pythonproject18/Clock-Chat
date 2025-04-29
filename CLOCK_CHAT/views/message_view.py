@@ -36,8 +36,8 @@ class MessageListView(View):
                     'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}",
                     'is_edited': msg.is_edited,
                     'reactions': reactions_service.get_message_reaction(msg.id),
-                    'seen_by': msg.seen_by
-                    
+                    'seen_by': msg.seen_by,
+                    'member_count': msg.chat.members.count()
                 }
                 for msg in messages
             ]
