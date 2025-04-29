@@ -3,6 +3,7 @@ import pytz
 from CLOCK_CHAT.models import Chat,ChatMember,Friend,User
 from CLOCK_CHAT.constants.default_values import Chat_Type
 from django.db.models import Count
+from ..models import Chat
 
 
 def global_timestamp(timestamp):
@@ -107,3 +108,20 @@ def create_group_chat_with_friend(current_user_id, user_ids):
 
 def get_chat_object(chat_id):
     return Chat.objects.filter(id=chat_id,is_active = True).first()
+
+
+
+# admin chat list real data show
+
+def get_all_chats():
+    return Chat.objects.all()
+
+def get_chat_by_id(chat_id):
+    return Chat.objects.get(id=chat_id)
+
+def toggle_chat_status(chat_id, new_status):
+    chat = Chat.objects.get(id=chat_id)
+    chat.status = new_status
+    chat.save()
+    return chat
+
