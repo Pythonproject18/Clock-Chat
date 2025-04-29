@@ -20,40 +20,51 @@ def get_chat_details(user_id):
 
     chat_list = []
 
+
     for chat in chats:
         latest_message = Message.objects.filter(chat=chat, is_active=True).order_by('-created_at').first()
-        latest_time = latest_message.created_at if latest_message else chat.created_at
+        latest_reaction = MessageReaction.objects.filter(
+            message__chat=chat,
+            is_active=True
+        ).select_related('reacted_by', 'reaction', 'message').order_by('-updated_at').first()
 
+        latest_time = chat.created_at
         subtitle = ""
-        if latest_message:
-            # ✳️ Get latest reaction
-            latest_reaction = MessageReaction.objects.filter(
-                message=latest_message,
-                is_active=True
-            ).select_related('reacted_by', 'reaction').order_by('-updated_at').first()
 
-            if latest_reaction:
-                reacted_by_name = f"{latest_reaction.reacted_by.first_name} {latest_reaction.reacted_by.last_name}".strip()
-                reaction_icon = latest_reaction.reaction.value
-                original_text = latest_message.text or "a media message"
-                display_text = original_text if len(original_text) <= 20 else original_text[:20] + "..."
-                subtitle = f"{reaction_icon} Reacted by {reacted_by_name} to: \"{display_text}\""
-            elif latest_message.audio_url:
-                subtitle = f"🎤 Voice message"
+        if latest_message:
+            latest_time = latest_message.created_at
+
+        if latest_reaction and (not latest_message or latest_reaction.updated_at > latest_message.created_at):
+            # ✅ Reaction is latest
+            reacted_by = latest_reaction.reacted_by
+            reacted_by_name = f"{reacted_by.first_name} {reacted_by.last_name}".strip()
+            emoji_icon = latest_reaction.reaction.value
+            reacted_message = latest_reaction.message
+
+            msg_text = reacted_message.text or "a media message"
+            msg_snippet = msg_text if len(msg_text) <= 20 else msg_text[:20] + "..."
+
+            subtitle = f"{emoji_icon} Reacted by {reacted_by_name} to: \"{msg_snippet}\""
+            latest_time = latest_reaction.updated_at
+
+        elif latest_message:
+            # ✅ Message is latest
+            if latest_message.audio_url:
+                subtitle = "🎤 Voice message"
             elif latest_message.text:
-                display_text = latest_message.text if len(latest_message.text) <= 20 else latest_message.text[:20] + "..."
-                subtitle = display_text
+                text = latest_message.text
+                subtitle = text if len(text) <= 20 else text[:20] + "..."
             else:
                 subtitle = "📎 Media"
 
             if chat.type != Chat_Type.PERSONAL.value:
                 sender = latest_message.sender_id
                 sender_name = f"{sender.first_name} {sender.last_name}".strip()
-                if not latest_reaction:
-                    subtitle = f"{sender_name}: {subtitle}"
+                subtitle = f"{sender_name}: {subtitle}"
         else:
             subtitle = ""
 
+    # Count Unread messages
         unread_count = Message.objects.filter(
             chat=chat, is_active=True
         ).exclude(seen_by__contains=[user.id]).exclude(sender_id=user.id).count()
