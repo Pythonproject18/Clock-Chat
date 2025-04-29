@@ -172,7 +172,6 @@ function renderMessages(chatId, chatTitle, messages) {
                 </div>
             `}
         </div>
-        
         <div class="message-action-delete" id="deletemodal-${msg.id}" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content" id="modalcontent">
