@@ -121,7 +121,6 @@ function renderMessages(chatId, chatTitle, messages) {
             `;
         }
     
-        // In the renderMessages function, update the messageHtml template to include reactions
         const messageHtml = `
         <div class="message ${messageClass}" data-message-id="${msg.id}">
             ${avatar}

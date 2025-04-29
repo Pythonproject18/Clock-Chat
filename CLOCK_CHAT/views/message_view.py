@@ -20,7 +20,7 @@ class MessageListView(View):
         messages = message_service.get_messages(chat_id,user_id)
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            # Return messages as JSON for AJAX
+
             for msg in messages:
                 if msg.sender_id.id != user_id and user_id not in msg.seen_by:
                     msg.seen_by.append(user_id)
