@@ -106,8 +106,19 @@ function renderMessages(chatId, chatTitle, messages) {
         if (isSender) {
             bubbleContent = `<div class="message-bubble">${msg.text}${editedLabel}</div>`;
         } else {
-            bubbleContent = `<div class="message-bubble">${editedLabel}${msg.text}</div>`;
+            bubbleContent = `
+                <div class="message-bubble">
+                    <div class="message-arrow-down" onclick="toggleReplyMenu('${msg.id}')">
+                        <i class="fas fa-angle-down"></i>
+                    </div>
+                    ${editedLabel}${msg.text}
+                </div>
+                <div class="reply-modal" id="reply-modal-${msg.id}" style="display: none;">
+                    <div class="reply-modal-option">Reply</div>
+                </div>
+            `;
         }
+        
 
 
 
@@ -760,4 +771,31 @@ function markMessagesAsSeen(messageIds) {
         }
     })
     .catch(err => console.error(err));
+}
+
+
+
+
+
+
+
+
+function toggleReplyMenu(messageId) {
+    // Close all others first
+    document.querySelectorAll(".reply-modal").forEach(modal => modal.style.display = "none");
+    
+    const modal = document.getElementById(`reply-modal-${messageId}`);
+    if (modal) {
+        modal.style.display = "block";
+    }
+
+    // Optional: Close on outside click
+    setTimeout(() => {
+        document.addEventListener('click', function closeReplyPopup(e) {
+            if (!e.target.closest('.reply-modal') && !e.target.closest('.message-arrow-down')) {
+                modal.style.display = "none";
+                document.removeEventListener('click', closeReplyPopup);
+            }
+        });
+    }, 0);
 }

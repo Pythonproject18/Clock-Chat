@@ -363,7 +363,7 @@ body {
 }
 
 .message-bubble {
-  padding: 10px 18px;
+  padding: 10px 22px;
   border-radius: 18px;
   font-size: 14px;
   line-height: 1.5;
@@ -589,6 +589,80 @@ body {
   cursor: pointer;
   font-size: 14px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.message.received .message-bubble {
+  position: relative;
+}
+
+.message-arrow-down {
+  position: absolute;
+  top: 0;
+  left: 6px;
+  color: var(--text-light);
+  font-size: 12px;
+  cursor: pointer;
+  display: none;
+  z-index: 5;
+}
+
+.message.received:hover .message-arrow-down {
+  display: block;
+}
+
+.reply-modal {
+  position: absolute;
+  top: 25px;
+  left: 10px;
+  background: var(--background-light);
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  min-width: 120px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.reply-modal-option {
+  padding: 10px;
+  color: var(--text-dark);
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.reply-modal-option:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--primary-color);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .chat-input {
   padding: 15px 20px;
