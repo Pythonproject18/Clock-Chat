@@ -37,7 +37,12 @@ class MessageListView(View):
                     'is_edited': msg.is_edited,
                     'reactions': reactions_service.get_message_reaction(msg.id),
                     'seen_by': msg.seen_by,
-                    'member_count': msg.chat.members.count()
+                    'member_count': msg.chat.members.count(),
+                    'reply_to': {
+                        'id': msg.reply_for_message.id,
+                        'text': msg.reply_for_message.text,
+                    } if msg.reply_for_message else None,
+
                 }
                 for msg in messages
             ]
@@ -51,7 +56,7 @@ class MessageCreateView(View):
     def post(self, request, chat_id):
         try:
             message_text = request.POST.get('message_text')
-            
+            reply_to = request.POST.get('reply_to')
             if not message_text:
                 return JsonResponse({
                     'status': 'error',
@@ -62,7 +67,8 @@ class MessageCreateView(View):
                 text=message_text,
                 chat_id=chat_id,
                 sender_id=request.user.id,
-                created_by_id=request.user.id
+                created_by_id=request.user.id,
+                reply_for_message_id=reply_to
             )
             
             if message:

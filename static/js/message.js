@@ -10,6 +10,8 @@ let editingMessageId = null;
 
 let allEmojis = [];
 
+let replyToMessageId = null;
+
 // Edit Preview Functions
 function showEditPreview(text) {
     removeEditPreview();
@@ -91,11 +93,6 @@ function renderMessages(chatId, chatTitle, messages) {
     
         let bubbleContent = "";
         if (msg.text) {
-            
-
-            
-
-
             let editedLabel = msg.is_edited ? 
             (isSender 
                 ? '<span style="font-size: 11px; color: var(--text-light); margin-left: 6px;">edited</span>' 
@@ -103,25 +100,42 @@ function renderMessages(chatId, chatTitle, messages) {
             ) 
             : '';
         
-        if (isSender) {
-            bubbleContent = `<div class="message-bubble">${msg.text}${editedLabel}</div>`;
-        } else {
-            bubbleContent = `
+            let replyHtml = '';
+            if (msg.reply_to && msg.reply_to.text) {
+            replyHtml = `
+                <div class="reply-snippet">
+                ${msg.reply_to.text.length > 50 
+                    ? msg.reply_to.text.slice(0, 50) + '…' 
+                    : msg.reply_to.text}
+                </div>
+            `;
+            }
+
+          
+            // then when you're building the bubbleContent for a SENT message:
+            if (isSender) {
+              bubbleContent = `
                 <div class="message-bubble">
+                  ${replyHtml}
+                  ${msg.text}${editedLabel}
+                </div>
+              `;
+            } else {
+              // for received, same idea—just inject replyHtml inside the bubble
+              bubbleContent = `
+                <div class="message-bubble">
+                    ${replyHtml}
                     <div class="message-arrow-down" onclick="toggleReplyMenu('${msg.id}')">
-                        <i class="fas fa-angle-down"></i>
+                    <i class="fas fa-angle-down"></i>
                     </div>
                     ${editedLabel}${msg.text}
                 </div>
                 <div class="reply-modal" id="reply-modal-${msg.id}" style="display: none;">
-                    <div class="reply-modal-option">Reply</div>
+                    <div class="reply-modal-option" onclick="replyToMessage('${msg.id}', \`${msg.text}\`)">Reply</div>
                 </div>
-            `;
-        }
-        
+                `;
 
-
-
+            }
         
         }else if (msg.audio_msg) {
             bubbleContent = `
@@ -141,19 +155,21 @@ function renderMessages(chatId, chatTitle, messages) {
                 ${msg.created_at}
                 ${
                     isSender 
-                    ? (
+                    ? `
+                    <span class="message-ticks">
+                        ${
                         (msg.member_count > 2) 
-                            ? (
-                                (msg.seen_by.length === msg.member_count - 1)
-                                ? '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--secondary-color);"></i>'
-                                : '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>'
-                            )
-                            : (
-                                (msg.seen_by.length > 0)
-                                ? '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--secondary-color);"></i>'
-                                : '<i class="fas fa-check" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>'
-                            )
-                        )
+                            ? (msg.seen_by.length === msg.member_count - 1)
+                            ? `<i class="fas fa-check tick tick-blue"></i>
+                                <i class="fas fa-check tick tick-blue" style="left: 6px"></i>`
+                            : `<i class="fas fa-check tick tick-gray"></i>
+                                <i class="fas fa-check tick tick-gray" style="left: 6px"></i>`
+                            : (msg.seen_by.length > 0)
+                            ? `<i class="fas fa-check tick tick-blue"></i>
+                                <i class="fas fa-check tick tick-blue" style="left: 6px"></i>`
+                            : `<i class="fas fa-check tick tick-gray single-tick"></i>`
+                        }
+                    </span>`
                     : ''
                 }
                 </div>
@@ -469,6 +485,7 @@ window.sendMessage = function () {
             body: new URLSearchParams({
                 chat_id: chatId,
                 message_text: messageText,
+                reply_to: replyToMessageId || ''
             }),
         })
         .then((response) => {
@@ -520,6 +537,7 @@ window.sendMessage = function () {
                 resetInput();
                 removeEditPreview();
                 scrollToBottom();
+                removeReplyPreview();
             }
         })
         .catch((error) => console.error("Error:", error));
@@ -798,4 +816,43 @@ function toggleReplyMenu(messageId) {
             }
         });
     }, 0);
+}
+
+
+
+
+
+
+
+
+function showReplyPreview(msgId) {
+    removeReplyPreview();
+    replyToMessageId = msgId;
+    const chatInput = document.querySelector('.chat-input');
+    const previewHtml = `
+        <div class="edit-preview" id="replyPreview">
+            <div class="edit-preview-text">
+                <i class="fas fa-reply" style="margin-right: 8px; color: var(--secondary-color);"></i>
+                Replying : 
+            </div>
+            <div class="edit-preview-close" onclick="cancelReply()">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    `;
+    chatInput.insertAdjacentHTML('beforebegin', previewHtml);
+}
+
+function removeReplyPreview() {
+    document.getElementById('replyPreview')?.remove();
+    replyToMessageId = null;
+}
+function cancelReply() {
+    removeReplyPreview();
+}
+
+
+function replyToMessage(msgId) {
+    showReplyPreview(msgId);
+    document.getElementById('messageInput').focus();
 }
