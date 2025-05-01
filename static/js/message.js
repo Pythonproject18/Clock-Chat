@@ -122,6 +122,8 @@ function renderMessages(chatId, chatTitle, messages) {
               `;
             } else {
               // for received, same idea—just inject replyHtml inside the bubble
+              const safeText = msg.text.replace(/`/g, '\\`');
+
               bubbleContent = `
                 <div class="message-bubble">
                     ${replyHtml}
@@ -131,7 +133,7 @@ function renderMessages(chatId, chatTitle, messages) {
                     ${editedLabel}${msg.text}
                 </div>
                 <div class="reply-modal" id="reply-modal-${msg.id}" style="display: none;">
-                    <div class="reply-modal-option" onclick="replyToMessage('${msg.id}', \`${msg.text}\`)">Reply</div>
+                    <div class="reply-modal-option" onclick="replyToMessage('${msg.id}', \`${safeText}\`, '${msg.sender_name}')">Reply</div>
                 </div>
                 `;
 
@@ -158,8 +160,10 @@ function renderMessages(chatId, chatTitle, messages) {
                     ? `
                     <span class="message-ticks">
                         ${
-                        (msg.member_count > 2) 
-                            ? (msg.seen_by.length === msg.member_count - 1)
+                        (msg.member_count > 2)
+                        ? (msg.seen_by.length === 0)
+                            ? `<i class="fas fa-check tick tick-gray single-tick"></i>`
+                            : (msg.seen_by.length === msg.member_count - 1)
                             ? `<i class="fas fa-check tick tick-blue"></i>
                                 <i class="fas fa-check tick tick-blue" style="left: 6px"></i>`
                             : `<i class="fas fa-check tick tick-gray"></i>
@@ -825,15 +829,16 @@ function toggleReplyMenu(messageId) {
 
 
 
-function showReplyPreview(msgId) {
+function showReplyPreview(msgId, text, senderName) {
     removeReplyPreview();
     replyToMessageId = msgId;
+
     const chatInput = document.querySelector('.chat-input');
     const previewHtml = `
         <div class="edit-preview" id="replyPreview">
             <div class="edit-preview-text">
                 <i class="fas fa-reply" style="margin-right: 8px; color: var(--secondary-color);"></i>
-                Replying : 
+                <strong>${senderName}</strong> : ${text}
             </div>
             <div class="edit-preview-close" onclick="cancelReply()">
                 <i class="fas fa-times"></i>
@@ -842,6 +847,7 @@ function showReplyPreview(msgId) {
     `;
     chatInput.insertAdjacentHTML('beforebegin', previewHtml);
 }
+
 
 function removeReplyPreview() {
     document.getElementById('replyPreview')?.remove();
@@ -852,7 +858,7 @@ function cancelReply() {
 }
 
 
-function replyToMessage(msgId) {
-    showReplyPreview(msgId);
+function replyToMessage(msgId, text, senderName) {
+    showReplyPreview(msgId, text, senderName);
     document.getElementById('messageInput').focus();
 }
