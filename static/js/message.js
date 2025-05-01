@@ -669,7 +669,13 @@ function delete_msg(msgId, purpose) {
 
 
 function open_action_popup(messageId){
-    console.log("Opening action menu for message:", messageId);
+    // First, close all currently open action menus
+    const openMenus = document.querySelectorAll(".message-actions-menu");
+    openMenus.forEach(menu => {
+        menu.style.display = "none";
+    });
+
+    // Then open the one for the clicked message
     let modal = document.getElementById(`actions_menu_${messageId}`);
     if (modal) {
         modal.style.display = "block";
@@ -677,6 +683,7 @@ function open_action_popup(messageId){
         console.error("Modal not found for message ID:", messageId);
     }
 }
+
 
 
 
