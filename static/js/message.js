@@ -437,7 +437,6 @@ function stopMicStream() {
     }
 }
 
-// Send message function
 window.sendMessage = function () {
     const messageInput = document.getElementById("messageInput");
     const chatId = document.getElementById("chatId")?.value;
@@ -466,7 +465,6 @@ window.sendMessage = function () {
                 const messageElement = messagesContainer.querySelector(`.message[data-message-id='${editingMessageId}']`);
                 if (messageElement) {
                     let editedLabel = '';
-                    const isSender = true; // this is your message, since you're editing it
                     if (data.data.is_edited) {
                         editedLabel = '<span style="font-size:11px; color:var(--text-light); display:inline-block; margin-left:6px;">edited</span>';
                     }
@@ -498,29 +496,41 @@ window.sendMessage = function () {
         })
         .then((data) => {
             if (data.status === "success") {
+                const isSender = true;
+                const messageClass = isSender ? 'sent' : 'received';
+                const replyText = document.querySelector('#replyPreview .edit-preview-text')?.textContent?.split(':')?.slice(1)?.join(':')?.trim() || '';
+                const replyHtml = replyToMessageId && replyText ? `
+                    <div class="reply-snippet">
+                        ${replyText.length > 50 ? replyText.slice(0, 50) + '…' : replyText}
+                    </div>
+                ` : '';
+
                 const messageDiv = document.createElement("div");
-                messageDiv.className = "message sent";
+                messageDiv.className = `message ${messageClass}`;
                 messageDiv.dataset.messageId = data.data.id;
+
                 messageDiv.innerHTML = `
                     <div class="message-content">
-                        <div class="message-bubble">${data.data.text}</div>
+                        <div class="message-bubble">
+                            ${replyHtml}
+                            ${data.data.text}
+                        </div>
                         <div class="message-time">
                             ${new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}
                             <i class="fas fa-check" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>
                         </div>
                     </div>
-                    <div class="message-actions" id="actions" onclick="open_action_popup('${data.data.id}')">
+                    <div class="message-actions" onclick="open_action_popup('${data.data.id}')">
                         <div class="message-actions-dots">
                             <div class="message-actions-dot"></div>
                             <div class="message-actions-dot"></div>
                             <div class="message-actions-dot"></div>
                         </div>
                     </div>
-                        <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
-                            <div class="message-action-edit">Edit</div>
-                            <div class="message-action-delete" onclick="open_deletemodal('${data.data.id}')">Delete</div>
-                        </div>
-
+                    <div class="message-actions-menu action-popup" id="actions_menu_${data.data.id}" style="display:none;">
+                        <div class="message-action-edit">Edit</div>
+                        <div class="message-action-delete" onclick="open_deletemodal('${data.data.id}')">Delete</div>
+                    </div>
                     <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
                         <div class="modal-dialog">
                             <div class="modal-content" id="modalcontent" style="position:fixed !important;left:70%!important;">
@@ -537,6 +547,8 @@ window.sendMessage = function () {
                         </div>
                     </div>
                 `;
+
+
                 messagesContainer.appendChild(messageDiv);
                 resetInput();
                 removeEditPreview();
@@ -547,6 +559,7 @@ window.sendMessage = function () {
         .catch((error) => console.error("Error:", error));
     }
 };
+
 
 // Reset input field
 function resetInput() {
