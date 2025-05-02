@@ -311,6 +311,14 @@ def react_to_message(message_id, emoji_class, user_id):
     except Message.DoesNotExist:
         return False
     
+def create_media_messages(chat_id, user, files):
+    print("create",files)
+    return Message.objects.create(
+        message_media = files,
+        chat=chat_id,
+        sender_id = user,
+        created_by = user
+    )
 
 
 

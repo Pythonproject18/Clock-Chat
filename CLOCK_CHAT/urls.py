@@ -56,4 +56,5 @@ urlpatterns = [
     path('message/delete/<int:message_id>', views.MessageDeleteView.as_view(), name='message_delete'),
     path('send-audio-message/', views.SendAudioMessageView.as_view(), name='audio_message_send'),
     path('message/react/', views.MessageReactView.as_view(), name='message_react'),
+    path('message/upload_media/', views.MessageMediaCreateView.as_view(), name='media_send'),
 ]
