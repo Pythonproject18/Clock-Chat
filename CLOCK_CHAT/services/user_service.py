@@ -41,7 +41,7 @@ def get_chat_details(user_id):
             emoji_icon = latest_reaction.reaction.value
             reacted_message = latest_reaction.message
 
-            msg_text = reacted_message.text or "a media message"
+            msg_text = reacted_message.text or "a Voice message"
             msg_snippet = msg_text if len(msg_text) <= 20 else msg_text[:20] + "..."
 
             subtitle = f"{emoji_icon} Reacted by {reacted_by_name} to: \"{msg_snippet}\""
