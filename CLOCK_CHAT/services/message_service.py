@@ -20,25 +20,192 @@ def get_messages(chat_id, user_id):
 
     return messages.order_by('created_at')
 
-def create_message(text, chat_id, sender_id, created_by_id):
+def create_message(text, chat_id, sender_id, created_by_id, reply_for_message_id=None):
     try:
-        # Get User and Chat instances
         sender = User.objects.get(id=sender_id)
         created_by = User.objects.get(id=created_by_id)
         chat = Chat.objects.get(id=chat_id)
-        
+
+        # Get the replied-to message if provided
+        reply_to_message = None
+        if reply_for_message_id:
+            reply_to_message = Message.objects.filter(id=reply_for_message_id).first()
+
         message = Message.objects.create(
             text=text,
             chat=chat,
             sender_id=sender,
             created_by=created_by,
-            updated_by=created_by  # Assuming same user updates when creating
+            updated_by=created_by,
+            reply_for_message=reply_to_message  # ✅ set reply reference
         )
         return message
     except Exception as e:
         print(f"Error creating message: {e}")
         return None
-    
+def create_message(text, chat_id, sender_id, created_by_id, reply_for_message_id=None):
+    try:
+        sender = User.objects.get(id=sender_id)
+        created_by = User.objects.get(id=created_by_id)
+        chat = Chat.objects.get(id=chat_id)
+
+        # Get the replied-to message if provided
+        reply_to_message = None
+        if reply_for_message_id:
+            reply_to_message = Message.objects.filter(id=reply_for_message_id).first()
+
+        message = Message.objects.create(
+            text=text,
+            chat=chat,
+            sender_id=sender,
+            created_by=created_by,
+            updated_by=created_by,
+            reply_for_message=reply_to_message  # ✅ set reply reference
+        )
+        return message
+    except Exception as e:
+        print(f"Error creating message: {e}")
+        return None
+def create_message(text, chat_id, sender_id, created_by_id, reply_for_message_id=None):
+    try:
+        sender = User.objects.get(id=sender_id)
+        created_by = User.objects.get(id=created_by_id)
+        chat = Chat.objects.get(id=chat_id)
+
+        # Get the replied-to message if provided
+        reply_to_message = None
+        if reply_for_message_id:
+            reply_to_message = Message.objects.filter(id=reply_for_message_id).first()
+
+        message = Message.objects.create(
+            text=text,
+            chat=chat,
+            sender_id=sender,
+            created_by=created_by,
+            updated_by=created_by,
+            reply_for_message=reply_to_message  # ✅ set reply reference
+        )
+        return message
+    except Exception as e:
+        print(f"Error creating message: {e}")
+        return None
+def create_message(text, chat_id, sender_id, created_by_id, reply_for_message_id=None):
+    try:
+        sender = User.objects.get(id=sender_id)
+        created_by = User.objects.get(id=created_by_id)
+        chat = Chat.objects.get(id=chat_id)
+
+        # Get the replied-to message if provided
+        reply_to_message = None
+        if reply_for_message_id:
+            reply_to_message = Message.objects.filter(id=reply_for_message_id).first()
+
+        message = Message.objects.create(
+            text=text,
+            chat=chat,
+            sender_id=sender,
+            created_by=created_by,
+            updated_by=created_by,
+            reply_for_message=reply_to_message  # ✅ set reply reference
+        )
+        return message
+    except Exception as e:
+        print(f"Error creating message: {e}")
+        return None
+def create_message(text, chat_id, sender_id, created_by_id, reply_for_message_id=None):
+    try:
+        sender = User.objects.get(id=sender_id)
+        created_by = User.objects.get(id=created_by_id)
+        chat = Chat.objects.get(id=chat_id)
+
+        # Get the replied-to message if provided
+        reply_to_message = None
+        if reply_for_message_id:
+            reply_to_message = Message.objects.filter(id=reply_for_message_id).first()
+
+        message = Message.objects.create(
+            text=text,
+            chat=chat,
+            sender_id=sender,
+            created_by=created_by,
+            updated_by=created_by,
+            reply_for_message=reply_to_message  # ✅ set reply reference
+        )
+        return message
+    except Exception as e:
+        print(f"Error creating message: {e}")
+        return None
+def create_message(text, chat_id, sender_id, created_by_id, reply_for_message_id=None):
+    try:
+        sender = User.objects.get(id=sender_id)
+        created_by = User.objects.get(id=created_by_id)
+        chat = Chat.objects.get(id=chat_id)
+
+        # Get the replied-to message if provided
+        reply_to_message = None
+        if reply_for_message_id:
+            reply_to_message = Message.objects.filter(id=reply_for_message_id).first()
+
+        message = Message.objects.create(
+            text=text,
+            chat=chat,
+            sender_id=sender,
+            created_by=created_by,
+            updated_by=created_by,
+            reply_for_message=reply_to_message  # ✅ set reply reference
+        )
+        return message
+    except Exception as e:
+        print(f"Error creating message: {e}")
+        return None
+def create_message(text, chat_id, sender_id, created_by_id, reply_for_message_id=None):
+    try:
+        sender = User.objects.get(id=sender_id)
+        created_by = User.objects.get(id=created_by_id)
+        chat = Chat.objects.get(id=chat_id)
+
+        # Get the replied-to message if provided
+        reply_to_message = None
+        if reply_for_message_id:
+            reply_to_message = Message.objects.filter(id=reply_for_message_id).first()
+
+        message = Message.objects.create(
+            text=text,
+            chat=chat,
+            sender_id=sender,
+            created_by=created_by,
+            updated_by=created_by,
+            reply_for_message=reply_to_message  # ✅ set reply reference
+        )
+        return message
+    except Exception as e:
+        print(f"Error creating message: {e}")
+        return None
+def create_message(text, chat_id, sender_id, created_by_id, reply_for_message_id=None):
+    try:
+        sender = User.objects.get(id=sender_id)
+        created_by = User.objects.get(id=created_by_id)
+        chat = Chat.objects.get(id=chat_id)
+
+        # Get the replied-to message if provided
+        reply_to_message = None
+        if reply_for_message_id:
+            reply_to_message = Message.objects.filter(id=reply_for_message_id).first()
+
+        message = Message.objects.create(
+            text=text,
+            chat=chat,
+            sender_id=sender,
+            created_by=created_by,
+            updated_by=created_by,
+            reply_for_message=reply_to_message  # ✅ set reply reference
+        )
+        return message
+    except Exception as e:
+        print(f"Error creating message: {e}")
+        return None
+
+
     
     
 def update_message(message_id, text, updated_by_id):
@@ -144,6 +311,14 @@ def react_to_message(message_id, emoji_class, user_id):
     except Message.DoesNotExist:
         return False
     
+def create_media_messages(chat_id, user, files):
+    print("create",files)
+    return Message.objects.create(
+        message_media = files,
+        chat=chat_id,
+        sender_id = user,
+        created_by = user
+    )
 
 
 

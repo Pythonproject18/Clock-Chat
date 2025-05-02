@@ -23,13 +23,13 @@
             {% if chats %}
             <div class="chat-list" id="chatList">
             {% for chat in chats %}
-            <div class="chat-item" onclick="loadChatMessages({{ chat.id }}, '{{ chat.title }}')">
+            <div class="chat-item" onclick="loadChatMessages('{{ chat.id }}', '{{ chat.title }}')">
                 <input type="hidden" class="chat-id-hidden" value="{{ chat.id }}">
 
                 <div class="chat-avatar">{{ chat.title|first }}</div>
                 <div class="chat-header-info">
                 <h3 class="chat-title">{{ chat.title }}</h3>
-                <p class="chat-subtitle" style="font-size: 12.8px; color: #b3bc70;">{{ chat.latest_text }}</p>
+                <p class="chat-subtitle" style="font-size: 12.8px; color: #b3bc70;">{{ chat.latest_text|safe }}</p>
                 </div>
                 <div style="max-width: 100px;gap: 10px;flex-direction: column;display: flex;">
                 <div style="justify-content: flex-end;align-items: center;display: flex;font-size: 12px;">{{ chat.unread_count }}</div>
