@@ -10,6 +10,8 @@ let editingMessageId = null;
 
 let allEmojis = [];
 
+let replyToMessageId = null;
+
 // Edit Preview Functions
 function showEditPreview(text) {
     removeEditPreview();
@@ -91,11 +93,6 @@ function renderMessages(chatId, chatTitle, messages) {
     
         let bubbleContent = "";
         if (msg.text) {
-            
-
-            
-
-
             let editedLabel = msg.is_edited ? 
             (isSender 
                 ? '<span style="font-size: 11px; color: var(--text-light); margin-left: 6px;">edited</span>' 
@@ -103,14 +100,44 @@ function renderMessages(chatId, chatTitle, messages) {
             ) 
             : '';
         
-        if (isSender) {
-            bubbleContent = `<div class="message-bubble">${msg.text}${editedLabel}</div>`;
-        } else {
-            bubbleContent = `<div class="message-bubble">${editedLabel}${msg.text}</div>`;
-        }
+            let replyHtml = '';
+            if (msg.reply_to && msg.reply_to.text) {
+            replyHtml = `
+                <div class="reply-snippet">
+                ${msg.reply_to.text.length > 50 
+                    ? msg.reply_to.text.slice(0, 50) + '…' 
+                    : msg.reply_to.text}
+                </div>
+            `;
+            }
 
+          
+            // then when you're building the bubbleContent for a SENT message:
+            if (isSender) {
+              bubbleContent = `
+                <div class="message-bubble">
+                  ${replyHtml}
+                  ${msg.text}${editedLabel}
+                </div>
+              `;
+            } else {
+              // for received, same idea—just inject replyHtml inside the bubble
+              const safeText = msg.text.replace(/`/g, '\\`');
 
+              bubbleContent = `
+                <div class="message-bubble">
+                    ${replyHtml}
+                    <div class="message-arrow-down" onclick="toggleReplyMenu('${msg.id}')">
+                    <i class="fas fa-angle-down"></i>
+                    </div>
+                    ${editedLabel}${msg.text}
+                </div>
+                <div class="reply-modal" id="reply-modal-${msg.id}" style="display: none;">
+                    <div class="reply-modal-option" onclick="replyToMessage('${msg.id}', \`${safeText}\`, '${msg.sender_name}')">Reply</div>
+                </div>
+                `;
 
+            }
         
         }else if (msg.audio_msg) {
             bubbleContent = `
@@ -130,19 +157,23 @@ function renderMessages(chatId, chatTitle, messages) {
                 ${msg.created_at}
                 ${
                     isSender 
-                    ? (
-                        (msg.member_count > 2) 
-                            ? (
-                                (msg.seen_by.length === msg.member_count - 1)
-                                ? '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--secondary-color);"></i>'
-                                : '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>'
-                            )
-                            : (
-                                (msg.seen_by.length > 0)
-                                ? '<i class="fas fa-check-double" style="margin-left: 6px; font-size: 10px; color: var(--secondary-color);"></i>'
-                                : '<i class="fas fa-check" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>'
-                            )
-                        )
+                    ? `
+                    <span class="message-ticks">
+                        ${
+                        (msg.member_count > 2)
+                        ? (msg.seen_by.length === 0)
+                            ? `<i class="fas fa-check tick tick-gray single-tick"></i>`
+                            : (msg.seen_by.length === msg.member_count - 1)
+                            ? `<i class="fas fa-check tick tick-blue"></i>
+                                <i class="fas fa-check tick tick-blue" style="left: 6px"></i>`
+                            : `<i class="fas fa-check tick tick-gray"></i>
+                                <i class="fas fa-check tick tick-gray" style="left: 6px"></i>`
+                            : (msg.seen_by.length > 0)
+                            ? `<i class="fas fa-check tick tick-blue"></i>
+                                <i class="fas fa-check tick tick-blue" style="left: 6px"></i>`
+                            : `<i class="fas fa-check tick tick-gray single-tick"></i>`
+                        }
+                    </span>`
                     : ''
                 }
                 </div>
@@ -406,7 +437,6 @@ function stopMicStream() {
     }
 }
 
-// Send message function
 window.sendMessage = function () {
     const messageInput = document.getElementById("messageInput");
     const chatId = document.getElementById("chatId")?.value;
@@ -435,7 +465,6 @@ window.sendMessage = function () {
                 const messageElement = messagesContainer.querySelector(`.message[data-message-id='${editingMessageId}']`);
                 if (messageElement) {
                     let editedLabel = '';
-                    const isSender = true; // this is your message, since you're editing it
                     if (data.data.is_edited) {
                         editedLabel = '<span style="font-size:11px; color:var(--text-light); display:inline-block; margin-left:6px;">edited</span>';
                     }
@@ -458,6 +487,7 @@ window.sendMessage = function () {
             body: new URLSearchParams({
                 chat_id: chatId,
                 message_text: messageText,
+                reply_to: replyToMessageId || ''
             }),
         })
         .then((response) => {
@@ -466,29 +496,41 @@ window.sendMessage = function () {
         })
         .then((data) => {
             if (data.status === "success") {
+                const isSender = true;
+                const messageClass = isSender ? 'sent' : 'received';
+                const replyText = document.querySelector('#replyPreview .edit-preview-text')?.textContent?.split(':')?.slice(1)?.join(':')?.trim() || '';
+                const replyHtml = replyToMessageId && replyText ? `
+                    <div class="reply-snippet">
+                        ${replyText.length > 50 ? replyText.slice(0, 50) + '…' : replyText}
+                    </div>
+                ` : '';
+
                 const messageDiv = document.createElement("div");
-                messageDiv.className = "message sent";
+                messageDiv.className = `message ${messageClass}`;
                 messageDiv.dataset.messageId = data.data.id;
+
                 messageDiv.innerHTML = `
                     <div class="message-content">
-                        <div class="message-bubble">${data.data.text}</div>
+                        <div class="message-bubble">
+                            ${replyHtml}
+                            ${data.data.text}
+                        </div>
                         <div class="message-time">
                             ${new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}
                             <i class="fas fa-check" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>
                         </div>
                     </div>
-                    <div class="message-actions" id="actions" onclick="open_action_popup('${data.data.id}')">
+                    <div class="message-actions" onclick="open_action_popup('${data.data.id}')">
                         <div class="message-actions-dots">
                             <div class="message-actions-dot"></div>
                             <div class="message-actions-dot"></div>
                             <div class="message-actions-dot"></div>
                         </div>
                     </div>
-                        <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
-                            <div class="message-action-edit">Edit</div>
-                            <div class="message-action-delete" onclick="open_deletemodal('${data.data.id}')">Delete</div>
-                        </div>
-
+                    <div class="message-actions-menu action-popup" id="actions_menu_${data.data.id}" style="display:none;">
+                        <div class="message-action-edit">Edit</div>
+                        <div class="message-action-delete" onclick="open_deletemodal('${data.data.id}')">Delete</div>
+                    </div>
                     <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
                         <div class="modal-dialog">
                             <div class="modal-content" id="modalcontent" style="position:fixed !important;left:70%!important;">
@@ -505,15 +547,19 @@ window.sendMessage = function () {
                         </div>
                     </div>
                 `;
+
+
                 messagesContainer.appendChild(messageDiv);
                 resetInput();
                 removeEditPreview();
                 scrollToBottom();
+                removeReplyPreview();
             }
         })
         .catch((error) => console.error("Error:", error));
     }
 };
+
 
 // Reset input field
 function resetInput() {
@@ -623,7 +669,13 @@ function delete_msg(msgId, purpose) {
 
 
 function open_action_popup(messageId){
-    console.log("Opening action menu for message:", messageId);
+    // First, close all currently open action menus
+    const openMenus = document.querySelectorAll(".message-actions-menu");
+    openMenus.forEach(menu => {
+        menu.style.display = "none";
+    });
+
+    // Then open the one for the clicked message
     let modal = document.getElementById(`actions_menu_${messageId}`);
     if (modal) {
         modal.style.display = "block";
@@ -631,6 +683,7 @@ function open_action_popup(messageId){
         console.error("Modal not found for message ID:", messageId);
     }
 }
+
 
 
 
@@ -760,4 +813,72 @@ function markMessagesAsSeen(messageIds) {
         }
     })
     .catch(err => console.error(err));
+}
+
+
+
+
+
+
+
+
+function toggleReplyMenu(messageId) {
+    // Close all others first
+    document.querySelectorAll(".reply-modal").forEach(modal => modal.style.display = "none");
+    
+    const modal = document.getElementById(`reply-modal-${messageId}`);
+    if (modal) {
+        modal.style.display = "block";
+    }
+
+    // Optional: Close on outside click
+    setTimeout(() => {
+        document.addEventListener('click', function closeReplyPopup(e) {
+            if (!e.target.closest('.reply-modal') && !e.target.closest('.message-arrow-down')) {
+                modal.style.display = "none";
+                document.removeEventListener('click', closeReplyPopup);
+            }
+        });
+    }, 0);
+}
+
+
+
+
+
+
+
+
+function showReplyPreview(msgId, text, senderName) {
+    removeReplyPreview();
+    replyToMessageId = msgId;
+
+    const chatInput = document.querySelector('.chat-input');
+    const previewHtml = `
+        <div class="edit-preview" id="replyPreview">
+            <div class="edit-preview-text">
+                <i class="fas fa-reply" style="margin-right: 8px; color: var(--secondary-color);"></i>
+                <strong>${senderName}</strong> : ${text}
+            </div>
+            <div class="edit-preview-close" onclick="cancelReply()">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    `;
+    chatInput.insertAdjacentHTML('beforebegin', previewHtml);
+}
+
+
+function removeReplyPreview() {
+    document.getElementById('replyPreview')?.remove();
+    replyToMessageId = null;
+}
+function cancelReply() {
+    removeReplyPreview();
+}
+
+
+function replyToMessage(msgId, text, senderName) {
+    showReplyPreview(msgId, text, senderName);
+    document.getElementById('messageInput').focus();
 }
