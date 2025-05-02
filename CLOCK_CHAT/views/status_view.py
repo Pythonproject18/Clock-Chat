@@ -87,9 +87,7 @@ class StatusPreviewView(View):
 @role_required(Role.END_USER.value, page_type='enduser')
 class StatusDetailView(View):
     def get(self, request, user_id):
-        print(user_id)
         statuses = status_service.get_all_status_by_user_id(user_id)
-        print(statuses)
         if not statuses.exists():
             return JsonResponse({'message': 'No status found'}, status=404)
 
@@ -104,8 +102,6 @@ class StatusDetailView(View):
             'full_name': f"{user.first_name} {user.last_name}",
             'user_profile': user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png' ,
         }
-        print(user_details)
-
         status_list = []
         for status in statuses:
             if request.user.id != user.id:  # don't count view for own status
