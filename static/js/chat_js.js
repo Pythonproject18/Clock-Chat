@@ -19,8 +19,10 @@
   function outsideClickHandler(event) {
     const modal = document.getElementById("openmodal");
     const content = document.querySelector(".modal-content");
+    const user_list = document.getElementById("userList");
+    const user_search = document.getElementById("userSearch");
 
-    if (modal.style.display === "block" && !content.contains(event.target)) {
+    if (modal.style.display === "block" && !content.contains(event.target) && !user_list.contains(event.target)&& !user_search.contains(event.target)) {
       close_modal();
     }
   }

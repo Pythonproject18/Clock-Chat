@@ -1,11 +1,12 @@
 from CLOCK_CHAT.models import Friend,Status,User,StatusViewer
 from django.db.models import Q
-from django.core.exceptions import ValidationError
 from CLOCK_CHAT.constants.default_values import Status_Type
-
+from django.utils import timezone
+from datetime import timedelta
 
 
 def get_friends_by_user(user_id):
+    is_active_status()
     # Fetch all friend relationships involving the user
     friends = Friend.objects.filter(
         Q(user_id=user_id) | Q(friend_id=user_id),
@@ -45,20 +46,35 @@ def get_friends_by_user(user_id):
 
     return friend_data
 
+def is_active_status():
+    now = timezone.now()
+
+    # Get all statuses that are active and older than 12 hours
+    old_statuses = Status.objects.filter(
+        is_active=True,
+        created_at__lte=now - timedelta(hours=12)  # Filter for statuses older than 12 hours
+    )
+
+    # Deactivate all statuses older than 12 hours
+    for oldstatus in old_statuses:
+        oldstatus.is_active = False
+        oldstatus.save()
+
+    return old_statuses  
 
 def get_user_status(user_id):
+    is_active_status()
+    latest_status = Status.objects.filter(
+        created_by=user_id, is_active=True
+    ).order_by('-created_at').first()
     
-        latest_status = Status.objects.filter(
-            created_by=user_id, is_active=True
-        ).order_by('-created_at').first()
-        
-        if latest_status:
-            return {
-                'user_id':user_id,
-                'id': latest_status.id,
-                'status_media': latest_status.status_media if latest_status.status_media else None,
-                'created_by': latest_status.created_by if latest_status else None,
-            }
+    if latest_status:
+        return {
+            'user_id':user_id,
+            'id': latest_status.id,
+            'status_media': latest_status.status_media if latest_status.status_media else None,
+            'created_by': latest_status.created_by if latest_status else None,
+        }
    
 
 def create_status(image, user_id, status_type,caption):
@@ -73,7 +89,8 @@ def create_status(image, user_id, status_type,caption):
     return status
 
 def get_all_status_by_user_id(user_id):
-    return Status.objects.filter(created_by=user_id).order_by('-created_at')
+    is_active_status()
+    return Status.objects.filter(created_by=user_id,is_active = True).order_by('-created_at')
 
 
 def get_status_viewer(status_id):
