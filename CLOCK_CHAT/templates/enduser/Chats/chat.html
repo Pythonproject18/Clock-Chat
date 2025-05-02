@@ -8,6 +8,7 @@
 {% block extra_js %}
 <script src="/static/js/chat_js.js"></script>
 <script src="/static/js/message.js"></script>
+<script src="{% static 'js/media_send.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -72,7 +73,14 @@
 
 
         </div>
-        <div class="chat-input" id="chatInput"></div>
+         <!-- Hidden file input -->
+         <input type="file" id="mediaInput" multiple style="display:none;" accept="image/*,video/*,audio/*,.pdf,.doc,.docx"/>
+
+         <!-- Preview Section -->
+        <div id="mediaPreview"></div>
+        <div class="chat-input" id="chatInput">
+
+        </div>
     </div>
     
 
@@ -114,6 +122,24 @@
             background-color: #d0ebff;
             border: 2px solid #339af0;
           }
+
+        #mediaPreview{
+            align-items: center;
+            display: flex;
+            gap: 10px;
+        }
+        .media-preview{
+            max-width: 100px;
+            border: 1px solid #000000;
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+        .media-image{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
           
     </style>
 {% endblock %}

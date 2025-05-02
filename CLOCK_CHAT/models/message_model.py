@@ -1,11 +1,14 @@
 from django.db import models
 from ..constants import Delete_Type
 from django.contrib.postgres.fields import ArrayField
-from django.db.models import JSONField  # at the top
 
 class Message(models.Model):
     text = models.CharField(max_length=300, blank=True, null=True)
-    message_media = models.URLField(max_length=255,blank=True, null=True)
+    media_url = ArrayField(
+        models.URLField(max_length=200, blank=True, null=True),
+        blank=True,
+        null=True
+    )
     audio_url = models.URLField(max_length=255,blank=True, null=True)
     mentions = ArrayField(
         models.IntegerField(),

@@ -256,15 +256,9 @@ function renderMessages(chatId, chatTitle, messages) {
             <i class="fas fa-plus"></i>
         </span>
 
-        <!-- Hidden file input -->
-        <input type="file" id="mediaInput" multiple style="display: none;" accept="image/*,video/*,audio/*,.pdf,.doc,.docx"/>
-
-        <!-- Preview Section -->
-        <div id="mediaPreview"></div>
-
         <!-- Send Media Button -->
         <span id="send_media" style="display:none;">
-            <i class="fas fa-paper-plane send-media" id="sendMedia" onclick="sendSelectedMedia()"></i>
+            <i class="fas fa-paper-plane send-media" id="sendMedia" onclick="sendSelectedMedia('${chatId}')"></i>
         </span>
 
         <span class="icon send-icon" onclick="sendMessage()" id="sendIcon" style="display:none;">
@@ -971,104 +965,3 @@ function replyToMessage(msgId, text, senderName) {
     document.getElementById('messageInput').focus();
 }
 
-
-let selectedMediaFiles = [];
-
-function triggerMediaInput() {
-    document.getElementById("sendIcon").style.display="none";
-    document.getElementById("send_media").style.display="block";
-    document.getElementById("mediaInput").click();
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    const mediaInput = document.getElementById("mediaInput");
-
-    if (mediaInput) {
-        mediaInput.addEventListener("change", function (event) {
-            selectedMediaFiles = Array.from(event.target.files);
-            showMediaPreview(selectedMediaFiles);
-        });
-    } else {
-        console.error("mediaInput element not found.");
-    }
-});
-
-function showMediaPreview(files) {
-    const previewContainer = document.getElementById("mediaPreview");
-    previewContainer.innerHTML = "";
-
-    files.forEach(file => {
-        const preview = document.createElement("div");
-        preview.style.marginBottom = "10px";
-
-        if (file.type.startsWith("image/")) {
-            const img = document.createElement("img");
-            img.src = URL.createObjectURL(file);
-            img.style.maxWidth = "100px";
-            preview.appendChild(img);
-        } else if (file.type.startsWith("video/")) {
-            const video = document.createElement("video");
-            video.src = URL.createObjectURL(file);
-            video.controls = true;
-            video.style.maxWidth = "150px";
-            preview.appendChild(video);
-        } else if (file.type.startsWith("audio/")) {
-            const audio = document.createElement("audio");
-            audio.src = URL.createObjectURL(file);
-            audio.controls = true;
-            preview.appendChild(audio);
-        } else {
-            const span = document.createElement("span");
-            span.textContent = file.name;
-            preview.appendChild(span);
-        }
-
-        previewContainer.appendChild(preview);
-    });
-}
-
-function sendSelectedMedia() {
-    if (selectedMediaFiles.length === 0) {
-        console.log("No media selected.");
-        return;
-    }
-
-    const chatId = CURRENT_CHAT_ID;  // Replace this with your chat ID variable
-    const formData = new FormData();
-    formData.append("chat_id", chatId);
-
-    selectedMediaFiles.forEach((file, index) => {
-        formData.append(`media_${index}`, file);
-    });
-
-    fetch("/message/upload_media/", {
-        method: "POST",
-        body: formData,
-        headers: {
-            "X-CSRFToken": getCSRFToken()  // Add this helper
-        }
-    })
-    .then(response => {
-        if (!response.ok) throw new Error("Upload failed");
-        document.getElementById("send_media").style.display="none";
-        return response.json();
-    })
-    .then(data => {
-        console.log("Media uploaded successfully.");
-        selectedMediaFiles = [];
-        document.getElementById("mediaPreview").innerHTML = "";
-        document.getElementById("send_media").style.display="none";
-
-    })
-    .catch(error => {
-        console.error(error);
-        console.log("Media upload failed.");
-        document.getElementById("send_media").style.display="none";
-    });
-}
-
-function getCSRFToken() {
-    return document.cookie.split('; ')
-        .find(row => row.startsWith('csrftoken'))
-        ?.split('=')[1];
-}
