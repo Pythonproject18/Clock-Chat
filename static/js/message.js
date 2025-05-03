@@ -243,7 +243,7 @@ function renderMessages(chatId, chatTitle, messages) {
             <i class="fas fa-pause"></i>
         </span>
 
-        <span class="icon" id="resumeBtn" style=display:none;font-size: 16px;right: 8%;position: absolute;" onclick="resumeRecording()">
+        <span class="icon" id="resumeBtn" style="display:none;font-size: 16px;right: 8%;position: absolute;" onclick="resumeRecording()">
             <i class="fas fa-play"></i>
         </span>
 
@@ -359,6 +359,7 @@ function stopRecording() {
         document.getElementById("micStop").style.display = "none";
         document.getElementById("resumeBtn").style.display = "inline-block";
         document.getElementById("sendBtn").style.display = "inline-block";
+
     }
 }
 
@@ -370,8 +371,9 @@ function resumeRecording() {
 
         // UI changes
         document.getElementById("resumeBtn").style.display = "none";
-        document.getElementById("sendBtn").style.display = "none";
         document.getElementById("micStop").style.display = "inline-block";
+        document.getElementById("sendBtn").style.display = "inline-block";
+
     }
 }
 
