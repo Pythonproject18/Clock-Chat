@@ -7,6 +7,7 @@ from datetime import timedelta
 
 def get_friends_by_user(user_id):
     is_active_status()
+    
     # Fetch all friend relationships involving the user
     friends = Friend.objects.filter(
         Q(user_id=user_id) | Q(friend_id=user_id),
@@ -33,18 +34,21 @@ def get_friends_by_user(user_id):
             created_by=friend_obj, is_active=True
         ).order_by('-created_at').first()
 
-        friend_data.append({
-            'id': friend_obj.id,
-            'name': f"{friend_obj.first_name} {friend_obj.last_name}".strip(),
-            'email': friend_obj.email,
-            'status_media': latest_status.status_media if latest_status else None,
-            'created_at': latest_status.created_at if latest_status else None,
-            'is_seen':check_status_seen_or_not(friend_obj.id,user_id),
+        if latest_status:  # Only add if there is a status
+            friend_data.append({
+                'id': friend_obj.id,
+                'name': f"{friend_obj.first_name} {friend_obj.last_name}".strip(),
+                'email': friend_obj.email,
+                'status_media': latest_status.status_media,
+                'created_at': latest_status.created_at,
+                'is_seen': check_status_seen_or_not(friend_obj.id, user_id),
+            })
 
-        })
-    print(friend_data)
+    # Sort the friend_data by latest status time, descending
+    friend_data.sort(key=lambda x: x['created_at'], reverse=True)
 
     return friend_data
+
 
 def is_active_status():
     now = timezone.now()
@@ -66,7 +70,7 @@ def get_user_status(user_id):
     is_active_status()
     latest_status = Status.objects.filter(
         created_by=user_id, is_active=True
-    ).order_by('-created_at').first()
+    ).order_by('created_at').first()
     
     if latest_status:
         return {
@@ -90,7 +94,7 @@ def create_status(image, user_id, status_type,caption):
 
 def get_all_status_by_user_id(user_id):
     is_active_status()
-    return Status.objects.filter(created_by=user_id,is_active = True).order_by('-created_at')
+    return Status.objects.filter(created_by=user_id,is_active = True).order_by('created_at')
 
 
 def get_status_viewer(status_id):

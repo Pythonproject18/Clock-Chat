@@ -60,11 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
             <i class="fa fa-eye"></i> <span>${status.viewers_count}</span>
           </div>
         ` : ''}
-
-        <div class="status-navigation">
-          <i class="fa fa-less-than" style="cursor:pointer;position:absolute;left:10px;top:50%;font-size:24px;color:white;"></i>
-          <i class="fa fa-greater-than" style="cursor:pointer;position:absolute;right:10px;top:50%;font-size:24px;color:white;"></i>
-        </div>
       `;
 
       document.getElementById("pause-play-btn").addEventListener("click", togglePausePlay);

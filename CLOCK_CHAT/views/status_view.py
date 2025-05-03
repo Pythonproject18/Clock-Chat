@@ -21,15 +21,15 @@ import base64
 
 class StatusListView(View):  # Use LoginRequiredMixin
     def get(self, request):
+        print("gbhjbjhjhbhbhgbhjbjhbhbjhjjnj")
         user = request.user.id  # Get logged-in user
-        print(user)
         user_obj = user_service.get_user_object(user)
 
         # Fetch friends (assuming a Friend model with a many-to-many relation)
         friends = status_service.get_friends_by_user(user)
         user_status = status_service.get_user_status(user)
         # Fetch statuses of friends (logic needed)
-        print(user_status)
+        print("data",friends)
         return render(request,'status/status.html',
             {
             'friends': friends,
@@ -117,7 +117,7 @@ class StatusDetailView(View):
                 'type': status.status_type,
                 'viewers_count': status_service.get_status_viewers_count(status.id,user_id),  # Sending viewer list as JSON
             })
-            print(status_list)
+            # print(status_list)
 
         return render(request, "status/status_view.html", {'status_details': status_list,'user_details':user_details})
 
