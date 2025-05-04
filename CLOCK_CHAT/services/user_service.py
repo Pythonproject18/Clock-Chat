@@ -50,7 +50,7 @@ def get_chat_details(user_id):
         elif latest_message:
             # ✅ Message is latest
             if latest_message.audio_url:
-                subtitle = "🎤 Voice message"
+                subtitle = '<i class="fa-solid fa-microphone-lines"></i> Voice message'
             elif latest_message.text:
                 text = latest_message.text
                 subtitle = text if len(text) <= 20 else text[:20] + "..."
