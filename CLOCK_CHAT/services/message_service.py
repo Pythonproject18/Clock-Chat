@@ -311,7 +311,30 @@ def react_to_message(message_id, emoji_class, user_id):
     except Message.DoesNotExist:
         return False
     
+def create_media_messages(chat_id, user, files):
+    saved_paths = []
 
+    for key in files:
+        file_list = files.getlist(key)
+        for file in file_list:
+            ext = os.path.splitext(file.name)[1]
+            unique_name = f"{uuid.uuid4().hex}{ext}"
+            save_path = os.path.join(settings.BASE_DIR, "static", "all-Pictures", "media", unique_name)
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
+            with open(save_path, 'wb+') as dest:
+                for chunk in file.chunks():
+                    dest.write(chunk)
 
+            saved_paths.append(f"/static/all-Pictures/media/{unique_name}")
 
+    if not saved_paths:
+        raise Exception("No valid media files found")
+
+    return Message.objects.create(
+        media_url=saved_paths,  # use updated field
+        chat=chat_service.get_chat_object(chat_id),
+        sender_id=user,
+        created_by=user,
+        updated_by=user  # this is required since model needs updated_by
+    )

@@ -21,15 +21,15 @@ import base64
 
 class StatusListView(View):  # Use LoginRequiredMixin
     def get(self, request):
+        print("gbhjbjhjhbhbhgbhjbjhbhbjhjjnj")
         user = request.user.id  # Get logged-in user
-        print(user)
         user_obj = user_service.get_user_object(user)
 
         # Fetch friends (assuming a Friend model with a many-to-many relation)
         friends = status_service.get_friends_by_user(user)
         user_status = status_service.get_user_status(user)
         # Fetch statuses of friends (logic needed)
-        print(user_status)
+        print("data",friends)
         return render(request,'status/status.html',
             {
             'friends': friends,
@@ -87,9 +87,7 @@ class StatusPreviewView(View):
 @role_required(Role.END_USER.value, page_type='enduser')
 class StatusDetailView(View):
     def get(self, request, user_id):
-        print(user_id)
         statuses = status_service.get_all_status_by_user_id(user_id)
-        print(statuses)
         if not statuses.exists():
             return JsonResponse({'message': 'No status found'}, status=404)
 
@@ -104,8 +102,6 @@ class StatusDetailView(View):
             'full_name': f"{user.first_name} {user.last_name}",
             'user_profile': user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png' ,
         }
-        print(user_details)
-
         status_list = []
         for status in statuses:
             if request.user.id != user.id:  # don't count view for own status
@@ -121,7 +117,7 @@ class StatusDetailView(View):
                 'type': status.status_type,
                 'viewers_count': status_service.get_status_viewers_count(status.id,user_id),  # Sending viewer list as JSON
             })
-            print(status_list)
+            # print(status_list)
 
         return render(request, "status/status_view.html", {'status_details': status_list,'user_details':user_details})
 

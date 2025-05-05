@@ -38,26 +38,40 @@
 
             {% if friends %}
             <div class="status_list">
+                {# First, show UNSEEN statuses #}
                 {% for friend in friends %}
-                <div class = "status" onclick="window.location.href='{% url 'status_detail' user_id=friend.id %}'">
-                    <div style="height:40px;width:40px;object-fit:cover;">
-                        {% if friend.is_seen == True %}
-                            <img src ="{{friend.status_media}}" alt="media" style="height:100%;width:100%;border-radius:50%; ">
-                        {% else %}
-                            <img src ="{{friend.status_media}}" alt="media" style="height:100%;width:100%;border-radius:50%;border: 3px solid #00ffc6;">
-                        {% endif %}
-                    </div>
-                    <div class="info">
-                        <h4 style="font-size: larger;"> {{friend.name}}</h4>
-                        <p style="font-size: small;">{{friend.created_at}}</p>
-                    </div>
-                </div>
+                    {% if not friend.is_seen %}
+                        <div class="status" onclick="window.location.href='{% url 'status_detail' user_id=friend.id %}'">
+                            <div style="height:40px;width:40px;object-fit:cover;">
+                                <img src="{{ friend.status_media }}" alt="media" style="height:100%;width:100%;border-radius:50%;border: 3px solid #00ffc6;">
+                            </div>
+                            <div class="info">
+                                <h4 style="font-size: larger;">{{ friend.name }}</h4>
+                                <p style="font-size: small;">{{ friend.created_at }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+        
+                {# Then, show SEEN statuses #}
+                {% for friend in friends %}
+                    {% if friend.is_seen %}
+                        <div class="status" onclick="window.location.href='{% url 'status_detail' user_id=friend.id %}'">
+                            <div style="height:40px;width:40px;object-fit:cover;">
+                                <img src="{{ friend.status_media }}" alt="media" style="height:100%;width:100%;border-radius:50%;">
+                            </div>
+                            <div class="info">
+                                <h4 style="font-size: larger;">{{ friend.name }}</h4>
+                                <p style="font-size: small;">{{ friend.created_at }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
-            {% else %}
+        {% else %}
             <p style="padding: 20px 0px;">No status</p>
-            {% endif %}
-
+        {% endif %}
+        
         <div class="floating-icons">
             <div class="floating-button">✎</div>
             <input type="file" id="statusImage" accept="image/*,video/*" style="display: none;" onchange="previewStatus(event)">

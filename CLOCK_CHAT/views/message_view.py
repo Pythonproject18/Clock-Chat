@@ -254,3 +254,22 @@ class MessageReactView(View):
                 'status': 'error',
                 'message': str(e)
             }, status=500)
+        
+class MessageMediaCreateView(View):
+    def post(self, request):
+        chat_id = request.POST.get("chat_id")
+        files = request.FILES
+
+        if not chat_id:
+            return JsonResponse({"error": "chat_id is required"}, status=400)
+        if not files:
+            return JsonResponse({"error": "No files uploaded"}, status=400)
+
+        try:
+            # Delegate to the service
+            create = message_service.create_media_messages(chat_id, request.user, files)
+            print(create)
+            return JsonResponse({"status": "success"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+        

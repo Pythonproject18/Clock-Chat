@@ -37,7 +37,7 @@ def get_chat_details(user_id):
         if latest_reaction and (not latest_message or latest_reaction.updated_at > latest_message.created_at):
             # ✅ Reaction is latest
             reacted_by = latest_reaction.reacted_by
-            reacted_by_name = f"{reacted_by.first_name} {reacted_by.last_name}".strip()
+            reacted_by_name = f"{reacted_by.first_name} {reacted_by.middle_name} {reacted_by.last_name}".strip()
             emoji_icon = latest_reaction.reaction.value
             reacted_message = latest_reaction.message
 
