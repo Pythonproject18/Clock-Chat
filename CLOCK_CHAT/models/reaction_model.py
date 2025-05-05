@@ -2,7 +2,7 @@ from django.db import models
 
 class Reaction(models.Model):
    name=models.CharField(max_length=50)
-   value= models.CharField(max_length=50)
+   value= models.CharField(max_length=100)
    
 
    is_active= models.BooleanField(default=True)

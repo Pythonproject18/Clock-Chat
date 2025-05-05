@@ -7,14 +7,14 @@
 {% endblock %}
 {% block extra_js %}
 <script src="/static/js/chat_js.js"></script>
-<script src="/static/js/audio_send.js"></script>
-<script src="/static/js/delete_message.js"></script>
-<script src="/static/js/load_message.js"></script>
-<script src="/static/js/message_edit.js"></script>
-<script src="{% static 'js/media_send.js' %}" defer></script>
-<script src="/static/js/message_misle.js"></script>
-<script src="/static/js/message_send.js"></script>
-<script src="/static/js/react_message.js"></script>
+<script src="/static/js/message/audio_send.js"></script>
+<script src="/static/js/message/delete_message.js"></script>
+<script src="/static/js/message/load_message.js"></script>
+<script src="/static/js/message/message_edit.js"></script>
+<script src="{% static 'js/message/media_send.js' %}" defer></script>
+<script src="/static/js/message/message_misle.js"></script>
+<script src="/static/js/message/message_send.js"></script>
+<script src="/static/js/message/react_message.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -57,27 +57,6 @@
     <div class="chat-section hidden" id="chatSection" data-user-id="{{ request.user.id }}">
         <div class="chat-header" id="chatHeader"></div>
         <div class="chat-messages" id="messagesContainer">
-
-
-            <div class="modal" tabindex="-1" style="display: block;">
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title">Are you wnat to delete it?</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                      <div class="button1">Delete for me</div>
-                      <div class="button2">Delete for everyone</div>
-                      <div class="button3">Cancel</div>
-                    </div>
-                    
-                  </div>
-                </div>
-              </div>
-  
-
-
         </div>
          <!-- Hidden file input -->
          <input type="file" id="mediaInput" multiple style="display:none;" accept="image/*,video/*,audio/*,.pdf,.doc,.docx"/>
