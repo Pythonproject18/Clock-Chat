@@ -589,9 +589,9 @@
      MESSAGE ACTIONS MENU 
      ====================== */
   .message-actions {
+    top: 86%;
     position: absolute;
-    right: -15px;
-    top: 32%;
+    right: 0px;
     transform: translateY(-50%);
     opacity: 0;
     visibility: hidden;
@@ -609,6 +609,10 @@
   }
   
   .message.sent:hover .message-actions {
+    opacity: 1;
+    visibility: visible;
+  }
+  .message.received:hover .message-actions {
     opacity: 1;
     visibility: visible;
   }
@@ -631,7 +635,7 @@
     background: var(--background-light);
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    min-width: 120px;
+    min-width: 80px;
     z-index: 10;
   }
   

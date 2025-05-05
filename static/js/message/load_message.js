@@ -66,32 +66,14 @@ function renderMessages(chatId, chatTitle, messages) {
             }
 
           
-            // then when you're building the bubbleContent for a SENT message:
-            if (isSender) {
+            // then when you're building the bubbleContent for a SENT message
               bubbleContent = `
                 <div class="message-bubble">
                   ${replyHtml}
                   ${msg.text}${editedLabel}
                 </div>
               `;
-            } else {
-              // for received, same idea—just inject replyHtml inside the bubble
-              const safeText = msg.text.replace(/`/g, '\\`');
 
-              bubbleContent = `
-                <div class="message-bubble">
-                    ${replyHtml}
-                    <div class="message-arrow-down" onclick="toggleReplyMenu('${msg.id}')">
-                    <i class="fas fa-angle-down"></i>
-                    </div>
-                    ${editedLabel}${msg.text}
-                </div>
-                <div class="reply-modal" id="reply-modal-${msg.id}" style="display: none;">
-                    <div class="reply-modal-option" onclick="replyToMessage('${msg.id}', \`${safeText}\`, '${msg.sender_name}')">Reply</div>
-                </div>
-                `;
-
-            }
         
         }else if (msg.audio_msg) {
             bubbleContent = `
@@ -140,7 +122,7 @@ function renderMessages(chatId, chatTitle, messages) {
                 : ''}
             </div>
             ${isSender ? `
-                <div class="message-actions" id="actions" onclick="open_action_popup('${msg.id}')">
+                <div class="message-actions" id="actions" onclick="open_action_popup('${msg.id}')" style="left: 0px !important;right: auto;">
                     <div class="message-actions-dots">
                         <div class="message-actions-dot"></div>
                         <div class="message-actions-dot"></div>
@@ -150,12 +132,30 @@ function renderMessages(chatId, chatTitle, messages) {
                 <div class="message-actions-menu action-popup" id="actions_menu_${msg.id}" style="display:none;">
                     ${msg.text ? `<div class="message-action-edit">Edit</div>` : ''}
                     <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">Delete</div>
+                    <div class="reply-modal-option" onclick="replyToMessage('${msg.id}', \`${msg.text}\`, '${msg.sender_name}')">Reply</div>
+                </div>
+                
+                <div class="message-emoji-container">
+                    <i class="far fa-smile message-emoji" onclick="createEmojiPopup('${msg.id}', this)"></i>
                 </div>`
-            : `
+
+            : `<div class="message-actions" id="actions" onclick="open_action_popup('${msg.id}')">
+                    <div class="message-actions-dots">
+                        <div class="message-actions-dot"></div>
+                        <div class="message-actions-dot"></div>
+                        <div class="message-actions-dot"></div>
+                    </div>
+                </div>
+                <div class="message-actions-menu action-popup" id="actions_menu_${msg.id}" style="display:none;">
+                    <div class="message-action-delete" onclick="open_deletemodal('${msg.id}')">Delete</div>
+                    <div class="reply-modal-option" onclick="replyToMessage('${msg.id}', \`${msg.text}\`, '${msg.sender_name}')">Reply</div>
+                </div>
+                
                 <div class="message-emoji-container">
                     <i class="far fa-smile message-emoji" onclick="createEmojiPopup('${msg.id}', this)"></i>
                 </div>
             `}
+
         </div>
         <div class="message-action-delete" id="deletemodal-${msg.id}" style="display: none;">
             <div class="modal-dialog">

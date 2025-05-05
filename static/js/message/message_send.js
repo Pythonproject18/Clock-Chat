@@ -82,7 +82,7 @@ window.sendMessage = function () {
                             <i class="fas fa-check" style="margin-left: 6px; font-size: 10px; color: var(--text-light);"></i>
                         </div>
                     </div>
-                    <div class="message-actions" onclick="open_action_popup('${data.data.id}')">
+                    <div class="message-actions" onclick="open_action_popup('${data.data.id}')" style="left: 0px !important;right: auto;">
                         <div class="message-actions-dots">
                             <div class="message-actions-dot"></div>
                             <div class="message-actions-dot"></div>
@@ -92,6 +92,7 @@ window.sendMessage = function () {
                     <div class="message-actions-menu action-popup" id="actions_menu_${data.data.id}" style="display:none;">
                         <div class="message-action-edit">Edit</div>
                         <div class="message-action-delete" onclick="open_deletemodal('${data.data.id}')">Delete</div>
+                        <div class="reply-modal-option" onclick="replyToMessage('${data.data.id}', \`${data.data.Text}\`, '${data.data.sender_name}')">Reply</div>
                     </div>
                     <div class="message-action-delete" id="deletemodal-${data.data.id}" style="display: none;">
                         <div class="modal-dialog">
