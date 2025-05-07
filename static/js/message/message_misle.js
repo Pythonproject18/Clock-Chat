@@ -56,11 +56,18 @@ function createEmojiPopup(messageId, triggerElement) {
         popup.appendChild(emojiButton);
     });
 
-    document.body.appendChild(popup);
+    // Append to the closest .message element
+    const messageContainer = triggerElement.closest('.message');
+    if (!messageContainer) {
+        console.warn('No .message container found for emoji popup.');
+        return;
+    }
+    messageContainer.appendChild(popup);
 
+    // Position relative to the triggerElement within the message container
     const rect = triggerElement.getBoundingClientRect();
-    popup.style.left = `${rect.left + window.scrollX}px`;
-    popup.style.top = `${rect.top + window.scrollY - popup.offsetHeight - 10}px`;    
+    const parentRect = messageContainer.getBoundingClientRect();
+
 
     // Click outside to close
     setTimeout(() => {
@@ -72,6 +79,7 @@ function createEmojiPopup(messageId, triggerElement) {
         });
     }, 0);
 }
+
 
 
 

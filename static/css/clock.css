@@ -214,7 +214,7 @@
     height: 40px;
     background: linear-gradient(135deg, #6c5ce7, #a29bfe);
     border-radius: 50%;
-    margin-right: 20px;
+    margin-right: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -331,6 +331,7 @@
   .chat-messages {
     flex: 1;
     padding: 20px;
+    scrollbar-width: none;
     overflow-y: auto;
     background: linear-gradient(rgba(18, 18, 18, 0.95), rgba(26, 26, 46, 0.95)),
       url("https://www.transparenttextures.com/patterns/always-grey.png");
@@ -339,7 +340,7 @@
   }
   
   .message {
-    margin-bottom: 40px;
+    margin-bottom: 10px;
     display: flex;
     max-width: 55%;
     gap: 10px;
@@ -350,7 +351,6 @@
   .message.sent {
     align-self: flex-end;
     flex-direction: row-reverse;
-    margin-right: 10px;
   }
   
   .message.received {
@@ -393,7 +393,6 @@
     background: linear-gradient(135deg, #6c5ce7, #8a7cff);
     color: var(--text-white);
     border-bottom-right-radius: 4px;
-    margin-right: 10px;
   }
   
   .message.received .message-bubble {
@@ -408,15 +407,8 @@
      MESSAGE ACTIONS & REACTIONS 
      ====================== */
   .message-emoji-container {
-    position: absolute;
-    right: -30px;
-    top: 20px;
-    transform: translateY(-50%);
-    width: 24px;
-    height: 24px;
     display: flex;
     align-items: center;
-    justify-content: center;
   }
   
   .message-emoji {
@@ -469,6 +461,7 @@
   
   .emoji-popup {
     position: absolute;
+    bottom:85%;
     background: rgba(40, 40, 60, 0.95);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(108, 92, 231, 0.2);
@@ -476,8 +469,7 @@
     padding: 8px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     z-index: 1000;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
     gap: 8px;
     width: 150px;
     max-height: 200px;
@@ -526,6 +518,10 @@
     opacity: 1;
     visibility: visible;
   }
+  .message.sent:hover .message-emoji {
+    opacity: 1;
+    visibility: visible;
+  }
   
   .message-emoji:hover {
     color: var(--primary-color);
@@ -535,12 +531,10 @@
      MESSAGE TIME & STATUS 
      ====================== */
   .message-time {
-    font-size: 11px;
+    font-size: 9px;
     color: var(--text-light);
-    margin-top: 5px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 2px;
   }
   
@@ -554,11 +548,11 @@
   
   .message-ticks {
     display: inline-flex;
-    margin-left: 4px;
-    position: relative;
-    height: 12px;
-    width: 16px;
-    gap: 4px;
+      margin-left: 4px;
+      position: relative;
+      height: 10px;
+      width: 16px;
+      align-items: center;
   }
   
   .tick {
@@ -589,17 +583,12 @@
      MESSAGE ACTIONS MENU 
      ====================== */
   .message-actions {
-    top: 86%;
-    position: absolute;
-    right: 0px;
-    transform: translateY(-50%);
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
     background: transparent;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    height:100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -623,15 +612,16 @@
   }
   
   .message-actions-dot {
-    width: 3px;
-    height: 3px;
+    width: 2px;
+    height: 2px;
     background-color: currentColor;
     border-radius: 50%;
   }
   
   .message-actions-menu {
+    padding: 10px;
     position: absolute;
-    right: 0;
+    top:70%;
     background: var(--background-light);
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -641,10 +631,12 @@
   
   .message-actions-menu .message-action-edit,
   .message-actions-menu .message-action-delete {
-    padding: 10px;
+    justify-content: center;
+    display: flex;
+    padding: 5px;
     color: var(--text-dark);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
   }
   
   /* ======================
@@ -683,10 +675,12 @@
   }
   
   .reply-modal-option {
-    padding: 10px;
+    justify-content: center;
+    display: flex;
+    padding:5px;
     color: var(--text-dark);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
     transition: background 0.2s ease;
   }
   

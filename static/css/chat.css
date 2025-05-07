@@ -188,3 +188,23 @@
     width: 100%;
     height: 40px;
 }
+
+.chat-title{
+    display: inline-block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0;
+}
+.chat-header-info{
+    white-space: nowrap;
+    overflow: hidden;
+}
+.chat-subtitle{
+    margin-top: 0!important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80%;
+}

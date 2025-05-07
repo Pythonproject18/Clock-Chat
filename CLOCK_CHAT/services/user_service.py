@@ -42,9 +42,8 @@ def get_chat_details(user_id):
             reacted_message = latest_reaction.message
 
             msg_text = reacted_message.text or "a Voice message"
-            msg_snippet = msg_text if len(msg_text) <= 20 else msg_text[:20] + "..."
 
-            subtitle = f"{emoji_icon} Reacted by {reacted_by_name} to: \"{msg_snippet}\""
+            subtitle = f"{emoji_icon} Reacted by {reacted_by_name} to: \"{msg_text}\""
             latest_time = latest_reaction.updated_at
 
         elif latest_message:
@@ -52,8 +51,7 @@ def get_chat_details(user_id):
             if latest_message.audio_url:
                 subtitle = "🎤 Voice message"
             elif latest_message.text:
-                text = latest_message.text
-                subtitle = text if len(text) <= 20 else text[:20] + "..."
+                subtitle = latest_message.text
             else:
                 subtitle = "📎 Media"
 
@@ -63,6 +61,13 @@ def get_chat_details(user_id):
                 subtitle = f"{sender_name}: {subtitle}"
         else:
             subtitle = ""
+        # Check if latest message is seen by all other active members
+        seen_by_all = False
+        if latest_message:
+            active_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=latest_message.sender_id)
+            member_ids = set(active_members.values_list('member_id', flat=True))
+            seen_ids = set(latest_message.seen_by or [])
+            seen_by_all = member_ids.issubset(seen_ids)
 
     # Count Unread messages
         unread_count = Message.objects.filter(
@@ -102,9 +107,12 @@ def get_chat_details(user_id):
             "latest_text": subtitle,
             "unread_count": unread_count,
             "created_at": chat_service.global_timestamp(latest_time),
+            "seen_by_all":seen_by_all
         })
 
+
     chat_list.sort(key=lambda c: c['latest_time'], reverse=True)
+    print(chat_list)
     return chat_list
 
 

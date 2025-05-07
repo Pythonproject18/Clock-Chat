@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const chatItems = document.querySelectorAll("#chatList .chat-item");
 
     chatItems.forEach(item => {
-      const title = item.querySelector(".chat-title").textContent.toLowerCase();
+      const title = item.querySelector("").textContent.toLowerCase();
       item.style.display = title.includes(query) ? "flex" : "none";
     });
   });
