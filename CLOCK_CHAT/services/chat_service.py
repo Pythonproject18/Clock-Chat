@@ -3,6 +3,9 @@ import pytz
 from CLOCK_CHAT.models import Chat,ChatMember,Friend,User
 from CLOCK_CHAT.constants.default_values import Chat_Type
 from django.db.models import Count
+import calendar
+from django.utils import timezone
+from django.db.models.functions import ExtractMonth
 
 
 def global_timestamp(timestamp):
@@ -107,3 +110,49 @@ def create_group_chat_with_friend(current_user_id, user_ids):
 
 def get_chat_object(chat_id):
     return Chat.objects.filter(id=chat_id,is_active = True).first()
+
+
+def get_chat_by_monthly_report():
+    current_year = timezone.now().year
+
+    # PERSONAL chats
+    qs_personal = (
+        Chat.objects
+        .filter(
+            type=Chat_Type.PERSONAL.value,
+            is_active=True,
+            created_at__year=current_year
+        )
+        .annotate(month=ExtractMonth('created_at'))
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    counts_personal = {entry['month']: entry['count'] for entry in qs_personal}
+
+    # GROUP chats
+    qs_group = (
+        Chat.objects
+        .filter(
+            type=Chat_Type.GROUP.value,
+            is_active=True,
+            created_at__year=current_year
+        )
+        .annotate(month=ExtractMonth('created_at'))
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    counts_group = {entry['month']: entry['count'] for entry in qs_group}
+
+    # Build full 12‑month skeleton
+    labels = []
+    data_personal = []
+    data_group = []
+    
+    for m in range(1, 13):
+        labels.append(calendar.month_abbr[m])
+        data_personal.append(counts_personal.get(m, 0))
+        data_group.append(counts_group.get(m, 0))
+
+    return labels, data_personal, data_group

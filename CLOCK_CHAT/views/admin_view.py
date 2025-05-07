@@ -53,13 +53,31 @@ class LoginOutAdminView(View):
         return redirect("/login/admin/")
 
 
-@auth_required( login_url='/login/admin/')
+@auth_required(login_url='/login/admin/')
 @role_required(Role.ADMIN.value, page_type='admin')
 class AdminHomeView(View):
     def get(self, request):
-        labels, data = user_service.get_user_by_monthly_report()
-        # chats = chat_service.get_chat_by_monthly_report()
-        return render(request, 'adminuser/dashboard.html', {'labels': labels, 'data': data})
+        # Fetch user signup stats
+        labels, user_counts = user_service.get_user_by_monthly_report()
+        # Fetch chat stats
+        chat_months, personal_counts, group_counts = chat_service.get_chat_by_monthly_report()
+
+        # Build a proper context dict
+        context = {
+            'user_chart': {
+                'labels': labels,
+                'data': user_counts,
+            },
+            'chat_chart': {
+                'labels': chat_months,
+                'datasets': [
+                    {'label': 'Personal', 'data': personal_counts},
+                    {'label': 'Group',    'data': group_counts},
+                ]
+            }
+        }
+
+        return render(request, 'adminuser/dashboard.html', context)
     
 
 @auth_required( login_url='/login/admin/')
