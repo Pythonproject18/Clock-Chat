@@ -1,5 +1,5 @@
 from django.views import View
-from ..services import auth_service,user_service
+from ..services import auth_service, user_service, chat_service
 from django.shortcuts import render, redirect
 from CLOCK_CHAT.constants.default_values import Role
 from CLOCK_CHAT.decorator import role_required, auth_required
@@ -10,8 +10,6 @@ from django.contrib import messages  # For user feedback
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
 from django.http import JsonResponse
-
-
 
 
 class LoginAdminView(View):
@@ -48,9 +46,6 @@ class LoginAdminView(View):
             return JsonResponse(error_response(ErrorMessage.E00001.value), status=400)
 
 
-
-    
-
 class LoginOutAdminView(View):
     def get(self, request):
         logout(request)
@@ -58,20 +53,20 @@ class LoginOutAdminView(View):
         return redirect("/login/admin/")
 
 
-
 @auth_required( login_url='/login/admin/')
 @role_required(Role.ADMIN.value, page_type='admin')
 class AdminHomeView(View):
     def get(self, request):
-        return render(request, 'adminuser/dashboard.html')
+        labels, data = user_service.get_user_by_monthly_report()
+        # chats = chat_service.get_chat_by_monthly_report()
+        return render(request, 'adminuser/dashboard.html', {'labels': labels, 'data': data})
     
-
 
 @auth_required( login_url='/login/admin/')
 @role_required(Role.ADMIN.value, page_type='admin')
 class AdminProfileView(View):
     def get(self, request):
-        return render(request, 'adminuser/admin_profile/admin_profile.html')
+        return render(request, 'adminuser/admin_profile/admin_profile.html')    
     
 
 @auth_required( login_url='/login/admin/')

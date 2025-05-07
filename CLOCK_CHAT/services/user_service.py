@@ -1,11 +1,16 @@
 from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type, Message, MessageReaction
 from django.db.models import Max, Q
 from CLOCK_CHAT.services import chat_service
-from CLOCK_CHAT.constants.default_values import Gender
+from CLOCK_CHAT.constants.default_values import Gender, Role
 import os
 import hashlib
 from django.conf import settings
 from itertools import chain
+import calendar
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth
+from django.utils import timezone
+
 
 def get_user_chats(user_id):
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
@@ -164,3 +169,30 @@ def update_profile_photo(user,photo):
     user_obj.save()
 
     return relative_path
+
+
+def get_user_by_monthly_report():
+    current_year = timezone.now().year
+
+    qs = (
+        User.objects
+        .filter(
+            role=Role.END_USER.value,
+            is_active=True,
+            date_joined__year=current_year
+        )
+        .annotate(month=ExtractMonth('date_joined'))  # month = 1..12
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    
+    counts = {entry['month']: entry['count'] for entry in qs}
+
+    # Create a list of months with their respective counts
+    # If a month is missing, it will default to 0
+    
+    labels = list(calendar.month_abbr)[1:]              # ['Jan', 'Feb', ..., 'Dec']
+    data   = [counts.get(m, 0) for m in range(1, 13)]   # fill 0 where missing
+
+    return labels, data

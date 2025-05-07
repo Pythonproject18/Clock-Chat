@@ -64,22 +64,139 @@
         <canvas id="barChart"></canvas>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- add Zoom plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0"></script>
+
+<!-- User Line Chart Script -->
 
 <script>
-    // Line Chart Data
-    const lineData = {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        datasets: [{
-            label: 'Users',
-            data: [7, 8, 8, 9, 9, 10, 11, 14, 14, 14, 15, 16],
-            fill: true,
-            borderColor: '#a8c8e8',
-            backgroundColor: 'rgba(168, 200, 232, 0.3)',
-            tension: 0.1
-        }]
-    };
-    
+  // Grab your data arrays
+  const labels = {{ labels|safe }};
+  const rawData = {{ data|safe }};
+
+  // Compute Y-axis headroom
+  const highest = Math.max(...rawData);
+  const yPadding = 1;
+
+  // Initialize chart context
+  const ctx = document.getElementById('lineChart').getContext('2d');
+
+  // Create vertical gradient for fill
+  const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+  gradient.addColorStop(0, 'rgba(58, 142, 219, 0.4)');
+  gradient.addColorStop(1, 'rgba(58, 142, 219, 0)');
+
+  // Crosshair plugin to draw vertical line at hover
+  const crosshairPlugin = {
+    id: 'crosshairLine',
+    afterDraw: chart => {
+      const ctx = chart.ctx;
+      const tooltip = chart.tooltip;
+      if (tooltip._active && tooltip._active.length) {
+        const x = tooltip._active[0].element.x;
+        const top = chart.chartArea.top;
+        const bottom = chart.chartArea.bottom;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x, top);
+        ctx.lineTo(x, bottom);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(58,142,219,0.3)';
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  };
+  Chart.register(crosshairPlugin);
+
+  // Full chart configuration
+  const lineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'User Signups',
+        data: rawData,
+        fill: true,
+        borderColor: '#3a8edb',
+        backgroundColor: gradient,
+        tension: 0.4,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#3a8edb',
+        pointBorderColor: '#ffffff',
+        pointHoverBorderColor: '#1f5f9e',
+        pointBorderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1200,
+        easing: 'easeInOutQuart'
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: {
+            font: { family: "'Segoe UI', sans-serif", size: 12 }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          max: highest + yPadding,
+          ticks: {
+            stepSize: 1,
+            font: { family: "'Segoe UI', sans-serif", size: 12 }
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        }
+      },
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Monthly User Report',
+          font: { family: "'Segoe UI', sans-serif", size: 20 },
+          color: '#333',
+          padding: { bottom: 20 }
+        },
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#333',
+          titleFont: { family: "'Segoe UI', sans-serif", size: 14 },
+          bodyFont: { family: "'Segoe UI', sans-serif", size: 13 },
+          padding: 10,
+          callbacks: {
+            label: ctx => `${ctx.parsed.y} users`
+          }
+        },
+        zoom: {
+          zoom: {
+            wheel: { enabled: true },
+            pinch: { enabled: true },
+            mode: 'x'
+          },
+          pan: {
+            enabled: true,
+            mode: 'x',
+            threshold: 5
+          }
+        }
+      }
+    },
+    plugins: [crosshairPlugin]
+  });
+</script>
+
+<!-- Chats Bar Chart Script -->
+<script>
     // Bar Chart Data
     const barData = {
         labels: ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -93,33 +210,7 @@
             backgroundColor: '#a8c8e8',
         }]
     };
-    
-    // Line Chart Configuration
-    const lineConfig = {
-        type: 'line',
-        data: lineData,
-        options: {
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Single Line Chart',
-                    align: 'start'
-                },
-                legend: {
-                    position: 'top',
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            }
-        }
-    };
-    
+
     // Bar Chart Configuration
     const barConfig = {
         type: 'bar',
@@ -142,19 +233,14 @@
             }
         }
     };
-    
-    // Create Charts
-    const lineChart = new Chart(
-        document.getElementById('lineChart'),
-        lineConfig
-    );
-    
+        
     const barChart = new Chart(
         document.getElementById('barChart'),
         barConfig
     );
-    </script>
 
-    
-    {% endblock %}
 
+</script>
+
+
+{% endblock %}
