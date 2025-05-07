@@ -45,17 +45,18 @@ function renderMessages(chatId, chatTitle, messages) {
         const messageClass = isSender ? 'sent' : 'received';
         const avatar = isSender ? '' : `<div class="message-avatar">${msg.sender_name[0]}</div>`;
     
-        let bubbleContent = "";
-        if (msg.text) {
-            let editedLabel = msg.is_edited ? 
-            (isSender 
-                ? '<span style="font-size: 11px; color: var(--text-light); margin-left: 6px;">edited</span>' 
-                : '<span style="font-size: 11px; color: var(--text-light); margin-right: 6px;">edited</span>'
-            ) 
-            : '';
+    // In the renderMessages function, update the bubbleContent section to include media handling
+    let bubbleContent = "";
+    if (msg.text) {
+        let editedLabel = msg.is_edited ? 
+        (isSender 
+            ? '<span style="font-size: 11px; color: var(--text-light); margin-left: 6px;">edited</span>' 
+            : '<span style="font-size: 11px; color: var(--text-light); margin-right: 6px;">edited</span>'
+        ) 
+        : '';
         
-            let replyHtml = '';
-            if (msg.reply_to && msg.reply_to.text) {
+        let replyHtml = '';
+        if (msg.reply_to && msg.reply_to.text) {
             replyHtml = `
                 <div class="reply-snippet">
                 ${msg.reply_to.text.length > 50 
@@ -63,26 +64,36 @@ function renderMessages(chatId, chatTitle, messages) {
                     : msg.reply_to.text}
                 </div>
             `;
-            }
-
-          
-            // then when you're building the bubbleContent for a SENT message
-              bubbleContent = `
-                <div class="message-bubble">
-                  ${replyHtml}
-                  ${msg.text}${editedLabel}
-                </div>
-              `;
-
-        
-        }else if (msg.audio_msg) {
-            bubbleContent = `
-                    <audio controls controlsList="nodownload noplaybackrate nofullscreen" style="max-height: 40px;">
-                        <source src="${msg.audio_msg}" type="audio/webm">
-                        Your browser does not support the audio element.
-                    </audio>
-            `;
         }
+
+        bubbleContent = `
+            <div class="message-bubble">
+            ${replyHtml}
+            ${msg.text}${editedLabel}
+            </div>
+        `;
+    } else if (msg.audio_msg) {
+        bubbleContent = `
+            <audio controls controlsList="nodownload noplaybackrate nofullscreen" style="max-height: 40px;">
+                <source src="${msg.audio_msg}" type="audio/webm">
+                Your browser does not support the audio element.
+            </audio>
+        `;
+    } else if (msg.media_url && msg.media_url.length > 0) {
+        // Handle media files (images, videos, etc.)
+        bubbleContent = msg.media_url.map(media => {
+            if (media.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                return `<img src="${media}" class="media-message" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+            } else if (media.match(/\.(mp4|webm|ogg)$/i)) {
+                return `<video controls style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                        <source src="${media}">
+                        Your browser does not support the video tag.
+                    </video>`;
+            } else {
+                return `<a href="${media}" target="_blank">Download file</a>`;
+            }
+        }).join('');
+    }
     
         const messageHtml = `
         <div class="message ${messageClass}" data-message-id="${msg.id}">

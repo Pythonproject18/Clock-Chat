@@ -30,7 +30,8 @@ class MessageListView(View):
                 {
                     'id': msg.id,
                     'text': msg.text,
-                    'audio_msg':msg.audio_url,
+                    'audio_msg': msg.audio_url,
+                    'media_url': msg.media_url if hasattr(msg, 'media_url') else None,
                     'created_at': msg.created_at.strftime("%I:%M %p"),
                     'sender_id': msg.sender_id.id,
                     'sender_name': f"{msg.sender_id.first_name} {msg.sender_id.last_name}",
@@ -42,7 +43,6 @@ class MessageListView(View):
                         'id': msg.reply_for_message.id,
                         'text': msg.reply_for_message.text,
                     } if msg.reply_for_message else None,
-
                 }
                 for msg in messages
             ]
