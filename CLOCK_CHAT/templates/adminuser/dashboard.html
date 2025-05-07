@@ -55,7 +55,6 @@
 </style>
 
 
-
 <div class="content-wrapper">
     <div class="chart-container">
         <canvas id="lineChart"></canvas>
@@ -68,94 +67,94 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-// Line Chart Data
-const lineData = {
-    labels: [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
-    datasets: [{
-        label: 'Users',
-        data: [7, 8, 8, 9, 9, 10, 11, 14, 14, 14, 15],
-        fill: true,
-        borderColor: '#a8c8e8',
-        backgroundColor: 'rgba(168, 200, 232, 0.3)',
-        tension: 0.1
-    }]
-};
-
-// Bar Chart Data
-const barData = {
-    labels: ['2016', '2017', '2018', '2019', '2020', '2021', '2022'],
-    datasets: [{
-        label: 'Group Chat',
-        data: [10, 30, 40, 60, 60, 80, 70],
-        backgroundColor: '#66b3ff',
-    }, {
-        label: 'Single Chat',
-        data: [5, 35, 65, 60, 70, 95, 80],
-        backgroundColor: '#a8c8e8',
-    }]
-};
-
-// Line Chart Configuration
-const lineConfig = {
-    type: 'line',
-    data: lineData,
-    options: {
-        plugins: {
-            title: {
-                display: true,
-                text: 'Single Line Chart',
-                align: 'start'
+    // Line Chart Data
+    const lineData = {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        datasets: [{
+            label: 'Users',
+            data: [7, 8, 8, 9, 9, 10, 11, 14, 14, 14, 15, 16],
+            fill: true,
+            borderColor: '#a8c8e8',
+            backgroundColor: 'rgba(168, 200, 232, 0.3)',
+            tension: 0.1
+        }]
+    };
+    
+    // Bar Chart Data
+    const barData = {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        datasets: [{
+            label: 'Group Chat',
+            data: [10, 30, 40, 60, 60, 80, 70, 90, 40, 30, 35, 60, 50],
+            backgroundColor: '#66b3ff',
+        }, {
+            label: 'Single Chat',
+            data: [5, 35, 65, 60, 70, 95, 80, 85, 40, 30, 65, 45, 20],
+            backgroundColor: '#a8c8e8',
+        }]
+    };
+    
+    // Line Chart Configuration
+    const lineConfig = {
+        type: 'line',
+        data: lineData,
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Single Line Chart',
+                    align: 'start'
+                },
+                legend: {
+                    position: 'top',
+                }
             },
-            legend: {
-                position: 'top',
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: false,
-                ticks: {
-                    stepSize: 1
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    ticks: {
+                        stepSize: 1
+                    }
                 }
             }
         }
-    }
-};
-
-// Bar Chart Configuration
-const barConfig = {
-    type: 'bar',
-    data: barData,
-    options: {
-        plugins: {
-            title: {
-                display: true,
-                text: 'Multiple Bar Chart',
-                align: 'start'
+    };
+    
+    // Bar Chart Configuration
+    const barConfig = {
+        type: 'bar',
+        data: barData,
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Multiple Bar Chart',
+                    align: 'start'
+                },
+                legend: {
+                    position: 'top',
+                }
             },
-            legend: {
-                position: 'top',
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
             }
         }
-    }
-};
-
-// Create Charts
-const lineChart = new Chart(
-    document.getElementById('lineChart'),
-    lineConfig
-);
-
-const barChart = new Chart(
-    document.getElementById('barChart'),
-    barConfig
-);
-</script>
-
+    };
+    
+    // Create Charts
+    const lineChart = new Chart(
+        document.getElementById('lineChart'),
+        lineConfig
+    );
+    
+    const barChart = new Chart(
+        document.getElementById('barChart'),
+        barConfig
+    );
+    </script>
 
     
     {% endblock %}
+
