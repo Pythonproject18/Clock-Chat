@@ -75,34 +75,43 @@ function renderMessages(chatId, chatTitle, messages) {
     // Update the media handling section in renderMessages
 } else if (msg.media_url) {
     const mediaCount = msg.media_url.length;
-    bubbleContent = `<div class="media-grid media-count-${Math.min(mediaCount, 4)}">`; // Supports up to 4 items per row
+    const showCount = Math.min(mediaCount, 4); // Show max 4 items
+    const hasMore = mediaCount > 4;
     
-    bubbleContent += msg.media_url.map((media, index) => {
-        const isLastInRow = (index + 1) % 2 === 0 || index === mediaCount - 1;
+    bubbleContent = `<div class="media-grid media-count-${showCount}">`;
+    
+    msg.media_url.slice(0, showCount).forEach((media, index) => {
+        const isLastInRow = (index + 1) % 2 === 0 || index === showCount - 1;
         const marginClass = isLastInRow ? 'no-margin' : '';
         
         if (media.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-            return `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'image')">
+            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'image')">
                 <img src="${media}" class="media-message">
-                ${mediaCount > 1 ? '<div class="media-overlay"></div>' : ''}
+                ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
+                ${hasMore && index === showCount - 1 ? 
+                  `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
             </div>`;
         } else if (media.match(/\.(mp4|webm|ogg|mov)$/i)) {
-            return `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'video')">
+            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'video')">
                 <video class="media-message">
                     <source src="${media}">
                 </video>
                 <div class="video-play-icon"><i class="fas fa-play"></i></div>
-                ${mediaCount > 1 ? '<div class="media-overlay"></div>' : ''}
+                ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
+                ${hasMore && index === showCount - 1 ? 
+                  `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
             </div>`;
         } else {
-            return `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'file')">
+            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'file')">
                 <div class="file-message">
                     <i class="fas fa-file-alt"></i>
                     <span>${media.split('/').pop()}</span>
                 </div>
+                ${hasMore && index === showCount - 1 ? 
+                  `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
             </div>`;
         }
-    }).join('');
+    });
     
     bubbleContent += '</div>';
 }
