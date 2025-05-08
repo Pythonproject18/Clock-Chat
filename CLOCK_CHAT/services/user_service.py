@@ -1,11 +1,8 @@
 from CLOCK_CHAT.models import ChatMember, Chat, User, Chat_Type, Message, MessageReaction
-from django.db.models import Max, Q
 from CLOCK_CHAT.services import chat_service
-from CLOCK_CHAT.constants.default_values import Gender
 import os
 import hashlib
 from django.conf import settings
-from itertools import chain
 
 def get_user_chats(user_id):
     chat_ids = ChatMember.objects.filter(member=user_id, is_active=True).values_list('chat', flat=True)
@@ -98,7 +95,6 @@ def get_chat_members(chat):
     ]
 
 def get_chat_details(user_id):
-    user = User.objects.get(id=user_id)
     chats = get_user_chats(user_id)
     chat_list = []
 
