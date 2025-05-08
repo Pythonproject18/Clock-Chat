@@ -5,6 +5,9 @@
 <link rel="stylesheet" href="{% static 'css/statusview.css' %}">
 <link rel="stylesheet" href="{% static 'css/status.css' %}">
 {% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+{% endblock %}
 
 {% block content %}
 <div class="wrapper">
@@ -18,7 +21,7 @@
         <div class="number">{{user_name}}</div>
       </div>
     </div>
-    <div class="status-body">
+    <div class="status-body" id="status-body">
       <div class="status_text empty" id="text" contenteditable="true" spellcheck="false"></div>
     </div>
     <div style="margin-top: 10px;display: flex;justify-content: center;align-items: center;">
@@ -28,7 +31,6 @@
     </div>
   </div>
 </div>
-
 <script>
   function getCSRFToken() {
     let cookieValue = null;
@@ -45,41 +47,50 @@
     }
     return cookieValue;
   }
-
+  
   function send_status() {
     const textDiv = document.getElementById('text');
     const text = textDiv.textContent.trim();
-    const bgcolor = window.getComputedStyle(textDiv).backgroundColor;
-
+    const statusBody = document.getElementById('status-body');
+  
     if (!text) {
       console.log("Empty text");
       return;
     }
-
-    fetch('/text_status/create/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCSRFToken()  // Correct CSRF token header
-      },
-      body: JSON.stringify({
-        text: text,
-        background_color: bgcolor
+  
+    if (!statusBody) {
+      console.error("Element with id 'status-body' not found");
+      return;
+    }
+  
+    html2canvas(statusBody).then(canvas => {
+      const imageData = canvas.toDataURL("image/png");
+  
+      fetch('/status/create/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+          image: imageData,
+          type: "text",       // status_type, e.g. "text"
+          caption: ""         // optional caption
+        })
       })
-    })
-    .then(response => {
-      if (!response.ok) throw new Error("Network response was not ok");
-      return response.json();
-    })
-    .then(data => {
-      console.log("Status saved successfully:", data);
-      // Optional: show toast or clear status
-    })
-    .catch(error => {
-      console.error("Error saving status:", error);
+      .then(response => response.json())
+      .then(data => {
+        console.log("Status saved successfully", data);
+        // You can reset the input or show a toast here
+      })
+      .catch(error => {
+        console.error("Error saving status:", error);
+      });
     });
   }
 </script>
+
+
 <script>
   function back() {
     window.history.back();

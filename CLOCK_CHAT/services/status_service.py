@@ -83,7 +83,12 @@ def get_user_status(user_id):
 
 def create_status(image, user_id, status_type,caption):
     user=User.objects.filter(id=user_id,is_active=True).first()
-    type= Status_Type(int(status_type)).value
+    type= ''
+    if status_type == 'text':
+        type = Status_Type.TEXT.value
+    else:
+        type = Status_Type(int(status_type)).value
+    
     status = Status.objects.create(
         status_media=image,  # Fixed field name
         status_type=type,
