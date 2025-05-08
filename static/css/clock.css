@@ -1106,3 +1106,110 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+
+
+
+
+
+
+
+/* Media Grid Styles */
+.media-grid {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+
+.media-count-1 {
+  grid-template-columns: 1fr;
+}
+.media-count-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.media-count-3 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.media-count-4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.media-grid-item {
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 1/1;
+}
+
+.media-grid-item.no-margin {
+  margin-right: 0;
+}
+
+.media-message {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.media-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Adjust single media item sizing */
+.message-bubble .media-grid:has(.media-grid-item:only-child) .media-grid-item {
+  aspect-ratio: auto;
+  max-width: 300px;
+  max-height: 300px;
+}
+
+/* Video and file specific styles */
+.video-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  z-index: 2;
+}
+
+.file-message {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.file-message i {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.file-message span {
+  font-size: 12px;
+  text-align: center;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
