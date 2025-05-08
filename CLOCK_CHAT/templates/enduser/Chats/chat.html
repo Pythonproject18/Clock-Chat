@@ -52,10 +52,17 @@
                     </div>
                 {% endif %}
                 </div>
-                <div style="max-width: 100px;gap: 10px;flex-direction: column;display: flex;">
-                <div style="justify-content: flex-end;align-items: center;display: flex;font-size: 12px;">{{ chat.unread_count }}</div>
-                <div style="justify-content: flex-end;align-items: center;display: flex;font-size: 12px;">{{chat.created_at}}</div>
+                <div style="max-width: 100px; height: 40px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="justify-content: flex-end; align-items: center; display: flex; font-size: 12px;">
+                        {% if chat.unread_count %}
+                            {{ chat.unread_count }}
+                        {% endif %}
+                    </div>
+                    <div style="justify-content: flex-end; align-items: center; display: flex; font-size: 12px;">
+                        {{ chat.created_at }}
+                    </div>
                 </div>
+                
             </div>
             {% endfor %}
         </div>

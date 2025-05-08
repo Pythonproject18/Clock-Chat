@@ -105,7 +105,7 @@ def get_chat_details(user_id):
             ],
             "latest_time": latest_time,
             "latest_text": subtitle,
-            "latest_message_sender_id":latest_message.sender_id.id,
+            "latest_message_sender_id":latest_message.sender_id.id if latest_message else '',
             "unread_count": unread_count,
             "created_at": chat_service.global_timestamp(latest_time),
             "seen_by_all":seen_by_all
