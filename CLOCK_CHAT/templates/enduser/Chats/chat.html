@@ -36,18 +36,21 @@
                 <div class="chat-avatar">{{ chat.title|first }}</div>
                 <div class="chat-header-info">
                     <h3 class="chat-title">{{ chat.title }}</h3>
-                    <div style="gap: 5px;display: flex;align-items: center;">
+                    {% if chat.latest_text %}
+                    <div style="gap: 5px; display: flex; align-items: center;">
+                        {% if chat.latest_message_sender_id == request.user.id %}
                         <div style="font-size: 12px; display: flex; gap: 2px; align-items: center;">
                             {% if chat.seen_by_all %}
-                            <i class="fas fa-check" style="color:#a29bfe;position: relative; left: 7px;font-size: 10px;"></i>
-                            <i class="fas fa-check"style="color:#a29bfe;font-size: 10px;"></i>
+                                <i class="fas fa-check" style="color:#a29bfe; font-size: 10px;left: 6px;position: relative;"></i>
+                                <i class="fas fa-check" style="color:#a29bfe; font-size: 10px;"></i>
                             {% else %}
-                            <i class="fas fa-check"style="font-size: 10px;"></i>
+                                <i class="fas fa-check" style="font-size: 10px;"></i>
                             {% endif %}
                         </div>
-                          
+                        {% endif%}
                         <p class="chat-subtitle">{{ chat.latest_text|safe }}</p>
                     </div>
+                {% endif %}
                 </div>
                 <div style="max-width: 100px;gap: 10px;flex-direction: column;display: flex;">
                 <div style="justify-content: flex-end;align-items: center;display: flex;font-size: 12px;">{{ chat.unread_count }}</div>

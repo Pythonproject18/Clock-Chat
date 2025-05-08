@@ -37,7 +37,7 @@ def get_chat_details(user_id):
         if latest_reaction and (not latest_message or latest_reaction.updated_at > latest_message.created_at):
             # ✅ Reaction is latest
             reacted_by = latest_reaction.reacted_by
-            reacted_by_name = f"{reacted_by.first_name} {reacted_by.middle_name} {reacted_by.last_name}".strip()
+            reacted_by_name = reacted_by.first_name if reacted_by.id != user_id else "You"
             emoji_icon = latest_reaction.reaction.value
             reacted_message = latest_reaction.message
 
@@ -57,7 +57,7 @@ def get_chat_details(user_id):
 
             if chat.type != Chat_Type.PERSONAL.value:
                 sender = latest_message.sender_id
-                sender_name = f"{sender.first_name} {sender.last_name}".strip()
+                sender_name = sender.first_name if sender.id != user_id else "You"
                 subtitle = f"{sender_name}: {subtitle}"
         else:
             subtitle = ""
@@ -77,7 +77,7 @@ def get_chat_details(user_id):
         if chat.type == Chat_Type.PERSONAL.value:
             other_members = ChatMember.objects.filter(chat=chat, is_active=True).exclude(member=user.id)
             if other_members.exists():
-                member = User.objects.get(id=other_members[0].member_id)
+                member = User.objects.get(id=other_members[0].member_id ,is_active=True)
                 title = f"{member.first_name} {member.middle_name} {member.last_name}".strip()
                 if not subtitle:
                     subtitle = member.bio or ""
@@ -85,7 +85,7 @@ def get_chat_details(user_id):
                 title = "Unknown"
         else:
             title = chat.chat_title or ", ".join([
-                f"{User.objects.get(id=m.member_id).first_name} {User.objects.get(id=m.member_id).middle_name} {User.objects.get(id=m.member_id).last_name}".strip()
+                User.objects.get(id=m.member_id,is_active=True).first_name
                 for m in ChatMember.objects.filter(chat=chat, is_active=True)
             ])
 
@@ -105,6 +105,7 @@ def get_chat_details(user_id):
             ],
             "latest_time": latest_time,
             "latest_text": subtitle,
+            "latest_message_sender_id":latest_message.sender_id.id,
             "unread_count": unread_count,
             "created_at": chat_service.global_timestamp(latest_time),
             "seen_by_all":seen_by_all
