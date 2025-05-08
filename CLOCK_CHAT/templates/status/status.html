@@ -73,7 +73,7 @@
         {% endif %}
         
         <div class="floating-icons">
-            <div class="floating-button">✎</div>
+            <div class="floating-button" onclick="window.location.href='{% url "text_status_create" %}'">✎</div>
             <input type="file" id="statusImage" accept="image/*,video/*" style="display: none;" onchange="previewStatus(event)">
 
             <div class="floating-button" onclick="document.getElementById('statusImage').click();">

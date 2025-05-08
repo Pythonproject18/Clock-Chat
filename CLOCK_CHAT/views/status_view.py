@@ -12,6 +12,8 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import uuid
 import base64
+import json
+from CLOCK_CHAT.constants.default_values import Status_Type
 
 
 
@@ -141,4 +143,47 @@ class GetStatusViewersView(View):
             return JsonResponse({'viewers': data}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+        
 
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+class TextStatusCreateView(View):
+     def get(self, request):
+        try:
+            user_id = request.user.id
+            user = user_service.get_user_object(user_id)
+
+            return render(request, "status/text_status.html", {
+                'user_profile': user.profile_photo_url if user.profile_photo_url else '/static/images/default_avatar.png',
+                'user_name': f"{user.first_name} {user.middle_name} {user.last_name}"
+            })
+        except Exception as e:
+            return render(request, "status/text_status.html", {"error": str(e)})
+
+     def post(self, request):
+        try:
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
+
+            # Extract values from the request body
+            text = data.get('text', '').strip()
+            background_color = data.get('background_color', '')
+            status_type = Status_Type.TEXT.value
+
+            if not text:
+                return JsonResponse({"error": "Text cannot be empty."}, status=400)
+
+            # Create and save the new Status object
+            status = Status.objects.create(
+                text=text,
+                background_color=background_color,
+                status_type=status_type,
+                created_by=request.user,  # Assuming `request.user` is the logged-in user
+            )
+
+            return JsonResponse({"message": "Status created successfully!", "status_id": status.id}, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON data."}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)

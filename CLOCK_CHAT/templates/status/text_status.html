@@ -1,0 +1,177 @@
+{% extends "enduser/toolbar.html" %}
+{% load static %}
+{% block title %} Status | Preview {% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/statusview.css' %}">
+<link rel="stylesheet" href="{% static 'css/status.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+  <i style="position:absolute;left: 7%; top:4%;font-size: 22px;"class="fa fa-arrow-left" onclick="back()"></i>
+  <div class="status-screen">
+    <div class="status-header">
+      <div class="profile-pic">
+        <img src="{{user_profile}}" style="border-radius: 50%;height: 100%; width: 100%;">
+      </div>
+      <div class="user-info">
+        <div class="number">{{user_name}}</div>
+      </div>
+    </div>
+    <div class="status-body">
+      <div class="status_text empty" id="text" contenteditable="true" spellcheck="false"></div>
+    </div>
+    <div style="margin-top: 10px;display: flex;justify-content: center;align-items: center;">
+      <button class="btn btn-primary" type="submit" onclick="send_status()" style="padding: 5px;width: 90%;border-radius: 5px;border: none;">
+        Send
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function getCSRFToken() {
+    let cookieValue = null;
+    const name = 'csrftoken';
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  function send_status() {
+    const textDiv = document.getElementById('text');
+    const text = textDiv.textContent.trim();
+    const bgcolor = window.getComputedStyle(textDiv).backgroundColor;
+
+    if (!text) {
+      console.log("Empty text");
+      return;
+    }
+
+    fetch('/text_status/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken()  // Correct CSRF token header
+      },
+      body: JSON.stringify({
+        text: text,
+        background_color: bgcolor
+      })
+    })
+    .then(response => {
+      if (!response.ok) throw new Error("Network response was not ok");
+      return response.json();
+    })
+    .then(data => {
+      console.log("Status saved successfully:", data);
+      // Optional: show toast or clear status
+    })
+    .catch(error => {
+      console.error("Error saving status:", error);
+    });
+  }
+</script>
+<script>
+  function back() {
+    window.history.back();
+  }
+
+  const statusDiv = document.querySelector('.status_text');
+  const MAX_LENGTH = 200;
+
+  // Placeholder toggle logic
+  const togglePlaceholder = () => {
+    if (statusDiv.textContent.trim() === '') {
+      statusDiv.classList.add('empty');
+    } else {
+      statusDiv.classList.remove('empty');
+    }
+  };
+
+  // Auto-resize font size if content overflows
+  function adjustFontSizeToFit(element, minFont = 6, maxFont = 28) {
+    let fontSize = maxFont;
+    element.style.fontSize = fontSize + 'px';
+
+    while (
+      (element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth) &&
+      fontSize > minFont
+    ) {
+      fontSize -= 1;
+      element.style.fontSize = fontSize + 'px';
+    }
+  }
+
+  // Enforce max character length
+  const enforceMaxLength = () => {
+    const text = statusDiv.textContent;
+    if (text.length > MAX_LENGTH) {
+      statusDiv.textContent = text.slice(0, MAX_LENGTH);
+      placeCaretAtEnd(statusDiv);
+    }
+  };
+
+  // Helper to restore caret position
+  function placeCaretAtEnd(el) {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  // Combined handler
+  const handleInput = () => {
+    enforceMaxLength();
+    togglePlaceholder();
+    adjustFontSizeToFit(statusDiv);
+  };
+
+  // Event listeners
+  statusDiv.addEventListener('input', handleInput);
+  statusDiv.addEventListener('blur', handleInput);
+  statusDiv.addEventListener('focus', handleInput);
+  window.addEventListener('resize', () => adjustFontSizeToFit(statusDiv));
+
+  // Initialize on load
+  window.addEventListener('DOMContentLoaded', () => {
+    handleInput();
+  });
+
+</script>
+<style>
+  .btn-primary {
+    background-color: #007bff; /* Replace with your desired primary color */
+    border-color: #007bff;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3; /* Darker shade for hover */
+    border-color: #0056b3;
+  }
+  .status_text {
+    min-height: 40px;
+    border: 1px solid #ccc;
+    padding: 40px 20px;
+    position: relative;
+  }
+
+  .status_text.empty::before {
+    content: "Type something...";
+    color: #aaa;
+    position: absolute;
+    pointer-events: none;
+  }
+</style>
+{% endblock %}

@@ -71,6 +71,7 @@ function sendRecording() {
 
     mediaRecorder.onstop = () => {
         audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        resetTimer();
 
         const formData = new FormData();
         formData.append("audio", audioBlob, "recording.webm");
