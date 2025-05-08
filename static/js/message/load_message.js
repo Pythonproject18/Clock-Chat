@@ -72,25 +72,28 @@ function renderMessages(chatId, chatTitle, messages) {
             ${msg.text}${editedLabel}
             </div>
         `;
-    } else if (msg.audio_msg) {
-        bubbleContent = `
-            <audio controls controlsList="nodownload noplaybackrate nofullscreen" style="max-height: 40px;">
-                <source src="${msg.audio_msg}" type="audio/webm">
-                Your browser does not support the audio element.
-            </audio>
-        `;
-    } else if (msg.media_url && msg.media_url.length > 0) {
-        // Handle media files (images, videos, etc.)
+   // In the media handling section, update to this:
+    // In the renderMessages function, update the media handling part to this:
+    } else if (msg.media_url) {
+        // Handle media files without borders
         bubbleContent = msg.media_url.map(media => {
-            if (media.match(/\.(jpg|jpeg|png|gif)$/i)) {
-                return `<img src="${media}" class="media-message" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
-            } else if (media.match(/\.(mp4|webm|ogg)$/i)) {
-                return `<video controls style="max-width: 200px; max-height: 200px; border-radius: 8px;">
-                        <source src="${media}">
-                        Your browser does not support the video tag.
-                    </video>`;
+            if (media.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                return `<img src="${media}" class="media-message">`;
+            } else if (media.match(/\.(mp4|webm|ogg|mov)$/i)) {
+                return `<video controls class="media-message">
+                    <source src="${media}">
+                    Your browser does not support the video tag.
+                </video>`;
+            } else if (media.match(/\.(mp3|wav|ogg|m4a)$/i)) {
+                return `<audio controls class="media-message">
+                    <source src="${media}">
+                    Your browser does not support the audio element.
+                </audio>`;
             } else {
-                return `<a href="${media}" target="_blank">Download file</a>`;
+                return `<div class="file-message">
+                    <i class="fas fa-file-alt"></i>
+                    <span>${media.split('/').pop()}</span>
+                </div>`;
             }
         }).join('');
     }

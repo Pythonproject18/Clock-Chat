@@ -987,12 +987,6 @@
   }
 
 
-
-
-
-
-
-
   .media-message {
     max-width: 100%;
     height: auto;
@@ -1005,16 +999,4 @@
     flex-wrap: wrap;
     gap: 5px;
     margin-top: 5px;
-}
-
-/* For received media messages */
-.message.received .media-message {
-    background: #f1f1f1;
-    padding: 5px;
-}
-
-/* For sent media messages */
-.message.sent .media-message {
-    background: #dcf8c6;
-    padding: 5px;
 }
