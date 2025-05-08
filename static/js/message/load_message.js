@@ -72,32 +72,38 @@ function renderMessages(chatId, chatTitle, messages) {
             ${msg.text}${editedLabel}
             </div>
         `;
-   // In the media handling section, update to this:
-    // In the renderMessages function, update the media handling part to this:
+    // In the media handling section, update to this:
     } else if (msg.media_url) {
         // Handle media files without borders
         bubbleContent = msg.media_url.map(media => {
             if (media.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-                return `<img src="${media}" class="media-message">`;
+                return `<div class="media-container" onclick="openMediaViewer('${media}', 'image')">
+                    <img src="${media}" class="media-message">
+                </div>`;
             } else if (media.match(/\.(mp4|webm|ogg|mov)$/i)) {
-                return `<video controls class="media-message">
-                    <source src="${media}">
-                    Your browser does not support the video tag.
-                </video>`;
+                return `<div class="media-container" onclick="openMediaViewer('${media}', 'video')">
+                    <video class="media-message">
+                        <source src="${media}">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="video-play-icon"><i class="fas fa-play"></i></div>
+                </div>`;
             } else if (media.match(/\.(mp3|wav|ogg|m4a)$/i)) {
-                return `<audio controls class="media-message">
-                    <source src="${media}">
-                    Your browser does not support the audio element.
-                </audio>`;
+                return `<div class="media-container" onclick="openMediaViewer('${media}', 'audio')">
+                    <audio controls class="media-message">
+                        <source src="${media}">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>`;
             } else {
-                return `<div class="file-message">
+                return `<div class="file-message" onclick="openMediaViewer('${media}', 'file')">
                     <i class="fas fa-file-alt"></i>
                     <span>${media.split('/').pop()}</span>
                 </div>`;
             }
         }).join('');
     }
-    
+        
         const messageHtml = `
         <div class="message ${messageClass}" data-message-id="${msg.id}">
             ${avatar}
@@ -275,4 +281,67 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+
+
+function openMediaViewer(mediaUrl, mediaType) {
+    const mediaViewer = document.createElement('div');
+    mediaViewer.className = 'media-viewer-overlay';
+    
+    // Create the close button first
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'media-viewer-close';
+    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    closeBtn.onclick = () => {
+        document.body.removeChild(mediaViewer);
+    };
+
+    let mediaContent = '';
+    if (mediaType === 'image') {
+        mediaContent = `<img src="${mediaUrl}" class="media-viewer-content">`;
+    } else if (mediaType === 'video') {
+        mediaContent = `
+            <video controls autoplay class="media-viewer-content">
+                <source src="${mediaUrl}">
+                Your browser does not support the video tag.
+            </video>
+        `;
+    } else if (mediaType === 'audio') {
+        mediaContent = `
+            <audio controls autoplay class="media-viewer-content">
+                <source src="${mediaUrl}">
+                Your browser does not support the audio element.
+            </audio>
+        `;
+    } else {
+        mediaContent = `
+            <div class="file-viewer-content">
+                <i class="fas fa-file-alt"></i>
+                <span>${mediaUrl.split('/').pop()}</span>
+            </div>
+        `;
+    }
+
+    // Create container and append elements
+    const container = document.createElement('div');
+    container.className = 'media-viewer-container';
+    container.appendChild(closeBtn);
+    container.insertAdjacentHTML('beforeend', mediaContent);
+    
+    mediaViewer.appendChild(container);
+    
+    // Close when clicking outside content
+    mediaViewer.onclick = (e) => {
+        if (e.target === mediaViewer) {
+            document.body.removeChild(mediaViewer);
+        }
+    };
+
+    // Prevent clicks on the content from closing the viewer
+    container.onclick = (e) => {
+        e.stopPropagation();
+    };
+
+    document.body.appendChild(mediaViewer);
 }
