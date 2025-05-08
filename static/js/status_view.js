@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div class="status-body">
-          <img src="${status.media_url}" style="width:100%;">
+          <img src="${status.media_url}" style="width:100%;max-height:100%; object-fit:cover;">
         </div>
 
         ${status.caption ? `<div style="text-align: center; font-size: larger;">${status.caption}</div>` : ''}

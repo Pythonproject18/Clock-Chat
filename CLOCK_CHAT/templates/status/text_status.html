@@ -32,6 +32,11 @@
   </div>
 </div>
 <script>
+  function getRandomBackgroundColor() {
+    const colors = ['#ff9aa2', '#ffb7b2', '#feca57', '#a29bfe', '#81ecec', '#55efc4', '#fab1a0', '#74b9ff', '#fd79a8', '#7d7cd0'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
   function getCSRFToken() {
     let cookieValue = null;
     const name = 'csrftoken';
@@ -82,6 +87,16 @@
       .then(data => {
         console.log("Status saved successfully", data);
         // You can reset the input or show a toast here
+        // Reset text
+        textDiv.textContent = '';
+        textDiv.classList.add('empty');
+        
+        // Set a new random background color
+        const newColor = getRandomBackgroundColor();
+        textDiv.style.backgroundColor = newColor;
+
+        // Optional: Adjust font size after color change
+        adjustFontSizeToFit(textDiv);
       })
       .catch(error => {
         console.error("Error saving status:", error);
@@ -173,14 +188,14 @@
   }
   .status_text {
     min-height: 40px;
-    border: 1px solid #ccc;
     padding: 40px 20px;
     position: relative;
+    background-color: #a29bfe; /* initial color */
   }
 
   .status_text.empty::before {
     content: "Type something...";
-    color: #aaa;
+    color: #ffffff;
     position: absolute;
     pointer-events: none;
   }

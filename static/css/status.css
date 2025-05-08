@@ -18,11 +18,10 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: #7d7cd0;
     height: 100%;
     width: 100%;
     padding: 20px;
-    color: white;
+    color: #121212;
     font-size: clamp(6px, 5vw, 28px);
     overflow-wrap: break-word;
 
