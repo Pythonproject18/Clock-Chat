@@ -78,6 +78,12 @@ def create_group_chat_with_friend(current_user_id, user_ids):
     # Ensure at least 2 members + current user = group
     if len(user_ids) < 2:
         return None
+    for user_id in user_ids:
+        Friend.objects.get_or_create(
+            user_id=current_user_id,
+            friend_id=user_id,
+            defaults={'created_by_id': current_user_id}
+        )
     # Create new group chat
     chat = Chat.objects.create(
         type=Chat_Type.GROUP.value,
