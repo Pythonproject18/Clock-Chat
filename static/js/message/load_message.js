@@ -45,17 +45,18 @@ function renderMessages(chatId, chatTitle, messages) {
         const messageClass = isSender ? 'sent' : 'received';
         const avatar = isSender ? '' : `<div class="message-avatar">${msg.sender_name[0]}</div>`;
     
-        let bubbleContent = "";
-        if (msg.text) {
-            let editedLabel = msg.is_edited ? 
-            (isSender 
-                ? '<span style="font-size: 11px; color: var(--text-light); margin-left: 6px;">edited</span>' 
-                : '<span style="font-size: 11px; color: var(--text-light); margin-right: 6px;">edited</span>'
-            ) 
-            : '';
+    // In the renderMessages function, update the bubbleContent section to include media handling
+    let bubbleContent = "";
+    if (msg.text) {
+        let editedLabel = msg.is_edited ? 
+        (isSender 
+            ? '<span style="font-size: 11px; color: var(--text-light); margin-left: 6px;">edited</span>' 
+            : '<span style="font-size: 11px; color: var(--text-light); margin-right: 6px;">edited</span>'
+        ) 
+        : '';
         
-            let replyHtml = '';
-            if (msg.reply_to && msg.reply_to.text) {
+        let replyHtml = '';
+        if (msg.reply_to && msg.reply_to.text) {
             replyHtml = `
                 <div class="reply-snippet">
                 ${msg.reply_to.text.length > 50 
@@ -63,27 +64,58 @@ function renderMessages(chatId, chatTitle, messages) {
                     : msg.reply_to.text}
                 </div>
             `;
-            }
-
-          
-            // then when you're building the bubbleContent for a SENT message
-              bubbleContent = `
-                <div class="message-bubble">
-                  ${replyHtml}
-                  ${msg.text}${editedLabel}
-                </div>
-              `;
-
-        
-        }else if (msg.audio_msg) {
-            bubbleContent = `
-                    <audio controls controlsList="nodownload noplaybackrate nofullscreen" style="max-height: 40px;">
-                        <source src="${msg.audio_msg}" type="audio/webm">
-                        Your browser does not support the audio element.
-                    </audio>
-            `;
         }
+
+        bubbleContent = `
+            <div class="message-bubble">
+            ${replyHtml}
+            ${msg.text}${editedLabel}
+            </div>
+        `;
+    // Update the media handling section in renderMessages
+} else if (msg.media_url) {
+    const mediaCount = msg.media_url.length;
+    const showCount = Math.min(mediaCount, 4); // Show max 4 items
+    const hasMore = mediaCount > 4;
     
+    bubbleContent = `<div class="media-grid media-count-${showCount}">`;
+    
+    msg.media_url.slice(0, showCount).forEach((media, index) => {
+        const isLastInRow = (index + 1) % 2 === 0 || index === showCount - 1;
+        const marginClass = isLastInRow ? 'no-margin' : '';
+        
+        if (media.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'image')">
+                <img src="${media}" class="media-message">
+                ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
+                ${hasMore && index === showCount - 1 ? 
+                  `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
+            </div>`;
+        } else if (media.match(/\.(mp4|webm|ogg|mov)$/i)) {
+            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'video')">
+                <video class="media-message">
+                    <source src="${media}">
+                </video>
+                <div class="video-play-icon"><i class="fas fa-play"></i></div>
+                ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
+                ${hasMore && index === showCount - 1 ? 
+                  `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
+            </div>`;
+        } else {
+            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'file')">
+                <div class="file-message">
+                    <i class="fas fa-file-alt"></i>
+                    <span>${media.split('/').pop()}</span>
+                </div>
+                ${hasMore && index === showCount - 1 ? 
+                  `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
+            </div>`;
+        }
+    });
+    
+    bubbleContent += '</div>';
+}
+        
         const messageHtml = `
         <div class="message ${messageClass}" data-message-id="${msg.id}">
             ${avatar}
@@ -271,4 +303,67 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+
+
+function openMediaViewer(mediaUrl, mediaType) {
+    const mediaViewer = document.createElement('div');
+    mediaViewer.className = 'media-viewer-overlay';
+    
+    // Create the close button first
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'media-viewer-close';
+    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    closeBtn.onclick = () => {
+        document.body.removeChild(mediaViewer);
+    };
+
+    let mediaContent = '';
+    if (mediaType === 'image') {
+        mediaContent = `<img src="${mediaUrl}" class="media-viewer-content">`;
+    } else if (mediaType === 'video') {
+        mediaContent = `
+            <video controls autoplay class="media-viewer-content">
+                <source src="${mediaUrl}">
+                Your browser does not support the video tag.
+            </video>
+        `;
+    } else if (mediaType === 'audio') {
+        mediaContent = `
+            <audio controls autoplay class="media-viewer-content">
+                <source src="${mediaUrl}">
+                Your browser does not support the audio element.
+            </audio>
+        `;
+    } else {
+        mediaContent = `
+            <div class="file-viewer-content">
+                <i class="fas fa-file-alt"></i>
+                <span>${mediaUrl.split('/').pop()}</span>
+            </div>
+        `;
+    }
+
+    // Create container and append elements
+    const container = document.createElement('div');
+    container.className = 'media-viewer-container';
+    container.appendChild(closeBtn);
+    container.insertAdjacentHTML('beforeend', mediaContent);
+    
+    mediaViewer.appendChild(container);
+    
+    // Close when clicking outside content
+    mediaViewer.onclick = (e) => {
+        if (e.target === mediaViewer) {
+            document.body.removeChild(mediaViewer);
+        }
+    };
+
+    // Prevent clicks on the content from closing the viewer
+    container.onclick = (e) => {
+        e.stopPropagation();
+    };
+
+    document.body.appendChild(mediaViewer);
 }
