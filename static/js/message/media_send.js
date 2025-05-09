@@ -124,7 +124,7 @@ function sendSelectedMedia(chatId) {
     }
 
     const formData = new FormData();
-    formData.append("chat_id", chatId);  // Use passed chatId
+    formData.append("chat_id", chatId);
 
     selectedMediaFiles.forEach((file, index) => {
         formData.append(`media_${index}`, file);
@@ -146,6 +146,10 @@ function sendSelectedMedia(chatId) {
         selectedMediaFiles = [];
         document.getElementById("mediaPreview").innerHTML = "";
         document.getElementById("send_media").style.display = "none";
+        
+        // Reload messages after successful upload
+        const chatTitle = document.querySelector('.chat-header-info h2').textContent;
+        loadChatMessages(chatId, chatTitle);
     })
     .catch(error => {
         console.error("Media upload failed.", error);
