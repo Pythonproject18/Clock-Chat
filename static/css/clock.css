@@ -1364,3 +1364,28 @@
     max-height: 65vh;
   }
 }
+
+
+.carousel-nav {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
+    z-index: 1001;
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.carousel-nav.left {
+    left: 40px;
+}
+
+.carousel-nav.right {
+    right: 40px;
+}
+
+.carousel-nav:hover {
+    color: var(--secondary-color);
+}

@@ -85,7 +85,7 @@ function renderMessages(chatId, chatTitle, messages) {
         const marginClass = isLastInRow ? 'no-margin' : '';
         
         if (media.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'image')">
+            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="event.stopPropagation(); openMediaViewer('${media}', 'image')">
                 <img src="${media}" class="media-message">
                 ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
                 ${hasMore && index === showCount - 1 ? 
@@ -102,7 +102,7 @@ function renderMessages(chatId, chatTitle, messages) {
                   `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
             </div>`;
         } else {
-            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'file')">
+            bubbleContent += `<div class="media-grid-item" onclick="event.stopPropagation(); openMediaViewer('${media}', 'video')">
                 <div class="file-message">
                     <i class="fas fa-file-alt"></i>
                     <span>${media.split('/').pop()}</span>
@@ -297,63 +297,89 @@ function getCookie(name) {
 
 
 
-function openMediaViewer(mediaUrl, mediaType) {
-    const mediaViewer = document.createElement('div');
-    mediaViewer.className = 'media-viewer-overlay';
-    
-    // Create the close button first
+function openMediaViewer(clickedUrl, clickedType) {
+    const allMediaElements = document.querySelectorAll('.media-grid-item');
+    const mediaList = [];
+
+    allMediaElements.forEach(el => {
+        const img = el.querySelector('img');
+        const video = el.querySelector('video');
+        const source = el.querySelector('source');
+
+        if (img) {
+            mediaList.push({ url: img.src, type: 'image' });
+        } else if (video) {
+            mediaList.push({ url: source?.src || video.src, type: 'video' });
+        }
+    });
+
+    // Normalize blob URLs (createObjectURL) for match
+    const matchIndex = mediaList.findIndex(media =>
+        media.url === clickedUrl || clickedUrl.includes(media.url) || media.url.includes(clickedUrl)
+    );
+
+    let currentIndex = matchIndex !== -1 ? matchIndex : 0;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'media-viewer-overlay';
+
+    const container = document.createElement('div');
+    container.className = 'media-viewer-container';
+
     const closeBtn = document.createElement('div');
     closeBtn.className = 'media-viewer-close';
     closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-    closeBtn.onclick = () => {
-        document.body.removeChild(mediaViewer);
-    };
+    closeBtn.onclick = () => document.body.removeChild(overlay);
 
-    let mediaContent = '';
-    if (mediaType === 'image') {
-        mediaContent = `<img src="${mediaUrl}" class="media-viewer-content">`;
-    } else if (mediaType === 'video') {
-        mediaContent = `
-            <video controls autoplay class="media-viewer-content">
-                <source src="${mediaUrl}">
-                Your browser does not support the video tag.
-            </video>
-        `;
-    } else if (mediaType === 'audio') {
-        mediaContent = `
-            <audio controls autoplay class="media-viewer-content">
-                <source src="${mediaUrl}">
-                Your browser does not support the audio element.
-            </audio>
-        `;
-    } else {
-        mediaContent = `
-            <div class="file-viewer-content">
-                <i class="fas fa-file-alt"></i>
-                <span>${mediaUrl.split('/').pop()}</span>
-            </div>
-        `;
+    const leftArrow = document.createElement('div');
+    leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    leftArrow.className = 'carousel-nav left';
+
+    const rightArrow = document.createElement('div');
+    rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    rightArrow.className = 'carousel-nav right';
+
+    function renderMedia(index) {
+        const media = mediaList[index];
+        const old = container.querySelector('.media-viewer-content');
+        if (old) container.removeChild(old);
+
+        let content;
+        if (media.type === 'image') {
+            content = document.createElement('img');
+            content.src = media.url;
+            content.className = 'media-viewer-content';
+        } else if (media.type === 'video') {
+            content = document.createElement('video');
+            content.className = 'media-viewer-content';
+            content.controls = true;
+            content.autoplay = true;
+            content.innerHTML = `<source src="${media.url}">Your browser does not support the video tag.`;
+        }
+
+        container.appendChild(content);
+
+        // 🔁 Show/hide arrows based on position
+        leftArrow.style.display = index === 0 ? 'none' : 'block';
+        rightArrow.style.display = index === mediaList.length - 1 ? 'none' : 'block';
     }
 
-    // Create container and append elements
-    const container = document.createElement('div');
-    container.className = 'media-viewer-container';
+
+    leftArrow.onclick = () => {
+        currentIndex = (currentIndex - 1 + mediaList.length) % mediaList.length;
+        renderMedia(currentIndex);
+    };
+
+    rightArrow.onclick = () => {
+        currentIndex = (currentIndex + 1) % mediaList.length;
+        renderMedia(currentIndex);
+    };
+
     container.appendChild(closeBtn);
-    container.insertAdjacentHTML('beforeend', mediaContent);
-    
-    mediaViewer.appendChild(container);
-    
-    // Close when clicking outside content
-    mediaViewer.onclick = (e) => {
-        if (e.target === mediaViewer) {
-            document.body.removeChild(mediaViewer);
-        }
-    };
+    overlay.appendChild(container);
+    overlay.appendChild(leftArrow);
+    overlay.appendChild(rightArrow);
+    document.body.appendChild(overlay);
 
-    // Prevent clicks on the content from closing the viewer
-    container.onclick = (e) => {
-        e.stopPropagation();
-    };
-
-    document.body.appendChild(mediaViewer);
+    renderMedia(currentIndex);
 }
