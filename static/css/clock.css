@@ -1086,43 +1086,61 @@
   max-width: 100%;
 }
 
-/* === Compact Media in Message Bubbles === */
+/* ======================
+   MEDIA GRID STYLES (WhatsApp-like)
+   ====================== */
 .media-grid {
   display: grid;
-  gap: 4px;
+  gap: 2px;
   width: 100%;
   position: relative;
   margin: 4px 0;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
+/* Different grid layouts based on media count */
 .media-count-1 {
   grid-template-columns: 1fr;
+  max-width: 250px;
 }
 
-.media-count-2,
-.media-count-3,
-.media-count-4 {
+.media-count-2 {
   grid-template-columns: repeat(2, 1fr);
+  max-width: 250px;
+}
+
+.media-count-3 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 250px;
 }
 
 .media-count-3 .media-grid-item:first-child {
   grid-column: span 2;
+  aspect-ratio: 16/9;
+}
+
+.media-count-4 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 250px;
 }
 
 .media-grid-item {
   position: relative;
   cursor: pointer;
-  border-radius: 10px;
   overflow: hidden;
-  aspect-ratio: 1/1;
   transition: transform 0.2s ease;
-  max-width: 120px;
-  max-height: 120px;
+  background: #000;
 }
 
-.media-grid-item:hover {
-  transform: scale(1.02);
-  z-index: 1;
+/* WhatsApp-like square items */
+.media-grid-item {
+  aspect-ratio: 1/1;
+}
+
+/* First item in 3-item grid should be wider */
+.media-count-3 .media-grid-item:first-child {
+  aspect-ratio: 16/9;
 }
 
 .media-message {
@@ -1130,18 +1148,14 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.3s ease;
 }
 
-.media-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+.media-grid-item:hover .media-message {
+  transform: scale(1.05);
 }
 
-/* === Video Icon Overlay === */
+/* Video play icon styling */
 .video-play-icon {
   position: absolute;
   top: 50%;
@@ -1149,17 +1163,34 @@
   transform: translate(-50%, -50%);
   color: white;
   background: rgba(0, 0, 0, 0.4);
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 16px;
   z-index: 2;
 }
 
-/* === File in Messages === */
+/* More items indicator */
+.more-items-count {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  z-index: 3;
+}
+
+/* File message styling */
 .file-message {
   width: 100%;
   height: 100%;
@@ -1167,22 +1198,60 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   padding: 10px;
-  border-radius: 6px;
 }
 
 .file-message i {
-  font-size: 24px;
-  margin-bottom: 6px;
+  font-size: 32px;
+  margin-bottom: 8px;
   color: var(--secondary-color);
 }
 
 .file-message span {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dark);
   text-align: center;
   word-break: break-word;
+  padding: 0 8px;
+}
+
+/* Media preview in input area */
+.media-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.media-preview-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  aspect-ratio: 1/1;
+}
+
+/* Adjust message padding when it contains media */
+.message.has-media {
+  padding-bottom: 5px;
+}
+
+/* Make media grid slightly smaller for received messages */
+.message.received .media-grid {
+  max-width: 220px;
+}
+
+/* Make media grid slightly larger for sent messages */
+.message.sent .media-grid {
+  max-width: 250px;
 }
 
 /* === More Items Indicator === */
