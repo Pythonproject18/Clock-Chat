@@ -205,3 +205,26 @@ function uploadProfilePhoto(input) {
         alert("Error uploading photo.");
     });
 }
+
+
+
+
+function highlightActiveIcon() {
+    const icons = document.querySelectorAll('.toolbar-icon');
+    const currentPath = window.location.pathname;
+
+    icons.forEach(icon => {
+        icon.classList.remove('active');
+    });
+
+    // Match paths to icons
+    if (currentPath.startsWith('/chat/')) {
+        document.querySelector('.toolbar-icon[data-tooltip="Chats"]').classList.add('active');
+    } else if (currentPath.startsWith('/status/')) {
+        document.querySelector('.toolbar-icon[data-tooltip="Status"]').classList.add('active');
+    } else if (currentPath.includes('/settings')) {
+        document.querySelector('.toolbar-icon[data-tooltip="Settings"]').classList.add('active');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', highlightActiveIcon);
