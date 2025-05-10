@@ -117,23 +117,19 @@ function renderMessages(chatId, chatTitle, messages) {
     const docItems = msg.media_url.filter(media => 
         !media.match(/\.(jpg|jpeg|png|gif|webp|mp4|webm|ogg|mov)$/i)
     );
-    
+
     if (docItems.length > 0) {
         docItems.forEach(media => {
             const fileName = media.split('/').pop();
             const fileExtension = fileName.split('.').pop().toUpperCase();
             bubbleContent += `
-            <div class="document-message ${isSender ? 'sent' : 'received'}">
-                <div class="document-icon">
-                    <i class="fas fa-file-alt"></i>
+            <div class="document-message ${isSender ? 'sent' : 'received'}" ondblclick="window.open('${media}', '_blank')">
+                    <i class="fa-solid fa-file" id="doc-icon">
                     <span class="file-extension">${fileExtension}</span>
-                </div>
+                    </i>
                 <div class="document-info">
                     <div class="document-name">${fileName}</div>
                     <div class="document-actions">
-                        <a href="${media}" target="_blank" class="document-action" title="Preview">
-                            <i class="fas fa-eye"></i>
-                        </a>
                         <a href="${media}" download="${fileName}" class="document-action" title="Download">
                             <i class="fas fa-download"></i>
                         </a>
