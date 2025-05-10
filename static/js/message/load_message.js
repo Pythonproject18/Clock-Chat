@@ -72,48 +72,76 @@ function renderMessages(chatId, chatTitle, messages) {
             ${msg.text}${editedLabel}
             </div>
         `;
-    // Update the media handling section in renderMessages
+// In the renderMessages function, update the media handling section:
 } else if (msg.media_url) {
-    const mediaCount = msg.media_url.length;
-    const showCount = Math.min(mediaCount, 4); // Show max 4 items
-    const hasMore = mediaCount > 4;
+    // Filter out non-image/video files
+    const mediaItems = msg.media_url.filter(media => 
+        media.match(/\.(jpg|jpeg|png|gif|webp|mp4|webm|ogg|mov)$/i)
+    );
     
-    bubbleContent = `<div class="media-grid media-count-${showCount}">`;
-    
-    msg.media_url.slice(0, showCount).forEach((media, index) => {
-        const isLastInRow = (index + 1) % 2 === 0 || index === showCount - 1;
-        const marginClass = isLastInRow ? 'no-margin' : '';
+    if (mediaItems.length > 0) {
+        const mediaCount = mediaItems.length;
+        const showCount = Math.min(mediaCount, 4); // Show max 4 items
+        const hasMore = mediaCount > 4;
         
-        if (media.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="event.stopPropagation(); openMediaViewer('${media}', 'image')">
-                <img src="${media}" class="media-message">
-                ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
-                ${hasMore && index === showCount - 1 ? 
-                  `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
-            </div>`;
-        } else if (media.match(/\.(mp4|webm|ogg|mov)$/i)) {
-            bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'video')">
-                <video class="media-message">
-                    <source src="${media}">
-                </video>
-                <div class="video-play-icon"><i class="fas fa-play"></i></div>
-                ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
-                ${hasMore && index === showCount - 1 ? 
-                  `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
-            </div>`;
-        } else {
-            bubbleContent += `<div class="media-grid-item" onclick="event.stopPropagation(); openMediaViewer('${media}', 'video')">
-                <div class="file-message">
-                    <i class="fas fa-file-alt"></i>
-                    <span>${media.split('/').pop()}</span>
-                </div>
-                ${hasMore && index === showCount - 1 ? 
-                  `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
-            </div>`;
-        }
-    });
+        bubbleContent = `<div class="media-grid media-count-${showCount}">`;
+        
+        mediaItems.slice(0, showCount).forEach((media, index) => {
+            const isLastInRow = (index + 1) % 2 === 0 || index === showCount - 1;
+            const marginClass = isLastInRow ? 'no-margin' : '';
+            
+            if (media.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="event.stopPropagation(); openMediaViewer('${media}', 'image')">
+                    <img src="${media}" class="media-message">
+                    ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
+                    ${hasMore && index === showCount - 1 ? 
+                      `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
+                </div>`;
+            } else if (media.match(/\.(mp4|webm|ogg|mov)$/i)) {
+                bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'video')">
+                    <video class="media-message">
+                        <source src="${media}">
+                    </video>
+                    <div class="video-play-icon"><i class="fas fa-play"></i></div>
+                    ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
+                    ${hasMore && index === showCount - 1 ? 
+                      `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
+                </div>`;
+            }
+        });
+        
+        bubbleContent += '</div>';
+    }
     
-    bubbleContent += '</div>';
+    // Handle any document files separately (not in grid)
+    const docItems = msg.media_url.filter(media => 
+        !media.match(/\.(jpg|jpeg|png|gif|webp|mp4|webm|ogg|mov)$/i)
+    );
+    
+    if (docItems.length > 0) {
+        docItems.forEach(media => {
+            const fileName = media.split('/').pop();
+            const fileExtension = fileName.split('.').pop().toUpperCase();
+            bubbleContent += `
+            <div class="document-message ${isSender ? 'sent' : 'received'}">
+                <div class="document-icon">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="file-extension">${fileExtension}</span>
+                </div>
+                <div class="document-info">
+                    <div class="document-name">${fileName}</div>
+                    <div class="document-actions">
+                        <a href="${media}" target="_blank" class="document-action" title="Preview">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="${media}" download="${fileName}" class="document-action" title="Download">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
 }
         
         const messageHtml = `

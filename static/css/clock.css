@@ -1190,30 +1190,102 @@
   z-index: 3;
 }
 
-/* File message styling */
-.file-message {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px;
+/* ======================
+   DOCUMENT MESSAGE STYLES
+   ====================== */
+.document-message {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 12px;
+    max-width: 300px;
+    margin-top: 8px;
+    transition: all 0.3s ease;
 }
 
-.file-message i {
-  font-size: 32px;
-  margin-bottom: 8px;
-  color: var(--secondary-color);
+.document-message.sent {
+    background: rgba(108, 92, 231, 0.15);
+    border: 1px solid rgba(108, 92, 231, 0.2);
 }
 
-.file-message span {
-  font-size: 12px;
-  color: var(--text-dark);
-  text-align: center;
-  word-break: break-word;
-  padding: 0 8px;
+.document-message.received {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.document-icon {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.file-extension {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.document-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.document-name {
+    font-size: 14px;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.document-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.document-action {
+    color: var(--text-light);
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.document-action:hover {
+    color: var(--secondary-color);
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Hover effects */
+.document-message.sent:hover {
+    background: rgba(108, 92, 231, 0.2);
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.1);
+}
+
+.document-message.received:hover {
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Media preview in input area */
