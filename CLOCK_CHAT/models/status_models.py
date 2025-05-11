@@ -3,8 +3,6 @@ from ..constants import Status_Type
 
 class Status(models.Model):
    status_media = models.URLField(max_length=255, blank=True, null=True)
-   text = models.TextField()
-   background_color = models.CharField(max_length=20, blank=True, null=True)
    caption = models.TextField(max_length=50,blank=True,null=True)
    status_type = models.IntegerField(
    choices=[(stype.value, stype.name) for stype in Status_Type],

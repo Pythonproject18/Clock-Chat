@@ -54,55 +54,48 @@
   }
   
   function send_status() {
-    const textDiv = document.getElementById('text');
-    const text = textDiv.textContent.trim();
-    const statusBody = document.getElementById('status-body');
-  
-    if (!text) {
-      console.log("Empty text");
-      return;
-    }
-  
-    if (!statusBody) {
-      console.error("Element with id 'status-body' not found");
-      return;
-    }
-  
-    html2canvas(statusBody).then(canvas => {
-      const imageData = canvas.toDataURL("image/png");
-  
-      fetch('/status/create/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken()
-        },
-        body: JSON.stringify({
-          image: imageData,
-          type: "text",       // status_type, e.g. "text"
-          caption: ""         // optional caption
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Status saved successfully", data);
-        // You can reset the input or show a toast here
-        // Reset text
-        textDiv.textContent = '';
-        textDiv.classList.add('empty');
-        
-        // Set a new random background color
-        const newColor = getRandomBackgroundColor();
-        textDiv.style.backgroundColor = newColor;
+  const textDiv = document.getElementById('text');
+  const text = textDiv.textContent.trim();
+  const statusBody = document.getElementById('status-body');
 
-        // Optional: Adjust font size after color change
-        adjustFontSizeToFit(textDiv);
-      })
-      .catch(error => {
-        console.error("Error saving status:", error);
-      });
-    });
+  if (!text) {
+    console.log("Empty text");
+    return;
   }
+
+  html2canvas(statusBody).then(canvas => {
+    const imageData = canvas.toDataURL("image/png");
+
+    fetch('/status/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken()
+      },
+      body: JSON.stringify({
+        image_base64: imageData,  // <-- FIXED KEY HERE
+        type: "text",
+        caption:''             // Optional: use as caption
+      })
+    })
+    .then(response => response.json())
+    
+    .then(data => {
+      if (data.error) {
+        console.error("Server error:", data.error);
+        return;
+      }
+
+      console.log("Status saved successfully", data);
+      window.location.href = data.redirect_url;
+    })
+
+    .catch(error => {
+      console.error("Error saving status:", error);
+    });
+  });
+}
+
 </script>
 
 

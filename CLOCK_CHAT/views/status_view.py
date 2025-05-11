@@ -1,5 +1,5 @@
 from django.views import View
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from CLOCK_CHAT.services import status_service,user_service
 from django.shortcuts import render,redirect
 from CLOCK_CHAT.decorator import auth_required, role_required
@@ -11,9 +11,8 @@ from CLOCK_CHAT.models import Status,StatusViewer
 from django.core.files.base import ContentFile
 import uuid
 import base64
+from CLOCK_CHAT.constants.default_values import Status_Type
 import json
-
-
 
 
 @auth_required
@@ -45,30 +44,60 @@ class StatusListView(View):  # Use LoginRequiredMixin
 class StatusCreateView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
-            image_base64 = data.get("image")
-            status_type = data.get("type")
-            caption = data.get("caption", "")
             user_id = request.user.id
+            content_type = request.META.get('CONTENT_TYPE', '')
 
-            if not image_base64 or not image_base64.startswith('data:image/png;base64,'):
-                return JsonResponse({'error': 'Invalid or missing image data'}, status=400)
+            if 'application/json' in content_type:
+                is_json = True
+                # Handle JSON (text status)
+                data = json.loads(request.body)
+                base64_data = data.get("image") or data.get("image_base64")  # support both keys
+                caption = data.get("caption", "")
 
-            format, imgstr = image_base64.split(';base64,')
-            ext = format.split('/')[-1]
+            else:
+                is_json = False
+                # Handle form-data (photo/video status via base64)
+                base64_data = request.POST.get("image") or request.POST.get("image_base64")
+                caption = request.POST.get("caption", "")
+
+            if not base64_data or ';base64,' not in base64_data:
+                return JsonResponse({'error': 'Invalid or missing base64 data'}, status=400)
+
+            format, b64 = base64_data.split(';base64,')
+            mime_type = format.split(':')[1]
+            ext = mime_type.split('/')[-1]
+
+            if ext not in ['png', 'jpg', 'jpeg', 'mp4', 'webm']:
+                return JsonResponse({'error': 'Unsupported file type'}, status=400)
+
             filename = f"status_{uuid.uuid4().hex}.{ext}"
-            file = ContentFile(base64.b64decode(imgstr), name=filename)
+            file = ContentFile(base64.b64decode(b64), name=filename)
 
-            # Your custom method to save the file
-            image_path = save_uploaded_file(file, 'Status')
+            # Save file
+            file_path = save_uploaded_file(file, 'Status')
 
-            # Save status to DB via your service
-            status_service.create_status(image_path, user_id, status_type, caption)
+            # Determine status type
+            if mime_type.startswith('video'):
+                status_type = Status_Type.VIDEO.value
+            elif mime_type.startswith('image'):
+                status_type = Status_Type.IMAGE.value
+            else:
+                status_type = Status_Type.TEXT.value
 
-            return JsonResponse({'message': 'Status saved successfully'})
+            # Save in DB
+            status_service.create_status(file_path, user_id, status_type, caption)
+            if is_json:
+                return JsonResponse({'message': 'Status saved successfully', 'redirect_url': '/status/'})
+            else:
+                return HttpResponseRedirect('/status/')
+
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-        
+            if request.META.get('CONTENT_TYPE', '').startswith('application/json'):
+                return JsonResponse({'error': str(e)}, status=500)
+            else:
+                # You can render an error template or redirect with a message
+                return HttpResponseRedirect('/status/?error=1')
+
 
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
@@ -120,7 +149,7 @@ class StatusDetailView(View):
                 'type': status.status_type,
                 'viewers_count': status_service.get_status_viewers_count(status.id,user_id),  # Sending viewer list as JSON
             })
-            # print(status_list)
+            print(status_list)
 
         return render(request, "status/status_view.html", {'status_details': status_list,'user_details':user_details})
 

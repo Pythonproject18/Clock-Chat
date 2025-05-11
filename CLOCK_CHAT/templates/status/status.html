@@ -81,22 +81,26 @@
             </div>
             
             <script>
-              function previewStatus(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-            
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                  // Store in sessionStorage as Base64 string
-                  sessionStorage.setItem("statusPreview", e.target.result);
-                  sessionStorage.setItem("statusName", file.name);
-            
-                  // Redirect to preview page
-                  window.location.href = "/status/preview/";
-                };
-                reader.readAsDataURL(file);
-              }
-            </script>
+                function previewStatus(event) {
+                  const file = event.target.files[0];
+                  if (!file) return;
+              
+                  const reader = new FileReader();
+                  reader.onload = function (e) {
+                    // Detect type
+                    const mimeType = file.type.startsWith("video") ? "video" : "image";
+              
+                    sessionStorage.setItem("statusPreview", e.target.result);
+                    sessionStorage.setItem("statusType", mimeType);
+                    sessionStorage.setItem("statusName", file.name);
+              
+                    window.location.href = "/status/preview/";
+                  };
+              
+                  reader.readAsDataURL(file);
+                }
+              </script>
+              
             
         </div>
     </div>

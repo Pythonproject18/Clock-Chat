@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="status-body">
-      <img id="statusPreviewImg" style="width: 100%;" />
+      <div id="previewContainer" style="width: 100%;height:100%;"></div>
     </div>
     <form id="submitStatusForm" method="POST" enctype="multipart/form-data">
       {% csrf_token %}
@@ -35,28 +35,49 @@
 </div>
 
 <script>
-
   function back() {
     window.history.back();
   }
-  
 
-
-
-  // Get data from sessionStorage
-  const base64Image = sessionStorage.getItem("statusPreview");
+  const base64 = sessionStorage.getItem("statusPreview");
+  const fileType = sessionStorage.getItem("statusType");
   const fileName = sessionStorage.getItem("statusName");
 
-  if (base64Image) {
-    document.getElementById("statusPreviewImg").src = base64Image;
-    document.getElementById("imageBase64").value = base64Image;
+  const previewContainer = document.getElementById("previewContainer");
+  const imageBase64Input = document.getElementById("imageBase64");
+
+  if (base64 && fileType) {
+    imageBase64Input.value = base64;
+
+    if (fileType === "image") {
+      previewContainer.innerHTML = `<img src="${base64}" style="width: 100%;max-height: 100%;" />`;
+    } else {
+      previewContainer.innerHTML = `
+        <video controls style="width: 100%;max-height: 100%;">
+          <source src="${base64}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>`;
+    }
   }
 
-  // Optional: clear after use
   sessionStorage.removeItem("statusPreview");
+  sessionStorage.removeItem("statusType");
   sessionStorage.removeItem("statusName");
 
-  // Send base64 to backend
   document.getElementById("submitStatusForm").action = "{% url 'status_create' %}";
 </script>
+<style>
+  /* Hide unwanted native controls */
+  video::-webkit-media-controls-fullscreen-button,
+  video::-webkit-media-controls-timeline,
+  video::-webkit-media-controls-current-time-display,
+  video::-webkit-media-controls-time-remaining-display,
+  video::-webkit-media-controls-seek-back-button,
+  video::-webkit-media-controls-seek-forward-button,
+  video::-webkit-media-controls-picture-in-picture-button,
+  video::-webkit-media-controls-playback-rate-button,
+  video::-webkit-media-controls-download-button {
+    display: none !important;
+  }
+</style>
 {% endblock %}

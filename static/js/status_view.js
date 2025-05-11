@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const status = statuses[index];
       const isOwner = data.userId === data.viewerId;
+      const isvideo = status.type == '2';
 
       container.innerHTML = `
         <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
@@ -30,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="number">${data.userFullName}</div>
             <div class="time">${new Date(status.created_at).toLocaleString()}</div>
           </div>
-          <div style=" margin-top: 5%;position: absolute; right: 10%; top: 10px;">
+          <div style="margin-top: 5%;position: absolute; right: 10%; top: 10px;">
             <button id="pause-play-btn" style="background: transparent;border:none;">
               <i class="fa-solid ${isPaused ? 'fa-play' : 'fa-pause'}" style="color: white;"></i>
             </button>
@@ -50,17 +51,21 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div class="status-body">
-          <img src="${status.media_url}" style="width:100%;max-height:100%; object-fit:cover;">
+        ${isvideo ? `<video autoplay src="${status.media_url}" 
+            style="width:100%;max-height:100%; object-fit:cover;">
+          `:
+          `<img src="${status.media_url}" style="width:100%;max-height:100%; object-fit:cover;">`
+        }
         </div>
 
         ${status.caption ? `<div style="text-align: center; font-size: larger;">${status.caption}</div>` : ''}
 
-        ${isOwner ? `
+        ${isOwner ? ` 
           <div class="view-count" onclick="open_viewer_modal(${status.id})">
             <i class="fa fa-eye"></i> <span>${status.viewers_count}</span>
           </div>
         ` : ''}
-      `;
+     `;
 
       document.getElementById("pause-play-btn").addEventListener("click", togglePausePlay);
 
@@ -84,13 +89,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
       elapsed = 0;
       progressStartTime = Date.now();
-      setTimeout(() => {
-        if (!isPaused) {
-          bar.style.transition = `width ${STATUS_DURATION}ms linear`;
-          bar.style.width = "100%";
-          scheduleNext(STATUS_DURATION);
+
+      const isVideo = statuses[currentIndex].type == '2';
+
+      if (isVideo) {
+        const video = document.querySelector("video");
+        if (video) {
+          const setupVideoProgress = () => {
+            const duration = video.duration * 1000; // convert to milliseconds
+            if (!isPaused) {
+              bar.style.transition = `width ${duration}ms linear`;
+              bar.style.width = "100%";
+              scheduleNext(duration);
+            }
+          };
+
+          if (video.readyState >= 1) {
+            // metadata already loaded
+            setupVideoProgress();
+          } else {
+            // wait for metadata to load
+            video.addEventListener("loadedmetadata", setupVideoProgress, { once: true });
+          }
         }
-      }, 10);
+      } else {
+        setTimeout(() => {
+          if (!isPaused) {
+            bar.style.transition = `width ${STATUS_DURATION}ms linear`;
+            bar.style.width = "100%";
+            scheduleNext(STATUS_DURATION);
+          }
+        }, 10);
+      }
     }
 
     function scheduleNext(durationLeft) {
@@ -108,6 +138,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const width = computedStyle.width;
       bar.style.transition = "none";
       bar.style.width = width;
+
+      const video = document.querySelector("video");
+      if (video && !video.paused) {
+        video.pause();
+      }
+
       updatePausePlayIcon();
     }
 
@@ -115,10 +151,20 @@ document.addEventListener("DOMContentLoaded", () => {
       isPaused = false;
       progressStartTime = Date.now();
       const bar = document.getElementById("progress-fill");
-      const remaining = STATUS_DURATION - elapsed;
+
+      const isVideo = statuses[currentIndex].type == '2';
+      const duration = isVideo ? (document.querySelector("video")?.duration || 10) * 1000 : STATUS_DURATION;
+      const remaining = duration - elapsed;
+
       bar.style.transition = `width ${remaining}ms linear`;
       bar.style.width = "100%";
       scheduleNext(remaining);
+
+      const video = document.querySelector("video");
+      if (video && video.paused) {
+        video.play();
+      }
+
       updatePausePlayIcon();
     }
 
@@ -145,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentIndex++;
         renderStatus(currentIndex);
       } else {
-        window.location.href = "/status/";
+        window.location.href = "/status/"; // Update path if needed
       }
     }
 
