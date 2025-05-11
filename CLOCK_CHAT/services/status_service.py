@@ -1,9 +1,10 @@
 from CLOCK_CHAT.models import Friend,Status,User,StatusViewer
 from django.db.models import Q
-from CLOCK_CHAT.constants.default_values import Status_Type
 from django.utils import timezone
 from datetime import timedelta
-
+from django.core.files.storage import default_storage
+from django.conf import settings
+import os
 
 def get_friends_by_user(user_id):
     is_active_status()
@@ -130,6 +131,21 @@ def check_status_seen_or_not(user_id, current_user):
         return True
     else:
         return False
+    
+
+def delete_temp_status_file():
+    """
+    Deletes all files in the 'media/status_preview/' directory.
+    """
+    preview_dir = os.path.join(settings.MEDIA_ROOT, 'status_preview')
+
+    if os.path.exists(preview_dir):
+        for filename in os.listdir(preview_dir):
+            file_path = os.path.join(preview_dir, filename)
+            if os.path.isfile(file_path):
+                default_storage.delete(os.path.relpath(file_path, settings.MEDIA_ROOT))
+        return True
+    return False
 
         
         

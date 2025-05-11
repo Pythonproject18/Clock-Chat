@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="wrapper">
-  <i style="position:absolute;left: 7%; top:4%;font-size: 22px;"class="fa fa-arrow-left" onclick="back()"></i>
+  <i style="position:absolute;left: 7%; top:4%;font-size: 22px;" class="fa fa-arrow-left" onclick="back()"></i>
   <div class="status-screen">
     <div class="status-header">
       <div class="profile-pic">
@@ -38,34 +38,86 @@
   function back() {
     window.history.back();
   }
+  window.onload = function () {
+    const mediaUrl = localStorage.getItem("statusPreviewUrl");
 
-  const base64 = sessionStorage.getItem("statusPreview");
-  const fileType = sessionStorage.getItem("statusType");
-  const fileName = sessionStorage.getItem("statusName");
+    if (mediaUrl) {
+      const previewContainer = document.getElementById("previewContainer");
+      const isVideo = mediaUrl.endsWith(".mp4") || mediaUrl.includes("video");
 
-  const previewContainer = document.getElementById("previewContainer");
-  const imageBase64Input = document.getElementById("imageBase64");
+      if (isVideo) {
+        const videoElement = document.createElement("video");
+        videoElement.src = `/static${mediaUrl}`;
+        videoElement.autoplay = true;
+        videoElement.controls = false;
+        videoElement.style.maxWidth = "100%";
+        previewContainer.appendChild(videoElement);
+      } else {
+        const imgElement = document.createElement("img");
+        imgElement.src = `/static${mediaUrl}`;
+        imgElement.style.maxWidth = "100%";
+        previewContainer.appendChild(imgElement);
+      }
 
-  if (base64 && fileType) {
-    imageBase64Input.value = base64;
-
-    if (fileType === "image") {
-      previewContainer.innerHTML = `<img src="${base64}" style="width: 100%;max-height: 100%;" />`;
+      // Fetch and convert to Base64
+      fetch(`/static${mediaUrl}`)
+        .then(response => response.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onloadend = function () {
+            const base64Full = reader.result;
+            document.getElementById("imageBase64").value = base64Full;
+            console.log("Base64 Preview:", base64Full.substring(0, 100) + "...");
+          };
+          reader.readAsDataURL(blob);
+        });
     } else {
-      previewContainer.innerHTML = `
-        <video controls style="width: 100%;max-height: 100%;">
-          <source src="${base64}" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>`;
+      alert("No valid preview available.");
     }
-  }
+  };
 
-  sessionStorage.removeItem("statusPreview");
-  sessionStorage.removeItem("statusType");
-  sessionStorage.removeItem("statusName");
+document.getElementById("submitStatusForm").addEventListener("submit", function (event) {
+    event.preventDefault();  // Prevent default form submission
 
-  document.getElementById("submitStatusForm").action = "{% url 'status_create' %}";
+    const form = this;
+    const formData = new FormData(form);
+    const filePath = localStorage.getItem("statusPreviewUrl");
+
+    fetch("{% url 'status_create' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: formData
+    })
+    .then(response => {
+      if (response.ok) {
+        if (filePath) {
+          fetch("{% url 'status_delete_temp' %}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ file_path: filePath })
+          })
+          .then(res => res.json())
+          .then(data => console.log("Temp file deleted:", data));
+        }
+
+        localStorage.removeItem("statusPreviewUrl");
+        window.location.href = "{% url 'status_list' %}"; // Redirect after success
+      } else {
+        alert("Failed to post status.");
+      }
+    })
+    .catch(err => {
+      console.error("Error submitting status:", err);
+    });
+  });
 </script>
+
+
 <style>
   /* Hide unwanted native controls */
   video::-webkit-media-controls-fullscreen-button,

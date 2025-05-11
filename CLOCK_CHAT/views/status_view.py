@@ -13,6 +13,7 @@ import uuid
 import base64
 from CLOCK_CHAT.constants.default_values import Status_Type
 import json
+from django.core.files.storage import default_storage
 
 
 @auth_required
@@ -20,7 +21,6 @@ import json
 
 class StatusListView(View):  # Use LoginRequiredMixin
     def get(self, request):
-        print("gbhjbjhjhbhbhgbhjbjhbhbjhjjnj")
         user = request.user.id  # Get logged-in user
         user_obj = user_service.get_user_object(user)
 
@@ -28,7 +28,6 @@ class StatusListView(View):  # Use LoginRequiredMixin
         friends = status_service.get_friends_by_user(user)
         user_status = status_service.get_user_status(user)
         # Fetch statuses of friends (logic needed)
-        print("data",friends)
         return render(request,'status/status.html',
             {
             'friends': friends,
@@ -53,30 +52,36 @@ class StatusCreateView(View):
                 data = json.loads(request.body)
                 base64_data = data.get("image") or data.get("image_base64")  # support both keys
                 caption = data.get("caption", "")
-
             else:
                 is_json = False
                 # Handle form-data (photo/video status via base64)
                 base64_data = request.POST.get("image") or request.POST.get("image_base64")
                 caption = request.POST.get("caption", "")
 
+            # Validate the base64 data
             if not base64_data or ';base64,' not in base64_data:
                 return JsonResponse({'error': 'Invalid or missing base64 data'}, status=400)
 
+            # Extract base64 content
             format, b64 = base64_data.split(';base64,')
             mime_type = format.split(':')[1]
             ext = mime_type.split('/')[-1]
 
+            # Check if the file is of a valid type
             if ext not in ['png', 'jpg', 'jpeg', 'mp4', 'webm']:
                 return JsonResponse({'error': 'Unsupported file type'}, status=400)
 
-            filename = f"status_{uuid.uuid4().hex}.{ext}"
-            file = ContentFile(base64.b64decode(b64), name=filename)
+            # Check if the base64 data is too large
+            if len(b64) > (50 * 1024 * 1024):  # 50MB limit
+                return JsonResponse({'error': 'File size exceeds the 50MB limit'}, status=400)
 
-            # Save file
+            # Decode the base64 data
+            file = ContentFile(base64.b64decode(b64), name=f"status_{uuid.uuid4().hex}.{ext}")
+
+            # Save file to the desired location
             file_path = save_uploaded_file(file, 'Status')
 
-            # Determine status type
+            # Determine the status type (image, video, etc.)
             if mime_type.startswith('video'):
                 status_type = Status_Type.VIDEO.value
             elif mime_type.startswith('image'):
@@ -84,22 +89,17 @@ class StatusCreateView(View):
             else:
                 status_type = Status_Type.TEXT.value
 
-            # Save in DB
+            # Create the status in the database
             status_service.create_status(file_path, user_id, status_type, caption)
+
+            # Return appropriate response
             if is_json:
                 return JsonResponse({'message': 'Status saved successfully', 'redirect_url': '/status/'})
             else:
                 return HttpResponseRedirect('/status/')
 
         except Exception as e:
-            if request.META.get('CONTENT_TYPE', '').startswith('application/json'):
-                return JsonResponse({'error': str(e)}, status=500)
-            else:
-                # You can render an error template or redirect with a message
-                return HttpResponseRedirect('/status/?error=1')
-
-
-@auth_required
+            return JsonResponse({'error': str(e)}, status=500)  # Handle unexpected errors@auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
 class StatusPreviewView(View):
     def get(self, request):
@@ -114,6 +114,24 @@ class StatusPreviewView(View):
         except Exception as e:
             return render(request, "status/preview.html", {"error": str(e)})
 
+    def post(self, request):
+        if request.method == 'POST' and request.FILES['file']:
+            uploaded_file = request.FILES['file']
+            
+            # Check the file size (e.g., 20MB limit)
+            max_size = 20 * 1024 * 1024  # 20MB in bytes
+            if uploaded_file.size > max_size:
+                return JsonResponse({'success': False, 'message': 'File size exceeds the limit.'})
+
+            # Save the file to the default storage (temporary location)
+            file_path = default_storage.save(f"status_preview/{uploaded_file.name}", ContentFile(uploaded_file.read()))
+            
+            # Get the URL to access the file
+            file_url = default_storage.url(file_path)
+
+            return JsonResponse({'success': True, 'url': file_url})
+
+        return JsonResponse({'success': False, 'message': 'No file uploaded.'})
 
 @auth_required
 @role_required(Role.END_USER.value, page_type='enduser')
@@ -191,3 +209,22 @@ class TextStatusCreateView(View):
             return render(request, "status/text_status.html", {"error": str(e)})
 
      
+
+@auth_required
+@role_required(Role.END_USER.value, page_type='enduser')
+class StatusDeleteTempView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            file_path = data.get("file_path")
+            if not file_path:
+                return JsonResponse({"success": False, "message": "Missing file_path"}, status=400)
+            print("going to delete")
+            deleted = status_service.delete_temp_status_file()
+            if deleted:
+                return JsonResponse({"success": True, "message": "Temporary file deleted"})
+            else:
+                return JsonResponse({"success": False, "message": "File not found or could not be deleted"})
+
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)

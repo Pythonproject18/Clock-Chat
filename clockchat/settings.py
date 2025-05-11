@@ -107,7 +107,11 @@ SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS, otherwise False for
 SESSION_COOKIE_AGE = 1209600  # 2 weeks, or adjust as needed
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keeps session open after browser close if False
 
+# Maximum size (in bytes) for uploaded files
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB in bytes
 
+# Maximum size (in bytes) for individual file uploads
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB in bytes
 
 # post media path
 MEDIA_URL = '/media/'
