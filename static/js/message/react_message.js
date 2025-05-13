@@ -56,3 +56,22 @@ function updateMessageReactionsUI(messageId, reactions) {
         reactionsContainer.appendChild(emojiSpan);
     });
 }
+
+
+// Function to open the modal
+function openModal() {
+    document.getElementById("emojiModal").style.display = "flex";
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById("emojiModal").style.display = "none";
+}
+
+// Close modal when clicked outside the modal content
+window.onclick = function(event) {
+    const modal = document.getElementById("emojiModal");
+    if (event.target === modal) {
+        closeModal();
+    }
+}
