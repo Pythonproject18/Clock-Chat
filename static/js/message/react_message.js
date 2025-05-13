@@ -59,7 +59,9 @@ function updateMessageReactionsUI(messageId, reactions) {
 
 
 // Function to open the modal
-function openModal() {
+function openModal(event) {
+    // Stop this click from bubbling up to document
+    event.stopPropagation();
     document.getElementById("emojiModal").style.display = "flex";
 }
 
@@ -68,10 +70,15 @@ function closeModal() {
     document.getElementById("emojiModal").style.display = "none";
 }
 
-// Close modal when clicked outside the modal content
-window.onclick = function(event) {
+// Close modal when clicking outside
+document.addEventListener('click', function() {
     const modal = document.getElementById("emojiModal");
-    if (event.target === modal) {
+    if (modal.style.display === "flex") {
         closeModal();
     }
-}
+});
+
+// Prevent clicks inside modal from closing it
+document.getElementById("emojiModal").addEventListener('click', function(event) {
+    event.stopPropagation();
+});
