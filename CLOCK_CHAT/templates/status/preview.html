@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="status-body">
-      <div id="previewContainer" style="width: 100%;height:100%;"></div>
+      <div id="previewContainer" style="width: 100%;height:100%;align-items: center;display: flex;justify-content: center;"></div>
     </div>
     <form id="submitStatusForm" method="POST" enctype="multipart/form-data">
       {% csrf_token %}
@@ -51,11 +51,13 @@
         videoElement.autoplay = true;
         videoElement.controls = false;
         videoElement.style.maxWidth = "100%";
+        videoElement.style.maxHeight = "100%";
         previewContainer.appendChild(videoElement);
       } else {
         const imgElement = document.createElement("img");
         imgElement.src = `/static${mediaUrl}`;
         imgElement.style.maxWidth = "100%";
+        imgElement.style.maxHeight = "100%";
         previewContainer.appendChild(imgElement);
       }
 

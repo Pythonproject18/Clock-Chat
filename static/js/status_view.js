@@ -13,198 +13,226 @@ document.addEventListener("DOMContentLoaded", () => {
     const STATUS_DURATION = 10000; // 10 seconds
 
     function renderStatus(index) {
-      const container = document.getElementById('status-container');
-      if (!statuses.length || index >= statuses.length || index < 0) return;
+    const container = document.getElementById('status-container');
+    if (!statuses.length || index >= statuses.length || index < 0) return;
 
-      const status = statuses[index];
-      const isOwner = data.userId === data.viewerId;
-      const isvideo = status.type == '2';
+    const status = statuses[index];
+    const isOwner = data.userId === data.viewerId;
+    const isvideo = status.type == '2';
 
-      container.innerHTML = `
-        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-
-        <div class="status-header">
-          <div class="profile-pic">
-            <img src="${data.userProfile || '/static/images/default_avatar.png'}" style="border-radius: 50%; height: 100%; width: 100%;">
-          </div>
-          <div class="user-info">
-            <div class="number">${data.userFullName}</div>
-            <div class="time">${new Date(status.created_at).toLocaleString()}</div>
-          </div>
-          <div style="margin-top: 5%;position: absolute; right: 10%; top: 10px;">
-            <button id="pause-play-btn" style="background: transparent;border:none;">
-              <i class="fa-solid ${isPaused ? 'fa-play' : 'fa-pause'}" style="color: white;"></i>
-            </button>
+    const progressSegments = statuses.map((_, i) => {
+      const segmentWidth = 100 / statuses.length;
+      return `
+        <div class="progress-segment" style="
+          width: ${segmentWidth}%;display: flex;background-color: rgba(255, 255, 255, 0.3);border-radius: 10px;overflow: hidden;">
+          <div class="progress-fill" id="progress-fill-${i}"style="height: 100%; background-color: white; width: ${i < currentIndex ? '100%' : '0%'};">
           </div>
         </div>
+      `;
+    }).join("");
 
-        <div id="viewerModal" class="viewer-modal">
-          <div class="viewer-modal-box">
-            <div id="header">
-              <span class="close-btn" onclick="close_viewer_modal()">&times;</span>
-              <h2 style="text-align: start;">Seen by</h2>
-            </div>
-            <div class="viewer-modal-content">
-              <p style="text-align:center; color: black;">No viewers yet.</p>
-            </div>
+
+    container.innerHTML = `
+      <div class="progress-bar" style="display: flex; width: 100%;gap: 1%; height: 4px; background-color: rgba(255,255,255,0.2);">
+        ${progressSegments}
+      </div>
+
+      <div class="status-header">
+        <div class="profile-pic">
+          <img src="${data.userProfile || '/static/images/default_avatar.png'}" style="border-radius: 50%; height: 100%; width: 100%;">
+        </div>
+        <div class="user-info">
+          <div class="number">${data.userFullName}</div>
+          <div class="time">${new Date(status.created_at).toLocaleString()}</div>
+        </div>
+        <div style="margin-top: 5%;position: absolute; right: 10%; top: 10px;">
+          <button id="pause-play-btn" style="background: transparent;border:none;">
+            <i class="fa-solid ${isPaused ? 'fa-play' : 'fa-pause'}" style="color: white;"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-modal-box">
+          <div id="header">
+            <span class="close-btn" onclick="close_viewer_modal()">&times;</span>
+            <h2 style="text-align: start;">Seen by</h2>
+          </div>
+          <div class="viewer-modal-content">
+            <p style="text-align:center; color: black;">No viewers yet.</p>
           </div>
         </div>
+      </div>
 
-        <div class="status-body">
-        ${isvideo ? `<video autoplay src="${status.media_url}" 
-            style="width:100%;max-height:100%; object-fit:cover;">
-          `:
+      <div class="status-body">
+        ${isvideo ? `<video autoplay src="${status.media_url}" style="width:100%;max-height:100%; object-fit:cover;"></video>` :
           `<img src="${status.media_url}" style="width:100%;max-height:100%; object-fit:cover;">`
         }
+      </div>
+
+      ${status.caption ? `<div style="text-align: center; font-size: larger;">${status.caption}</div>` : ''}
+
+      ${isOwner ? `
+        <div class="view-count" onclick="open_viewer_modal(${status.id})">
+          <i class="fa fa-eye"></i> <span>${status.viewers_count}</span>
         </div>
+      ` : ''}
+    `;
 
-        ${status.caption ? `<div style="text-align: center; font-size: larger;">${status.caption}</div>` : ''}
+    document.getElementById("pause-play-btn").addEventListener("click", togglePausePlay);
 
-        ${isOwner ? ` 
-          <div class="view-count" onclick="open_viewer_modal(${status.id})">
-            <i class="fa fa-eye"></i> <span>${status.viewers_count}</span>
-          </div>
-        ` : ''}
-     `;
+    document.querySelector(".fa-less-than")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      showPrevious();
+    });
 
-      document.getElementById("pause-play-btn").addEventListener("click", togglePausePlay);
+    document.querySelector(".fa-greater-than")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      showNext();
+    });
 
-      document.querySelector(".fa-less-than").addEventListener("click", (e) => {
-        e.stopPropagation();
-        showPrevious();
-      });
+    startProgress();
+  }
 
-      document.querySelector(".fa-greater-than").addEventListener("click", (e) => {
-        e.stopPropagation();
-        showNext();
-      });
+  function startProgress() {
+    const currentBar = document.getElementById(`progress-fill-${currentIndex}`);
 
-      startProgress();
-    }
-
-    function startProgress() {
-      const bar = document.getElementById("progress-fill");
-      bar.style.width = "0%";
-      bar.style.transition = "none";
-
-      elapsed = 0;
-      progressStartTime = Date.now();
-
-      const isVideo = statuses[currentIndex].type == '2';
-
-      if (isVideo) {
-        const video = document.querySelector("video");
-        if (video) {
-          const setupVideoProgress = () => {
-            const duration = video.duration * 1000; // convert to milliseconds
-            if (!isPaused) {
-              bar.style.transition = `width ${duration}ms linear`;
-              bar.style.width = "100%";
-              scheduleNext(duration);
-            }
-          };
-
-          if (video.readyState >= 1) {
-            // metadata already loaded
-            setupVideoProgress();
-          } else {
-            // wait for metadata to load
-            video.addEventListener("loadedmetadata", setupVideoProgress, { once: true });
-          }
+    // Reset all bars except current and previous
+    statuses.forEach((_, index) => {
+      const fill = document.getElementById(`progress-fill-${index}`);
+      if (fill) {
+        if (index < currentIndex) {
+          fill.style.width = "100%";
+          fill.style.transition = "none";
+        } else if (index > currentIndex) {
+          fill.style.width = "0%";
+          fill.style.transition = "none";
         }
-      } else {
-        setTimeout(() => {
-          if (!isPaused) {
-            bar.style.transition = `width ${STATUS_DURATION}ms linear`;
-            bar.style.width = "100%";
-            scheduleNext(STATUS_DURATION);
-          }
-        }, 10);
       }
-    }
+    });
 
-    function scheduleNext(durationLeft) {
-      progressTimeout = setTimeout(() => {
-        showNext();
-      }, durationLeft);
-    }
+    if (!currentBar) return;
 
-    function pauseProgress() {
-      isPaused = true;
-      clearTimeout(progressTimeout);
-      elapsed += Date.now() - progressStartTime;
-      const bar = document.getElementById("progress-fill");
-      const computedStyle = window.getComputedStyle(bar);
-      const width = computedStyle.width;
-      bar.style.transition = "none";
-      bar.style.width = width;
+    elapsed = 0;
+    progressStartTime = Date.now();
 
+    const isVideo = statuses[currentIndex].type == '2';
+
+    const animateFill = (duration) => {
+      if (!isPaused) {
+        currentBar.style.transition = `width ${duration}ms linear`;
+        currentBar.style.width = "100%";
+        scheduleNext(duration);
+      }
+    };
+
+    if (isVideo) {
       const video = document.querySelector("video");
-      if (video && !video.paused) {
-        video.pause();
-      }
+      if (video) {
+        const setupVideoProgress = () => {
+          const duration = video.duration * 1000;
+          animateFill(duration);
+        };
 
-      updatePausePlayIcon();
+        if (video.readyState >= 1) {
+          setupVideoProgress();
+        } else {
+          video.addEventListener("loadedmetadata", setupVideoProgress, { once: true });
+        }
+      }
+    } else {
+      setTimeout(() => animateFill(STATUS_DURATION), 10);
+    }
+  }
+
+
+  function scheduleNext(durationLeft) {
+    progressTimeout = setTimeout(() => {
+      showNext();
+    }, durationLeft);
+  }
+
+  function pauseProgress() {
+    isPaused = true;
+    clearTimeout(progressTimeout);
+    elapsed += Date.now() - progressStartTime;
+
+    const bar = document.getElementById(`progress-fill-${currentIndex}`);
+    if (!bar) return;
+
+    const computedStyle = window.getComputedStyle(bar);
+    const width = computedStyle.width;
+    bar.style.transition = "none";
+    bar.style.width = width;
+
+    const video = document.querySelector("video");
+    if (video && !video.paused) {
+      video.pause();
     }
 
-    function resumeProgress() {
-      isPaused = false;
-      progressStartTime = Date.now();
-      const bar = document.getElementById("progress-fill");
+    updatePausePlayIcon();
+  }
 
-      const isVideo = statuses[currentIndex].type == '2';
-      const duration = isVideo ? (document.querySelector("video")?.duration || 10) * 1000 : STATUS_DURATION;
-      const remaining = duration - elapsed;
+  function resumeProgress() {
+    isPaused = false;
+    progressStartTime = Date.now();
 
-      bar.style.transition = `width ${remaining}ms linear`;
-      bar.style.width = "100%";
-      scheduleNext(remaining);
+    const bar = document.getElementById(`progress-fill-${currentIndex}`);
+    if (!bar) return;
 
-      const video = document.querySelector("video");
-      if (video && video.paused) {
-        video.play();
-      }
+    const isVideo = statuses[currentIndex].type == '2';
+    const video = document.querySelector("video");
+    const duration = isVideo && video ? video.duration * 1000 : STATUS_DURATION;
+    const remaining = duration - elapsed;
 
-      updatePausePlayIcon();
+    bar.style.transition = `width ${remaining}ms linear`;
+    bar.style.width = "100%";
+    scheduleNext(remaining);
+
+    if (video && video.paused) {
+      video.play();
     }
 
-    function togglePausePlay() {
-      if (isPaused) {
-        resumeProgress();
-      } else {
-        pauseProgress();
-      }
-    }
+    updatePausePlayIcon();
+  }
 
-    function updatePausePlayIcon() {
-      const icon = document.querySelector("#pause-play-btn i");
-      if (icon) {
-        icon.classList.toggle("fa-play", isPaused);
-        icon.classList.toggle("fa-pause", !isPaused);
-      }
-    }
 
-    function showNext() {
-      clearTimeout(progressTimeout);
-      elapsed = 0;
-      if (currentIndex < statuses.length - 1) {
-        currentIndex++;
-        renderStatus(currentIndex);
-      } else {
-        window.location.href = "/status/"; // Update path if needed
-      }
+  function togglePausePlay() {
+    if (isPaused) {
+      resumeProgress();
+    } else {
+      pauseProgress();
     }
+  }
 
-    function showPrevious() {
-      clearTimeout(progressTimeout);
-      elapsed = 0;
-      if (currentIndex > 0) {
-        currentIndex--;
-        renderStatus(currentIndex);
-      }
+  function updatePausePlayIcon() {
+    const icon = document.querySelector("#pause-play-btn i");
+    if (icon) {
+      icon.classList.toggle("fa-play", isPaused);
+      icon.classList.toggle("fa-pause", !isPaused);
     }
+  }
 
-    renderStatus(currentIndex);
+  function showNext() {
+    clearTimeout(progressTimeout);
+    elapsed = 0;
+    if (currentIndex < statuses.length - 1) {
+      currentIndex++;
+      renderStatus(currentIndex);
+    } else {
+      window.location.href = "/status/"; // Update path if needed
+    }
+  }
+
+  function showPrevious() {
+    clearTimeout(progressTimeout);
+    elapsed = 0;
+    if (currentIndex > 0) {
+      currentIndex--;
+      renderStatus(currentIndex);
+    }
+  }
+  renderStatus(currentIndex);
   }
 });
 
