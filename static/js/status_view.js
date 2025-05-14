@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let elapsed = 0;
     let progressTimeout;
 
-    const STATUS_DURATION = 10000; // 10 seconds
+    const STATUS_DURATION = 5000; // 5 seconds
 
     function renderStatus(index) {
     const container = document.getElementById('status-container');
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     container.innerHTML = `
-      <div class="progress-bar" style="display: flex; width: 100%;gap: 1%; height: 4px; background-color: rgba(255,255,255,0.2);">
+      <div class="progress-bar" style="display: flex; width: 100%;gap: 1%; height: 4px;">
         ${progressSegments}
       </div>
 
@@ -43,7 +43,15 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="user-info">
           <div class="number">${data.userFullName}</div>
-          <div class="time">${new Date(status.created_at).toLocaleString()}</div>
+        <div class="time">
+          ${new Date(status.created_at).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          })}
+        </div>
+
+
         </div>
         <div style="margin-top: 5%;position: absolute; right: 10%; top: 10px;">
           <button id="pause-play-btn" style="background: transparent;border:none;">
@@ -308,6 +316,24 @@ document.addEventListener("DOMContentLoaded", () => {
   function back() {
     window.history.back();
   }
+
+document.addEventListener('click', function(event) {
+  const icon = event.target.closest('.fa-user');
+  const spanParent = event.target.closest('span'); // adjust selector if needed
+
+  // Check if clicked on icon or its parent span that contains the icon
+  if (
+    (icon) || 
+    (spanParent && spanParent.querySelector('.fa-user'))
+  ) {
+    back();
+  }
+});
+
+
+
+
+
 
 
 
