@@ -170,7 +170,7 @@ function renderMessages(chatId, chatTitle, messages) {
                 }
                 </div>
                 ${msg.reactions && msg.reactions.length > 0 ? `
-                    <div class="emoji-reactions" onclick="openModal(event)">
+                    <div class="emoji-reactions" onclick="openModal(event, '${msg.id}')">
                         ${msg.reactions.map(reaction => 
                             `<span class="message-reaction ${reaction.is_current_user ? 'user-reaction' : ''}">${reaction.value}</span>`
                         ).join('')}

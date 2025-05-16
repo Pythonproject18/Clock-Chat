@@ -58,11 +58,39 @@ function updateMessageReactionsUI(messageId, reactions) {
 }
 
 
-// Function to open the modal
-function openModal(event) {
+// Function to open the modal with existing reactions
+function openModal(event, messageId) {
     // Stop this click from bubbling up to document
     event.stopPropagation();
-    document.getElementById("emojiModal").style.display = "flex";
+    
+    // Get the reactions container that was clicked
+    const reactionsContainer = event.currentTarget;
+    
+    // Clone the reactions to show in modal
+    const reactions = Array.from(reactionsContainer.querySelectorAll('.message-reaction')).map(el => ({
+        value: el.innerHTML,
+        isCurrentUser: el.classList.contains('user-reaction')
+    }));
+    
+    const modal = document.getElementById("emojiModal");
+    modal.style.display = "flex";
+    
+    // Update modal content with only the reacted emojis
+    const modalContent = modal.querySelector('.modal-reacted');
+    modalContent.innerHTML = '';
+    
+    reactions.forEach(reaction => {
+        const emojiSpan = document.createElement('span');
+        emojiSpan.innerHTML = reaction.value;
+        emojiSpan.className = 'modal-emoji';
+        if (reaction.isCurrentUser) {
+            emojiSpan.classList.add('user-reaction');
+        }
+        modalContent.appendChild(emojiSpan);
+    });
+    
+    // Store the message ID on the modal for later use if needed
+    modal.dataset.messageId = messageId;
 }
 
 // Function to close the modal
