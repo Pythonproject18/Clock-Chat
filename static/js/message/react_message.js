@@ -33,7 +33,6 @@ function updateMessageReactionsUI(messageId, reactions) {
         reactionsContainer = document.createElement('div');
         reactionsContainer.className = 'emoji-reactions';
         
-        // Insert after the time element
         const timeElement = messageElement.querySelector('.message-time');
         if (timeElement) {
             timeElement.insertAdjacentElement('afterend', reactionsContainer);
@@ -48,15 +47,27 @@ function updateMessageReactionsUI(messageId, reactions) {
     // Add all reactions
     reactions.forEach(reaction => {
         const emojiSpan = document.createElement('span');
-        emojiSpan.innerHTML = reaction.value;
         emojiSpan.className = 'message-reaction';
         if (reaction.is_current_user) {
             emojiSpan.classList.add('user-reaction');
         }
+        
+        // Create username span
+        const usernameSpan = document.createElement('span');
+        usernameSpan.className = 'username';
+        usernameSpan.textContent = reaction.username + ': ';
+        
+        // Create emoji span
+        const emojiContent = document.createElement('span');
+        emojiContent.innerHTML = reaction.value;
+        
+        // Append both
+        emojiSpan.appendChild(usernameSpan);
+        emojiSpan.appendChild(emojiContent);
+        
         reactionsContainer.appendChild(emojiSpan);
     });
 }
-
 
 // Function to open the modal with existing reactions
 function openModal(event, messageId) {

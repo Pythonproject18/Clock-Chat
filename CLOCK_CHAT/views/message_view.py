@@ -234,15 +234,17 @@ class MessageReactView(View):
             reactions = MessageReaction.objects.filter(
                 message=message_id,
                 is_active=True
-            ).select_related('reaction')
+            ).select_related('reaction', 'reacted_by')
 
             reactions_data = []
             for reaction in reactions:
-                reactions_data.append({
-                    'id': reaction.id,
-                    'value': reaction.reaction.value,
-                    'is_current_user': reaction.reacted_by_id == user_id
-                })
+                if reaction.reaction:  # Ensure reaction exists
+                    reactions_data.append({
+                        'id': reaction.id,
+                        'value': reaction.reaction.value,
+                        'is_current_user': reaction.reacted_by_id == user_id,
+                        'username': reaction.reacted_by.first_name if reaction.reacted_by else ''
+                    })
 
             return JsonResponse({
                 'status': 'success',
