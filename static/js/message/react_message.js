@@ -104,20 +104,17 @@ function openModal(event, messageId) {
     modal.dataset.messageId = messageId;
 }
 
-// Function to close the modal
-function closeModal() {
-    document.getElementById("emojiModal").style.display = "none";
-}
-
-// Close modal when clicking outside
-document.addEventListener('click', function() {
+// Close the modal when clicking outside of modal content
+document.addEventListener('click', function(event) {
     const modal = document.getElementById("emojiModal");
+    
+    // Only act if modal is visible
     if (modal.style.display === "flex") {
-        closeModal();
+        const modalContent = modal.querySelector('.modal-reacted');
+        
+        // If the clicked element is not the modal content or its children
+        if (!modalContent.contains(event.target)) {
+            modal.style.display = "none";
+        }
     }
-});
-
-// Prevent clicks inside modal from closing it
-document.getElementById("emojiModal").addEventListener('click', function(event) {
-    event.stopPropagation();
 });
