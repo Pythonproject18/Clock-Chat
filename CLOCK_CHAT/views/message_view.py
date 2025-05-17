@@ -212,10 +212,9 @@ class MessageReactView(View):
             ).first()
 
             if existing_reaction:
+                # User already reacted with this emoji - do nothing
                 if existing_reaction.reaction_id == emoji_id:
-                    # Same emoji clicked - remove reaction
-                    existing_reaction.is_active = False
-                    existing_reaction.save()
+                    pass
                 else:
                     # Different emoji clicked - update existing reaction
                     existing_reaction.reaction_id = emoji_id
