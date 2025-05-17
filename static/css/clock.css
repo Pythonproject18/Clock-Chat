@@ -1455,29 +1455,120 @@
 }
 
 
-/* Modal styling */
+/* ======================
+   CLEAN LEFT-ALIGNED REACTIONS MODAL
+   ====================== */
 .E-modal {
-    display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 10000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
     justify-content: center;
     align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
 }
 
-/* Modal content */
+.E-modal[style*="display: flex"] {
+    opacity: 1;
+    visibility: visible;
+}
+
 .modal-reacted {
-    background: linear-gradient(to bottom, #1a1a2e, #16213e);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 15px;
+    background: linear-gradient(145deg, #1a1a2e, #16213e);
+    border: 1px solid rgba(108, 92, 231, 0.3);
+    padding: 8px 0;
+    border-radius: 12px;
+    width: 220px;
+    max-width: 80vw;
+    max-height: 50vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.E-modal[style*="display: flex"] .modal-reacted {
+    transform: translateY(0);
+}
+
+/* Reaction items - clean left-aligned */
+.modal-reacted > span {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    margin: 0;
+    background: transparent;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    gap: 12px;
+}
+
+/* Reaction emoji */
+.modal-reacted > span > span:first-child {
+    min-width: 20px;
     text-align: center;
-    height: 300px;
-    width: 50%;
-    max-width: 300px;
-    max-height: 300px;
+}
+
+/* Username */
+.modal-reacted > span > span:last-child {
+    font-size: 13px;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Separator */
+.modal-reacted > span:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Hover effect */
+.modal-reacted > span:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* User's own reaction */
+.modal-reacted > span.user-reaction {
+    background: rgba(108, 92, 231, 0.08);
+}
+
+/* Empty state */
+.modal-reacted:empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    color: var(--text-light);
+    font-size: 13px;
+}
+
+.modal-reacted:empty::before {
+    content: '\f118'; /* smile emoji */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 400;
+    font-size: 32px;
+    color: var(--text-light);
+    opacity: 0.5;
+    margin-bottom: 8px;
+}
+
+/* Scrollbar */
+.modal-reacted::-webkit-scrollbar {
+    width: 3px;
+}
+
+.modal-reacted::-webkit-scrollbar-thumb {
+    background: rgba(108, 92, 231, 0.4);
+    border-radius: 2px;
 }
