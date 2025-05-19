@@ -212,10 +212,9 @@ class MessageReactView(View):
             ).first()
 
             if existing_reaction:
+                # User already reacted with this emoji - do nothing
                 if existing_reaction.reaction_id == emoji_id:
-                    # Same emoji clicked - remove reaction
-                    existing_reaction.is_active = False
-                    existing_reaction.save()
+                    pass
                 else:
                     # Different emoji clicked - update existing reaction
                     existing_reaction.reaction_id = emoji_id
@@ -234,15 +233,17 @@ class MessageReactView(View):
             reactions = MessageReaction.objects.filter(
                 message=message_id,
                 is_active=True
-            ).select_related('reaction')
+            ).select_related('reaction', 'reacted_by')
 
             reactions_data = []
             for reaction in reactions:
-                reactions_data.append({
-                    'id': reaction.id,
-                    'value': reaction.reaction.value,
-                    'is_current_user': reaction.reacted_by_id == user_id
-                })
+                if reaction.reaction:  # Ensure reaction exists
+                    reactions_data.append({
+                        'id': reaction.id,
+                        'value': reaction.reaction.value,
+                        'is_current_user': reaction.reacted_by_id == user_id,
+                        'username': reaction.reacted_by.first_name if reaction.reacted_by else ''
+                    })
 
             return JsonResponse({
                 'status': 'success',
