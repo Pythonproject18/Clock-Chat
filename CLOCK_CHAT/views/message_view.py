@@ -202,10 +202,12 @@ class MessageReactView(View):
 
             # If reaction_id is provided, delete that reaction
             if reaction_id:
-                reaction = MessageReaction.objects.filter(id=reaction_id, is_active=True).first()
+                reaction = MessageReaction.objects.filter(id=reaction_id, is_active=True, reacted_by_id=user_id).first()
                 if reaction:
                     reaction.is_active = False
                     reaction.save()
+                else:
+                    return JsonResponse({'status': 'error', 'message': 'You can only delete your own reaction.'}, status=403)
                 # Return updated reactions
                 from CLOCK_CHAT.services import reactions_service
                 reactions = reactions_service.get_message_reaction(message_id)
