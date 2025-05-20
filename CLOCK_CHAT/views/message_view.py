@@ -193,18 +193,31 @@ class SendAudioMessageView(View):
 class MessageReactView(View):
     def post(self, request):
         try:
+            import json
             data = json.loads(request.body)
             message_id = data.get('message_id')
             emoji_id = data.get('emoji_id')
+            reaction_id = data.get('reaction_id')
             user_id = request.user.id
 
+            # If reaction_id is provided, delete that reaction
+            if reaction_id:
+                reaction = MessageReaction.objects.filter(id=reaction_id, is_active=True).first()
+                if reaction:
+                    reaction.is_active = False
+                    reaction.save()
+                # Return updated reactions
+                from CLOCK_CHAT.services import reactions_service
+                reactions = reactions_service.get_message_reaction(message_id)
+                return JsonResponse({'status': 'success', 'reactions': reactions})
+
+            # ...existing code for add/toggle...
             if not message_id or not emoji_id:
                 return JsonResponse({
                     'status': 'error',
                     'message': 'Message ID and Emoji ID are required'
                 }, status=400)
 
-            # Check if user already has a reaction on this message
             existing_reaction = MessageReaction.objects.filter(
                 message=message_id,
                 reacted_by=user_id,
@@ -212,15 +225,13 @@ class MessageReactView(View):
             ).first()
 
             if existing_reaction:
-                # User already reacted with this emoji - do nothing
-                if existing_reaction.reaction_id == emoji_id:
-                    pass
+                if str(existing_reaction.reaction_id) == str(emoji_id):
+                    existing_reaction.is_active = False
+                    existing_reaction.save()
                 else:
-                    # Different emoji clicked - update existing reaction
                     existing_reaction.reaction_id = emoji_id
                     existing_reaction.save()
             else:
-                # Add new reaction
                 MessageReaction.objects.create(
                     message_id=message_id,
                     reacted_by_id=user_id,
@@ -229,32 +240,12 @@ class MessageReactView(View):
                     updated_by_id=user_id
                 )
 
-            # Get all active reactions for this message to return
-            reactions = MessageReaction.objects.filter(
-                message=message_id,
-                is_active=True
-            ).select_related('reaction', 'reacted_by')
-
-            reactions_data = []
-            for reaction in reactions:
-                if reaction.reaction:  # Ensure reaction exists
-                    reactions_data.append({
-                        'id': reaction.id,
-                        'value': reaction.reaction.value,
-                        'is_current_user': reaction.reacted_by_id == user_id,
-                        'username': reaction.reacted_by.first_name if reaction.reacted_by else ''
-                    })
-
-            return JsonResponse({
-                'status': 'success',
-                'reactions': reactions_data
-            })
+            from CLOCK_CHAT.services import reactions_service
+            reactions = reactions_service.get_message_reaction(message_id)
+            return JsonResponse({'status': 'success', 'reactions': reactions})
 
         except Exception as e:
-            return JsonResponse({
-                'status': 'error',
-                'message': str(e)
-            }, status=500)
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
         
 class MessageMediaCreateView(View):
     def post(self, request):
