@@ -40,10 +40,9 @@ function openModal(event, messageId) {
     const emojiSpans = messageElement.querySelectorAll('.message-reaction');
     emojiSpans.forEach(emojiSpan => {
         const emojiContent = emojiSpan.querySelector('span:last-child');
-        const usernameSpan = emojiSpan.querySelector('.username');
+        const username = emojiSpan.dataset.username || '';
         const reactionId = emojiSpan.dataset.reactionId;
         const emojiHtml = emojiContent ? emojiContent.innerHTML : '';
-        const username = usernameSpan ? usernameSpan.textContent : '';
         const modalEmoji = document.createElement('span');
         modalEmoji.className = 'modal-emoji';
         modalEmoji.innerHTML = username + emojiHtml;
@@ -115,15 +114,14 @@ function updateMessageReactionsUI(messageId, reactions) {
         }
         emojiSpan.dataset.reactionId = reaction.id; // Set reaction id for modal use
 
-        const usernameSpan = document.createElement('span');
-        usernameSpan.className = 'username';
-        usernameSpan.textContent = reaction.username + ': ';
+        emojiSpan.dataset.reactionId = reaction.id;
+        emojiSpan.dataset.username = reaction.username;
 
         const emojiContent = document.createElement('span');
         emojiContent.innerHTML = reaction.value;
 
-        emojiSpan.appendChild(usernameSpan);
         emojiSpan.appendChild(emojiContent);
+
 
         reactionsContainer.appendChild(emojiSpan);
     });
