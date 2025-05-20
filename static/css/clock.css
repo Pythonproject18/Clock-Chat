@@ -428,7 +428,7 @@
     cursor: pointer;
   }
   
-  .emoji-reactions {
+  /* .emoji-reactions {
     margin-top: 6px;
     display: inline-flex;
     align-items: center;
@@ -440,7 +440,7 @@
     font-size: 14px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
-  }
+  } */
   
   .message.sent .emoji-reactions {
     align-self: flex-end;
