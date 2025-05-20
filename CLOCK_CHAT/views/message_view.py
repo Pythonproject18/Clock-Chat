@@ -227,12 +227,11 @@ class MessageReactView(View):
             ).first()
 
             if existing_reaction:
-                if str(existing_reaction.reaction_id) == str(emoji_id):
-                    existing_reaction.is_active = False
-                    existing_reaction.save()
-                else:
+                if str(existing_reaction.reaction_id) != str(emoji_id):
                     existing_reaction.reaction_id = emoji_id
                     existing_reaction.save()
+                # Else: same reaction, do nothing
+
             else:
                 MessageReaction.objects.create(
                     message_id=message_id,
