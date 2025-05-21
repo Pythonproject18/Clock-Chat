@@ -87,7 +87,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 });
 
-// When rendering message reactions, set data-reaction-id for each emoji
 function updateMessageReactionsUI(messageId, reactions) {
     const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
     if (!messageElement) return;
@@ -112,25 +111,22 @@ function updateMessageReactionsUI(messageId, reactions) {
         if (reaction.is_current_user) {
             emojiSpan.classList.add('user-reaction');
         }
-        emojiSpan.dataset.reactionId = reaction.id; // Set reaction id for modal use
 
         emojiSpan.dataset.reactionId = reaction.id;
-        emojiSpan.dataset.username = reaction.username;
+        emojiSpan.dataset.username = reaction.usernames.join(', ');  // tooltip use
 
         const emojiContent = document.createElement('span');
-        emojiContent.innerHTML = reaction.value;
+        emojiContent.innerHTML = `${reaction.value} <sup>${reaction.count}</sup>`;
 
         emojiSpan.appendChild(emojiContent);
-
-
         reactionsContainer.appendChild(emojiSpan);
     });
 
-    // Add click event to open modal
     reactionsContainer.onclick = function(event) {
         openModal(event, messageId);
     };
 }
+
 
 // Close the modal when clicking outside of modal content
 document.addEventListener('click', function(event) {
