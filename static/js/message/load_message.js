@@ -175,9 +175,15 @@ function renderMessages(chatId, chatTitle, messages) {
                         `<span class="message-reaction ${reaction.is_current_user ? 'user-reaction' : ''}" 
                                 data-reaction-id="${reaction.id}" 
                                 data-username="${reaction.usernames.join(', ')}">
-                            <span>${reaction.value} <sup>${reaction.count}</sup></span>
+                            <span>${reaction.value}</span>
                         </span>`
                     ).join('')}
+                    ${(() => {
+                        const totalCount = msg.reactions.reduce((sum, r) => sum + r.count, 0);
+                        return totalCount > 1
+                            ? `<span class="reactions-total-count">+${totalCount}</span>`
+                            : '';
+                    })()}
                 </div>` 
                 : ''}
             </div>

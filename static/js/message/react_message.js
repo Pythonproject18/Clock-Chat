@@ -26,10 +26,8 @@ function reactToMessage(messageId, emojiId) {
 
 // ...existing code...
 
-// When rendering modal emojis, include data-reaction-id and data-message-id
 function openModal(event, messageId) {
     event.stopPropagation();
-    const reactionsContainer = event.currentTarget;
     const modal = document.getElementById("emojiModal");
     modal.style.display = "flex";
     const modalContent = modal.querySelector('.modal-reacted');
@@ -39,16 +37,34 @@ function openModal(event, messageId) {
     const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
     const emojiSpans = messageElement.querySelectorAll('.message-reaction');
     emojiSpans.forEach(emojiSpan => {
+        // Get only the emoji (without count)
         const emojiContent = emojiSpan.querySelector('span:last-child');
-        const username = emojiSpan.dataset.username || '';
+        let emojiOnly = '';
+        if (emojiContent) {
+            // Remove <sup>...</sup> from innerHTML
+            emojiOnly = emojiContent.innerHTML.replace(/<sup>.*?<\/sup>/, '').trim();
+        }
+        const usernames = (emojiSpan.dataset.username || '').split(',').map(u => u.trim()).filter(Boolean);
         const reactionId = emojiSpan.dataset.reactionId;
-        const emojiHtml = emojiContent ? emojiContent.innerHTML : '';
-        const modalEmoji = document.createElement('span');
-        modalEmoji.className = 'modal-emoji';
-        modalEmoji.innerHTML = username + emojiHtml;
-        modalEmoji.dataset.reactionId = reactionId;
-        modalEmoji.dataset.messageId = messageId;
-        modalContent.appendChild(modalEmoji);
+        const messageIdAttr = messageId;
+
+        // Show each user as a separate entry for this emoji, without count
+        usernames.forEach(username => {
+            const modalEmoji = document.createElement('span');
+            modalEmoji.className = 'modal-emoji';
+            // Use flex to shift emoji to the right
+            modalEmoji.style.display = "flex";
+            modalEmoji.style.alignItems = "center";
+            modalEmoji.style.justifyContent = "space-between";
+            modalEmoji.innerHTML = `
+                <span class="modal-username">${username}</span>
+                <span class="modal-emoji-value">${emojiOnly}</span>
+            `;
+            modalEmoji.dataset.reactionId = reactionId;
+            modalEmoji.dataset.messageId = messageIdAttr;
+            modalEmoji.dataset.username = username;
+            modalContent.appendChild(modalEmoji);
+        });
     });
 
     modal.dataset.messageId = messageId;
@@ -105,6 +121,8 @@ function updateMessageReactionsUI(messageId, reactions) {
 
     reactionsContainer.innerHTML = '';
 
+    let totalCount = 0;
+
     reactions.forEach(reaction => {
         const emojiSpan = document.createElement('span');
         emojiSpan.className = 'message-reaction';
@@ -116,11 +134,21 @@ function updateMessageReactionsUI(messageId, reactions) {
         emojiSpan.dataset.username = reaction.usernames.join(', ');  // tooltip use
 
         const emojiContent = document.createElement('span');
-        emojiContent.innerHTML = `${reaction.value} <sup>${reaction.count}</sup>`;
+        emojiContent.innerHTML = `${reaction.value}`; // No count per emoji
 
         emojiSpan.appendChild(emojiContent);
         reactionsContainer.appendChild(emojiSpan);
+
+        totalCount += reaction.count;
     });
+
+    // Show total count at the end only if more than one reaction
+    if (totalCount > 1) {
+        const totalCountSpan = document.createElement('span');
+        totalCountSpan.className = 'reactions-total-count';
+        totalCountSpan.textContent = `+${totalCount}`;
+        reactionsContainer.appendChild(totalCountSpan);
+    }
 
     reactionsContainer.onclick = function(event) {
         openModal(event, messageId);
