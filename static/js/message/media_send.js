@@ -21,9 +21,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+
+function triggerMediaInput() {
+    document.getElementById("sendIcon").style.display="none";
+    document.getElementById("send_media").style.display="block";
+    document.getElementById("mediaInput").click();
+    // Hide mic icon when adding media
+    const micIcon = document.getElementById("micIcon");
+    if (micIcon) micIcon.style.display = "none";
+}
+
+
 function showMediaPreview(files) {
     const previewContainer = document.getElementById("mediaPreview");
     previewContainer.innerHTML = "";
+        const micIcon = document.getElementById("micIcon");
+    if (micIcon) micIcon.style.display = "none";
+
+        document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && files.length > 0) {
+            const chatId = document.getElementById('chatId').value;
+            sendSelectedMedia(chatId);
+        }
+    });
+
 
     // Create a grid container
     const gridContainer = document.createElement("div");

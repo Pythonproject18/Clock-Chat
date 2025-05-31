@@ -313,11 +313,16 @@ bubbleContent += '</div>';
         }
     });
 
-    messageInput.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter' && this.value.trim() !== '') {
+messageInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        if (this.value.trim() !== '') {
             sendMessage();
+        } else if (selectedMediaFiles && selectedMediaFiles.length > 0) {
+            const chatId = document.getElementById('chatId').value;
+            sendSelectedMedia(chatId);
         }
-    });
+    }
+});
 }
 
 // Cookie helper function
