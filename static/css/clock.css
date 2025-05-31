@@ -1148,6 +1148,11 @@
   transform: scale(1.05);
 }
 
+
+.hidden-media {
+    display: none;
+}
+
 /* Video play icon styling */
 .video-play-icon {
   position: absolute;

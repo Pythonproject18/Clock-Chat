@@ -80,37 +80,44 @@ function renderMessages(chatId, chatTitle, messages) {
     );
     
     if (mediaItems.length > 0) {
-        const mediaCount = mediaItems.length;
-        const showCount = Math.min(mediaCount, 4); // Show max 4 items
-        const hasMore = mediaCount > 4;
-        
-        bubbleContent = `<div class="media-grid media-count-${showCount}">`;
-        
-        mediaItems.slice(0, showCount).forEach((media, index) => {
-            const isLastInRow = (index + 1) % 2 === 0 || index === showCount - 1;
+        const mediaCount = mediaItems.length; // Show max 4 items
+        const showCount = 4;
+        const hasMore = mediaCount > showCount;
+
+        bubbleContent = `<div class="media-grid media-count-${Math.min(mediaCount, showCount)}">`;
+
+        mediaItems.forEach((media, index) => {
+            const isHidden = index >= showCount;
+            const isLastVisible = index === showCount - 1;
+            const isLastInRow = (index + 1) % 2 === 0 || index === mediaCount - 1;
             const marginClass = isLastInRow ? 'no-margin' : '';
+            const hiddenClass = isHidden ? 'hidden-media' : '';
             
+            const overlay = mediaCount > 1 ? '<div class="media-overlay"></div>' : '';
+            const moreCountOverlay = isLastVisible && hasMore
+                ? `<div class="more-items-count">+${mediaCount - showCount}</div>`
+                : '';
+
             if (media.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-                bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="event.stopPropagation(); openMediaViewer('${media}', 'image')">
+                bubbleContent += `<div class="media-grid-item ${marginClass} ${hiddenClass}" onclick="event.stopPropagation(); openMediaViewer('${media}', 'image')">
                     <img src="${media}" class="media-message">
-                    ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
-                    ${hasMore && index === showCount - 1 ? 
-                      `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
+                    ${overlay}
+                    ${moreCountOverlay}
                 </div>`;
             } else if (media.match(/\.(mp4|webm|ogg|mov)$/i)) {
-                bubbleContent += `<div class="media-grid-item ${marginClass}" onclick="openMediaViewer('${media}', 'video')">
+                bubbleContent += `<div class="media-grid-item ${marginClass} ${hiddenClass}" onclick="openMediaViewer('${media}', 'video')">
                     <video class="media-message">
                         <source src="${media}">
                     </video>
                     <div class="video-play-icon"><i class="fas fa-play"></i></div>
-                    ${showCount > 1 ? '<div class="media-overlay"></div>' : ''}
-                    ${hasMore && index === showCount - 1 ? 
-                      `<div class="more-items-count">+${mediaCount - showCount}</div>` : ''}
+                    ${overlay}
+                    ${moreCountOverlay}
                 </div>`;
             }
         });
-        
-        bubbleContent += '</div>';
+
+bubbleContent += '</div>';
+
     }
     
     // Handle any document files separately (not in grid)
