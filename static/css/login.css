@@ -1,116 +1,132 @@
+/* Headings */
 h2 {
-  color: #333;
+  color: #ffffff;
   margin-bottom: 15px;
+  text-align: center;
 }
-.container-log{
+
+/* Login/Signup Container */
+.container-log {
   padding: 30px;
   position: relative;
-  border: 2px solid #08134b;
+  border: none;
+  border-radius: 15px;
   margin: auto;
-  max-width: 500px;
+  max-width: 450px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3);
+  color: white;
+  animation: fadeSlideUp 0.6s ease forwards;
 }
 
+/* Inputs */
 input {
   width: 100%;
-  padding: 5px;
+  padding: 12px;
   margin: 15px 0;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  border: none;
+  border-radius: 10px;
   font-size: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  outline: none;
+  backdrop-filter: blur(5px);
 }
 
+input::placeholder {
+  color: #ccc;
+}
+
+/* Buttons */
 button {
   width: 100%;
-  padding: 5px;
-  background:#0046cc;
+  padding: 12px;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   font-size: 18px;
-  transition: 0.3s;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #3a8dfe, #4f5bd5);
 }
 
 button:active {
-  background: #3a8dfe;
+  transform: scale(0.98);
 }
 
-.hidden {
-  display: none;
-}
-.anc{
+/* Anchor */
+.anc {
   margin-top: 20px;
   height: 30px;
   justify-content: center;
   align-items: center;
   display: flex;
-;
+  color: #ffffffaa;
+  cursor: pointer;
 }
 
-@media (min-width: 480px) {
-  #loading{
-      top: 44% !important;
-      right: 36% !important;
+.anc:hover {
+  text-decoration: underline;
+  color: white;
+}
+
+/* Hidden class */
+.hidden {
+  display: none;
+}
+
+/* ...existing code... */
+
+/* Modal and Loading - Centered over login modal */
+.container-log {
+  position: relative; /* Ensure positioning context */
+}
+
+#modal {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1040;
+  display: grid;
+  place-items: center;
+}
+
+/* ...existing code... */
+
+#loading {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px 24px;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  max-width: 200px;
+}
+
+/* Specific OTP loading style */
+.otp-loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Animations */
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
   }
-}
-@media (min-width: 786px) {
-  #loading{
-      top: 46% !important;
-      right: 37% !important;
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
-
-}
-@media (min-width: 992px) {
-  #loading{
-      top: 44% !important;
-      right: 42% !important;
-  }
-
-}
-@media (min-width: 300px) and (max-width: 480px) {
-  #loading {
-      top: 44% !important;
-      right: 23% !important;
-  }
-}
-#modal{
-  position:fixed;
-  background: rgb(0 0 0 / 0%);
-  height: 100vh;
-  width: 100%;
-  backdrop-filter: blur(5px);
-  opacity: 10;
-  transform: scale(1);
-}
-
-#modal.show {
-  opacity: 10;
-  visibility: visible;
-  transform: scale(1);
-}
-
-.spinner {
-border: 3px solid #f3f3f3;
-border-top: 3px solid #3498db;
-border-radius: 50%;
-width: 40px;
-height: 40px;
-animation: spin 1s linear infinite;
-display: inline-block;
-}
-#loading{
-align-items: center;
-color: black;
-font-size: 25px;
-width: 200px;
-height: 70px;
-top: 44%;
-right: 43%;
-position: absolute;
-display: flex;
-justify-content: center;
-}
-
-@keyframes spin {
-0% { transform: rotate(0deg); }
-100% { transform: rotate(360deg); }
 }

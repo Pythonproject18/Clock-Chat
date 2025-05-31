@@ -34,11 +34,7 @@
 </script>
 </head>
 <body>
-<!-- Add this loader to your HTML (Initially Hidden) -->
-<div class="modal" id="modal" style="display:none;">
-  <div id="loading">
-      <p>Loading....</p><span class="spinner"></span>
-  </div>
+
 </div>
   <div class="particles" id="particles-js"></div>
   
@@ -75,7 +71,10 @@
           <div class="container-log" id="log_in"style="display:none;">
             <h2 style="color: white;justify-content: center;align-items: center;display: flex;">Sigin</h2>
             <meta name="csrf-token" content="{{ csrf_token }}">
-        
+            <!-- Main loading modal -->
+            <div class="modal" id="modal" style="display:none;">
+              <div id="loading">Loading...</div>
+            </div>
             <!-- Email Input Section -->
             <div id="emailSection">
                 <input type="email" id="email" placeholder="Enter your email" required autofocus>
@@ -101,9 +100,9 @@
                 <input type="email" id="email2" placeholder="Enter your email" required>
                 <button type="button" onclick="sendOTP2()">Send OTP</button>
             </div>
-            <!-- Add this loader to your HTML (Initially Hidden) -->
-            <div id="loading" style="display: none; top: 46%;left: 46%;position: fixed;">
-                <p>Sending OTP... <span class="spinner"></span></p>
+            <!-- OTP loading indicator -->
+            <div id="loading" class="otp-loading" style="display: none;">
+              Sending OTP...
             </div>
             <!-- OTP Verification Section (Initially Hidden) -->
             <div id="otpSection2" class="hidden">
