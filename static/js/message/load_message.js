@@ -138,7 +138,7 @@ bubbleContent += '</div>';
                     <div class="document-name">${fileName}</div>
                     <div class="document-actions">
                         <a href="${media}" download="${fileName}" class="document-action" title="Download">
-                            <i class="fas fa-download"></i>
+                            <i class="bi bi-download"></i>
                         </a>
                     </div>
                 </div>
